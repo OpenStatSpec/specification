@@ -5,14 +5,25 @@ CREATE TABLE dataset (
   dataset_id              UUID PRIMARY KEY,
   spec_version            TEXT NOT NULL,
   source_format           TEXT NOT NULL,
-  source_table_schema     TEXT NULL,
-  source_table_name       TEXT NOT NULL,
+  physical_table_schema   TEXT NULL,
+  physical_table_name     TEXT NOT NULL,
   dataset_name            TEXT NULL,
   dataset_label           TEXT NULL,
   source_encoding         TEXT NULL,
   source_hash             TEXT NULL,
   source_case_count       BIGINT NOT NULL,
   imported_at             TIMESTAMP NOT NULL
+);
+
+-- An operation exists before a dataset can exist. It records preflight
+-- failures as well as completed imports and exports.
+CREATE TABLE operation (
+  operation_id            UUID PRIMARY KEY,
+  operation_kind          TEXT NOT NULL, -- import | export
+  status                  TEXT NOT NULL, -- started | succeeded | failed
+  source_format           TEXT NULL,
+  started_at              TIMESTAMP NOT NULL,
+  completed_at            TIMESTAMP NULL
 );
 
 CREATE TABLE variable (
@@ -76,9 +87,70 @@ CREATE TABLE missing_rule (
   UNIQUE (variable_id, ordinal)
 );
 
+CREATE TABLE dataset_attribute (
+  dataset_attribute_id    UUID PRIMARY KEY,
+  dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
+  attribute_name          TEXT NOT NULL,
+  array_ordinal           INTEGER NOT NULL DEFAULT 1,
+  attribute_value         TEXT NOT NULL,
+  UNIQUE (dataset_id, attribute_name, array_ordinal)
+);
+
+CREATE TABLE variable_attribute (
+  variable_attribute_id   UUID PRIMARY KEY,
+  variable_id             UUID NOT NULL REFERENCES variable(variable_id),
+  attribute_name          TEXT NOT NULL,
+  array_ordinal           INTEGER NOT NULL DEFAULT 1,
+  attribute_value         TEXT NOT NULL,
+  UNIQUE (variable_id, attribute_name, array_ordinal)
+);
+
+CREATE TABLE document (
+  document_id             UUID PRIMARY KEY,
+  dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
+  source_ordinal          INTEGER NOT NULL,
+  document_text           TEXT NOT NULL,
+  UNIQUE (dataset_id, source_ordinal)
+);
+
+CREATE TABLE variable_set (
+  variable_set_id         UUID PRIMARY KEY,
+  dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
+  set_name                TEXT NOT NULL,
+  UNIQUE (dataset_id, set_name)
+);
+
+CREATE TABLE variable_set_member (
+  variable_set_id         UUID NOT NULL REFERENCES variable_set(variable_set_id),
+  variable_id             UUID NOT NULL REFERENCES variable(variable_id),
+  source_ordinal          INTEGER NOT NULL,
+  PRIMARY KEY (variable_set_id, source_ordinal),
+  UNIQUE (variable_set_id, variable_id)
+);
+
+CREATE TABLE multiple_response_set (
+  multiple_response_set_id UUID PRIMARY KEY,
+  dataset_id               UUID NOT NULL REFERENCES dataset(dataset_id),
+  set_name                 TEXT NOT NULL,
+  set_label                TEXT NULL,
+  set_kind                 TEXT NOT NULL, -- MD | MC
+  counted_numeric_value    DOUBLE PRECISION NULL,
+  category_label_behavior  TEXT NULL,
+  UNIQUE (dataset_id, set_name)
+);
+
+CREATE TABLE multiple_response_member (
+  multiple_response_set_id UUID NOT NULL REFERENCES multiple_response_set(multiple_response_set_id),
+  variable_id              UUID NOT NULL REFERENCES variable(variable_id),
+  source_ordinal           INTEGER NOT NULL,
+  PRIMARY KEY (multiple_response_set_id, source_ordinal),
+  UNIQUE (multiple_response_set_id, variable_id)
+);
+
 CREATE TABLE fidelity_event (
   fidelity_event_id       UUID PRIMARY KEY,
-  dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
+  operation_id            UUID NOT NULL REFERENCES operation(operation_id),
+  dataset_id              UUID NULL REFERENCES dataset(dataset_id),
   direction               TEXT NOT NULL, -- import | export
   severity                TEXT NOT NULL, -- error | warning
   event_code              TEXT NOT NULL,

@@ -1,0 +1,60 @@
+{
+  "manifest_version": "1.0",
+  "profile": "OpenStatSpec SPSS SAV/ZSAV 1.0",
+  "semantic_round_trip": true,
+  "byte_identical_output_required": false,
+  "required_capabilities": [
+    "sav_read", "sav_write", "zsav_read", "zsav_write",
+    "file_label", "documents", "source_encoding", "attributes",
+    "variable_dictionary", "value_labels", "missing_rules",
+    "long_utf8_strings", "variable_sets", "multiple_response_sets"
+  ],
+  "fixtures": [
+    {
+      "id": "core-numeric-string",
+      "source": "fixtures/core-numeric-string.sav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["case_order", "variable_order", "binary64_values", "string_values", "numeric_system_missing", "blank_string_not_missing"]
+    },
+    {
+      "id": "dictionary-and-display",
+      "source": "fixtures/dictionary-and-display.sav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["file_label", "documents_order", "variable_labels", "print_write_formats", "measurement_level", "variable_role", "display_width", "display_alignment", "value_labels_typed_ordered"]
+    },
+    {
+      "id": "missing-rules",
+      "source": "fixtures/missing-rules.sav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["discrete_numeric_missing", "discrete_string_missing", "numeric_range_missing", "lowest_highest_missing", "range_plus_discrete_missing", "raw_user_missing_values"]
+    },
+    {
+      "id": "long-utf8-and-attributes",
+      "source": "fixtures/long-utf8-and-attributes.sav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["utf8_source_encoding", "string_over_255_bytes", "no_string_truncation", "long_string_value_labels", "dataset_attribute_arrays", "variable_attribute_arrays"]
+    },
+    {
+      "id": "sets",
+      "source": "fixtures/sets.sav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["variable_sets_ordered", "multiple_response_md", "multiple_response_mc", "multiple_response_members_ordered", "multiple_response_counted_value", "multiple_response_category_label_behavior"]
+    },
+    {
+      "id": "zsav-compressed",
+      "source": "fixtures/zsav-compressed.zsav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["zsav_zlib_decode", "zsav_zlib_encode", "dictionary_preserved", "values_preserved"]
+    },
+    {
+      "id": "preflight-failure",
+      "source": "fixtures/preflight-too-wide.sav",
+      "directions": ["import"],
+      "expects": ["atomic_failure", "no_dataset_row", "no_data_table", "operation_record", "fidelity_event_null_dataset_id", "target_capability_exceeded"]
+    }
+  ],
+  "comparison": {
+    "ignore": ["binary_file_layout", "compression_representation", "product_info", "timestamps"],
+    "require": ["cases", "case_order", "variables", "variable_order", "raw_values", "system_missing", "dictionary_metadata"]
+  }
+}
