@@ -20,6 +20,9 @@ This repository contains a working draft, not a released standard. It records th
 
 OpenStatSpec does not define long-form cells, EAV storage, table splitting, reshaping, automatic harmonization, or questionnaire/study entities. It does not infer respondent keys or combine datasets. All conformant database-object identifiers are generic; the double-underscore prefix is reserved for standard technical identifiers.
 
+[Roadmap](ROADMAP.md) tracks remaining project work and maintainer setup.
+
+
 ## Repository layout
 
 - `docs/architecture.md` — model boundary and catalog outline.
