@@ -30,3 +30,24 @@ OpenStatSpec does not define long-form cells, EAV storage, table splitting, resh
 ## Conformance principle
 
 Implementations must preflight target capabilities before import. If the target cannot faithfully create one wide table because of column, identifier, string, or row limits, import must fail atomically with a machine-readable capability diagnostic. It must never silently truncate, drop, split, transpose, pivot, or transform source data.
+
+## Who it is for
+
+OpenStatSpec is for people and projects that need to move statistical datasets between SPSS and relational databases without turning the data into a different model. It is especially relevant to:
+
+- implementers building SPSS import/export adapters or language libraries;
+- data managers and statistical-data practitioners preserving SPSS dictionaries in SQL-backed workflows;
+- database maintainers preparing a dialect profile with clear capability boundaries; and
+- users who need an inspectable, source-faithful relational target for SPSS data.
+
+## Trying the draft
+
+Read the [SPSS profile](docs/spss-profile.md) and the [schema outline](sql/schema-outline.sql), then map a small unencrypted `.sav` or `.zsav` file to one dedicated wide table plus the catalog metadata. Preserve source case and variable order, retain raw values, and use the metadata tables to retain labels, missing-value rules, formats, and other dictionary semantics.
+
+An implementation must publish its database dialect capabilities and reject any source dataset it cannot represent faithfully in one table. The [basic example](examples/basic-spss-mapping.md) illustrates the intended shape.
+
+## Contribute and adopt
+
+This draft needs real-world review. Implementers, statistical-data practitioners, and database maintainers are invited to test it against actual SPSS datasets and contribute findings, fixtures, dialect profiles, adapter support, or documentation improvements. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+
+The standard remains deliberately narrow: it defines a source-faithful relational representation, not a statistics engine, survey platform, harmonization system, or general data warehouse model.
