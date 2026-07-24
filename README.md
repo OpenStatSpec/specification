@@ -27,6 +27,7 @@ OpenStatSpec does not define long-form cells, EAV storage, table splitting, resh
 
 - `docs/architecture.md` — model boundary and catalog outline.
 - `docs/spss-profile.md` — SPSS source-faithful mapping rules.
+- `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, and MySQL/MariaDB physical profiles.
 - `sql/` — dialect-neutral schema outline and profile notes.
 - `examples/` — small illustrative mapping fixtures.
 
