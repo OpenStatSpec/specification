@@ -13,12 +13,12 @@ This repository contains a working draft, not a released standard. It records th
 - One source dataset maps to exactly one dedicated SQL data table.
 - One SPSS case maps to exactly one row, in source order.
 - One SPSS variable maps to exactly one physical SQL column, in source order.
-- The table contains a reserved technical ordinal column, `_oss_case_ordinal`, used only to preserve case order. It is never exported as an SPSS variable.
+- The table contains a reserved technical ordinal column, `__case_ordinal`, used only to preserve case order. It is never exported as an SPSS variable.
 - Numeric system-missing values map to SQL `NULL`; SPSS user-missing codes remain their original stored values and are described in metadata.
 - Dates, times, and currencies remain SPSS numeric values plus SPSS format metadata.
 - String blanks remain values, not missing values.
 
-OpenStatSpec does not define long-form cells, EAV storage, table splitting, reshaping, automatic harmonization, or questionnaire/study entities. It does not infer respondent keys or combine datasets.
+OpenStatSpec does not define long-form cells, EAV storage, table splitting, reshaping, automatic harmonization, or questionnaire/study entities. It does not infer respondent keys or combine datasets. All conformant database-object identifiers are generic; the double-underscore prefix is reserved for standard technical identifiers.
 
 ## Repository layout
 

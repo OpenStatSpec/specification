@@ -13,10 +13,10 @@ For every imported source dataset, an implementation creates exactly one dedicat
 1. Every source case maps to one row.
 2. Every source variable maps to one physical column.
 3. Source case order and source variable order are normative.
-4. The table begins with `_oss_case_ordinal BIGINT NOT NULL PRIMARY KEY`, populated from one through the number of source cases. This column is OpenStatSpec technical state, not a source variable, and is omitted on export.
+4. The table begins with `__case_ordinal BIGINT NOT NULL PRIMARY KEY`, populated from one through the number of source cases. This column is OpenStatSpec technical state, not a source variable, and is omitted on export.
 5. No natural key is inferred.
 
-The source variable name is authoritative metadata. The physical SQL identifier may differ only where required by the SQL dialect, and the catalog must provide a total, deterministic, lossless mapping between them.
+The source variable name is authoritative metadata. The physical SQL identifier may differ only where required by the SQL dialect, and the catalog must provide a total, deterministic, lossless mapping between them. Identifiers beginning with __ are reserved for standard technical use and must not be generated for source variables.
 
 ## Metadata catalog
 
@@ -24,16 +24,16 @@ Catalog tables exist solely to preserve source semantics needed to interpret and
 
 | Catalog relation | Purpose |
 | --- | --- |
-| `oss_dataset` | Dataset identity, physical table location, source provenance, encoding, labels, documents, and import state. |
-| `oss_variable` | Ordered source-to-column mapping plus variable storage, format, label, display, role, and measurement metadata. |
-| `oss_value_label_set` / `oss_value_label` | Typed stored codes and their labels, in deterministic order. |
-| `oss_variable_value_label_set` | Links a variable to a value-label set. |
-| `oss_missing_rule` | User-missing discrete values and inclusive numeric ranges. |
-| `oss_dataset_attribute` / `oss_variable_attribute` | Source custom attributes, including ordered arrays. |
-| `oss_document` | Source document text, in source order. |
-| `oss_variable_set` / `oss_variable_set_member` | Named variable sets and ordered memberships. |
-| `oss_multiple_response_set` / `oss_multiple_response_member` | SPSS multiple-response metadata and ordered members. |
-| `oss_fidelity_event` | Mandatory machine-readable import/export warnings and capability failures. |
+| `dataset` | Dataset identity, physical table location, source provenance, encoding, labels, documents, and import state. |
+| `variable` | Ordered source-to-column mapping plus variable storage, format, label, display, role, and measurement metadata. |
+| `value_label_set` / `value_label` | Typed stored codes and their labels, in deterministic order. |
+| `variable_value_label_set` | Links a variable to a value-label set. |
+| `missing_rule` | User-missing discrete values and inclusive numeric ranges. |
+| `dataset_attribute` / `variable_attribute` | Source custom attributes, including ordered arrays. |
+| `document` | Source document text, in source order. |
+| `variable_set` / `variable_set_member` | Named variable sets and ordered memberships. |
+| `multiple_response_set` / `multiple_response_member` | SPSS multiple-response metadata and ordered members. |
+| `fidelity_event` | Mandatory machine-readable import/export warnings and capability failures. |
 
 There are no core relations for cells, questions, responses, instruments, studies, waves, or harmonized variables.
 
@@ -47,7 +47,7 @@ SPSS date, time, and currency values are numeric values with format metadata. Im
 
 The one-table contract is deliberate. A database profile declares its identifier, maximum physical-variable, row/value-size, binary64, and text capabilities. Before creating any objects, an importer must check the source against those capabilities.
 
-If faithful creation is impossible, the import must fail atomically and emit an `oss_fidelity_event` with code `target_capability_exceeded`. It must not split tables, use EAV/JSON, reshape, truncate, drop columns, or coerce values.
+If faithful creation is impossible, the import must fail atomically and emit an `fidelity_event` with code `target_capability_exceeded`. It must not split tables, use EAV/JSON, reshape, truncate, drop columns, or coerce values.
 
 ## Fidelity
 

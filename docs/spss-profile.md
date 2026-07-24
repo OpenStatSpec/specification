@@ -8,22 +8,22 @@ This profile defines a source-faithful mapping for unencrypted SPSS `.sav` and `
 
 | SPSS concept | OpenStatSpec representation |
 | --- | --- |
-| File / dataset | One `oss_dataset` row and one dedicated physical wide data table. |
-| Case | One data-table row; source order stored in `_oss_case_ordinal`. |
-| Variable | One physical data-table column and one ordered `oss_variable` row. |
+| File / dataset | One `dataset` row and one dedicated physical wide data table. |
+| Case | One data-table row; source order stored in `__case_ordinal`. |
+| Variable | One physical data-table column and one ordered `variable` row. |
 | Numeric value | A binary64-capable profile type; system-missing is SQL `NULL`. |
 | String value | A lossless variable-length text profile type; `NOT NULL`; blank is a value. |
 | Date/time/currency | Numeric stored value plus print/write format metadata. |
 | Variable label / value label | Metadata; never substituted into data values. |
-| User-missing values or ranges | `oss_missing_rule`; raw values remain in the data table. |
+| User-missing values or ranges | `missing_rule`; raw values remain in the data table. |
 | Variable/dataset attributes | Ordered metadata attributes. |
 | Documents, variable sets, MR sets | Dedicated metadata relations, preserving order where present. |
 
 ## Physical identifiers
 
-An implementation must retain an exact source variable name in `oss_variable.source_name`. A dialect profile may use that name as the physical column identifier only when it is safe. Otherwise it generates a deterministic unique identifier and records it in `oss_variable.physical_name`.
+An implementation must retain an exact source variable name in `variable.source_name`. A dialect profile may use that name as the physical column identifier only when it is safe. Otherwise it generates a deterministic unique identifier and records it in `variable.physical_name`.
 
-This is not a loss of fidelity: source identity is represented by the recorded total mapping, not by coincidental identifier equality. Profiles must detect SQL reserved words, case-folding, collisions, and identifier-length limits during preflight.
+This is not a loss of fidelity: source identity is represented by the recorded total mapping, not by coincidental identifier equality. Profiles must detect SQL reserved words, case-folding, collisions, identifier-length limits, and the reserved __ technical prefix during preflight.
 
 ## Required preflight
 
@@ -38,7 +38,7 @@ Failure must be atomic. The importer must create no partial dataset representati
 
 ## Export mapping
 
-Export reads the dedicated data table in `_oss_case_ordinal` order. It recreates source variables in `oss_variable.source_ordinal` order, using source names and metadata from the catalog. `_oss_case_ordinal` is omitted. SQL `NULL` in a numeric variable becomes SPSS system-missing. The exporter must report any unsupported source metadata or target-writer limitation as a machine-readable fidelity event; it must not silently omit or change it.
+Export reads the dedicated data table in `__case_ordinal` order. It recreates source variables in `variable.source_ordinal` order, using source names and metadata from the catalog. `__case_ordinal` is omitted. SQL `NULL` in a numeric variable becomes SPSS system-missing. The exporter must report any unsupported source metadata or target-writer limitation as a machine-readable fidelity event; it must not silently omit or change it.
 
 ## Explicit exclusions
 

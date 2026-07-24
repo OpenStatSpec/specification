@@ -4,9 +4,9 @@ A database dialect profile must publish enough capabilities for an importer to d
 
 Required declarations:
 
-- maximum number of physical columns, including `_oss_case_ordinal`;
+- maximum number of physical columns, including `__case_ordinal`;
 - maximum identifier length and identifier folding/quoting behavior;
-- reserved-word policy and deterministic physical-name algorithm;
+- reserved-word policy, reserved __ technical prefix, and deterministic physical-name algorithm;
 - binary64-capable numeric type and any exceptional-value constraints;
 - lossless variable-length text type, encoding behavior, and text/value limit;
 - maximum row size or any related wide-table limit.
