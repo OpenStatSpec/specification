@@ -31,7 +31,7 @@ engine integration and its conformance coverage:
 - variable sets and their ordered members;
 - case-weight-variable metadata;
 - multiple-response-set metadata exposed by the engine; and
-- UTF-8 source encoding, variable names, and storage widths.
+- UTF-8 source encoding, long variable names, exact legacy compatible names, and storage widths.
 
 The implementation MUST record the exact pinned pyspssio source commit, installed
 package version, and underlying IBM I/O Module version when available in its machine-readable
@@ -48,7 +48,6 @@ operation affected by any of them.
 
 | Semantic | Required diagnostic code or codes | Consequence |
 | --- | --- | --- |
-| Legacy compatible variable names | compatible-variable-name-not-exportable | The reader exposes a source short name, but the writer cannot set or guarantee a chosen short-name mapping. |
 | Non-UTF-8 source encoding | `source-encoding-not-preserved` | The writer has no preservation contract for a legacy source code page. |
 
 Before export, the adapter MUST inspect its catalog and recorded engine events
