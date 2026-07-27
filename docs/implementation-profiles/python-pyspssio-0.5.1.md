@@ -3,7 +3,7 @@
 ## Status
 
 This is a versioned implementation capability declaration for the OpenStatSpec/python
-adapter when it uses the TonisOrmisson/pyspssio fork pinned at commit 0b3f879
+adapter when it uses the TonisOrmisson/pyspssio fork pinned at commit 446af0c
 as its sole SPSS engine. It does not amend or relax the normative requirements of
 [SPSS SAV/ZSAV Profile 1.0](../spss-sav-zsav-profile-1.0.md).
 
@@ -26,7 +26,7 @@ engine integration and its conformance coverage:
 - measurement level, variable role, display alignment, and display width;
 - file attributes and variable attributes, including scalar values and
   ordered arrays represented as IBM SPSS Name[1], Name[2], … members;
-- dataset file label;
+- dataset file label and ordered document text;
 - independent print and write format tuples;
 - variable sets and their ordered members;
 - case-weight-variable metadata;
@@ -48,7 +48,6 @@ operation affected by any of them.
 
 | Semantic | Required diagnostic code or codes | Consequence |
 | --- | --- | --- |
-| Ordered document text | documents-unobservable | The engine can copy documents only between existing files; it cannot read or create document text for a faithful round trip. |
 | Legacy compatible variable names | compatible-variable-name-not-exportable | The reader exposes a source short name, but the writer cannot set or guarantee a chosen short-name mapping. |
 | Non-UTF-8 source encoding | `source-encoding-not-preserved` | The writer has no preservation contract for a legacy source code page. |
 

@@ -20,8 +20,8 @@ This is a working to-do list for OpenStatSpec. Items below describe intended wor
 
 Prerequisite: the core mapping and canonical fixtures are stable enough to test against.
 
-- [ ] Establish a Python reference-adapter repository that imports and exports the SPSS profile, reports fidelity events, and runs the canonical fixtures.
-- [ ] Establish a PHP reference-adapter repository with the same profile boundary and fixture expectations.
+- [x] Establish a Python reference-adapter repository that imports and exports the SPSS profile, reports fidelity events, and runs the canonical fixtures.
+- [x] Establish a PHP reference-adapter repository with the same profile boundary and fixture expectations.
 - [ ] Document supported source features and declared database capabilities for each adapter.
 
 ## 4. CI, releases, and documentation
