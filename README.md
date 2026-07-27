@@ -27,7 +27,7 @@ OpenStatSpec does not define long-form cells, EAV storage, table splitting, resh
 
 - `docs/architecture.md` — model boundary and catalog outline.
 - `docs/spss-profile.md` — SPSS source-faithful mapping rules.
-- [Python / pyspssio implementation profile 0.5.1](docs/implementation-profiles/python-pyspssio-0.5.1.md) — Python adapter pyspssio capability boundary; it does not relax the normative SAV/ZSAV profile.
+- [Python / pinned pyspssio implementation profile](docs/implementation-profiles/python-pyspssio-0.5.1.md) — Python adapter pyspssio capability boundary; it does not relax the normative SAV/ZSAV profile.
 - `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, and MySQL/MariaDB physical profiles.
 - `sql/` — dialect-neutral schema outline and profile notes.
 - `examples/` — small illustrative mapping fixtures.

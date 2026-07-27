@@ -1,10 +1,10 @@
-# Python / pyspssio implementation profile 0.5.1
+# Python / pinned pyspssio implementation profile
 
 ## Status
 
-This is a versioned implementation capability declaration for the
-`OpenStatSpec/python` adapter when it uses `pyspssio` 0.5.1 as its sole SPSS
-engine. It does not amend or relax the normative requirements of
+This is a versioned implementation capability declaration for the OpenStatSpec/python
+adapter when it uses the TonisOrmisson/pyspssio fork pinned at commit 0b3f879
+as its sole SPSS engine. It does not amend or relax the normative requirements of
 [SPSS SAV/ZSAV Profile 1.0](../spss-sav-zsav-profile-1.0.md).
 
 The adapter implements the strict one-dataset/one-wide-table relational
@@ -15,7 +15,7 @@ operation can produce a full semantic round trip.
 
 ## Declared directions and preserved semantics
 
-`pyspssio` 0.5.1 is the required, sole engine for unencrypted SAV and ZSAV.
+The pinned pyspssio fork is the required, sole engine for unencrypted SAV and ZSAV.
 The adapter declares `sav_read`, `sav_write`, `zsav_read`, and `zsav_write`.
 Within those directions, the following semantics are supported by the current
 engine integration and its conformance coverage:
@@ -26,28 +26,29 @@ engine integration and its conformance coverage:
 - measurement level, variable role, display alignment, and display width;
 - file attributes and variable attributes, including scalar values and
   ordered arrays represented as IBM SPSS Name[1], Name[2], … members;
+- dataset file label;
 - independent print and write format tuples;
 - variable sets and their ordered members;
 - case-weight-variable metadata;
 - multiple-response-set metadata exposed by the engine; and
 - UTF-8 source encoding, variable names, and storage widths.
 
-The implementation MUST record the exact installed `pyspssio` version and its
-underlying IBM I/O Module version when available in its machine-readable
+The implementation MUST record the exact pinned pyspssio source commit, installed
+package version, and underlying IBM I/O Module version when available in its machine-readable
 capability declaration and operation records. A version change does not
 silently expand this profile: newly claimed capabilities require the
 corresponding conformance fixtures.
 
 ## Fail-closed writer boundary
 
-The current public `pyspssio` 0.5.1 API has these known limits. The adapter
+The pinned fork API has these known limits. The adapter
 MUST treat them as absent or capability-limited writer semantics and MUST NOT
 claim full SAV/ZSAV Profile 1.0 semantic-round-trip conformance for an
 operation affected by any of them.
 
 | Semantic | Required diagnostic code or codes | Consequence |
 | --- | --- | --- |
-| File label and ordered document text | `file-label-and-documents-unobservable` | The public API cannot observe these values for a faithful round trip. |
+| Ordered document text | documents-unobservable | The engine can copy documents only between existing files; it cannot read or create document text for a faithful round trip. |
 | Legacy compatible variable names | compatible-variable-name-not-exportable | The reader exposes a source short name, but the writer cannot set or guarantee a chosen short-name mapping. |
 | Non-UTF-8 source encoding | `source-encoding-not-preserved` | The writer has no preservation contract for a legacy source code page. |
 
