@@ -24,8 +24,10 @@ engine integration and its conformance coverage:
   ordered physical column, with raw values and system-missing states;
 - variable labels, typed value labels, and user-missing rules;
 - measurement level, variable role, display alignment, and display width;
-- file attributes and variable attributes, including the supported attribute
-  values exposed by the engine;
+- file attributes and variable attributes, including scalar values and
+  ordered arrays represented as IBM SPSS Name[1], Name[2], … members;
+- independent print and write format tuples;
+- variable sets and their ordered members;
 - case-weight-variable metadata;
 - multiple-response-set metadata exposed by the engine; and
 - UTF-8 source encoding, variable names, and storage widths.
@@ -46,8 +48,7 @@ operation affected by any of them.
 | Semantic | Required diagnostic code or codes | Consequence |
 | --- | --- | --- |
 | File label and ordered document text | `file-label-and-documents-unobservable` | The public API cannot observe these values for a faithful round trip. |
-| Print and write formats independently | `separate-write-format-unobservable` | The engine exposes one format and writes it as both SPSS formats. |
-| Variable sets and ordered members | `variable-sets-unobservable` or `variable-sets-not-exportable` | The reader may not expose the source set, and a discovered set is not faithfully writable. |
+| Legacy compatible variable names | compatible-variable-name-not-exportable | The reader exposes a source short name, but the writer cannot set or guarantee a chosen short-name mapping. |
 | Non-UTF-8 source encoding | `source-encoding-not-preserved` | The writer has no preservation contract for a legacy source code page. |
 
 Before export, the adapter MUST inspect its catalog and recorded engine events
