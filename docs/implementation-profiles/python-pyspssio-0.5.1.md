@@ -3,7 +3,7 @@
 ## Status
 
 This is a versioned implementation capability declaration for the OpenStatSpec/python
-adapter when it uses the TonisOrmisson/pyspssio fork pinned at commit 446af0c
+adapter when it uses the TonisOrmisson/pyspssio fork pinned at commit 6a0f9fa
 as its sole SPSS engine. It does not amend or relax the normative requirements of
 [SPSS SAV/ZSAV Profile 1.0](../spss-sav-zsav-profile-1.0.md).
 
@@ -48,7 +48,7 @@ operation affected by any of them.
 
 | Semantic | Required diagnostic code or codes | Consequence |
 | --- | --- | --- |
-| Non-UTF-8 source encoding | `source-encoding-not-preserved` | The writer has no preservation contract for a legacy source code page. |
+| Non-UTF-8 source encoding without a configured locale | source-encoding-not-preserved | Export requires an explicit OS locale and verifies that the IBM writer emits the stored source encoding. |
 
 Before export, the adapter MUST inspect its catalog and recorded engine events
 for these conditions. It MUST fail before creating an output artifact unless
