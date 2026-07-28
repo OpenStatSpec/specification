@@ -75,7 +75,7 @@ EXECUTE.
 * -------------------------------------------------------------------------.
 DATA LIST FREE /
   discrete_numeric (F3.0)
-  discrete_string (A12)
+  discrete_string (A8)
   ranged_missing (F4.0)
   range_plus_code (F4.0)
   lowest_to_zero (F8.2)
@@ -104,8 +104,11 @@ DATA LIST FREE /
   long_utf8_text (A512).
 BEGIN DATA
 "Tere" "Pikk UTF-8 tekst: õäöü ÕÄÖÜ — 日本語 — Ελληνικά. See väärtus on tahtlikult üle 255 baidi ja jätkub kordusega: õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά õäöü ÕÄÖÜ 日本語 Ελληνικά."
+"Teine" "coded"
 END DATA.
 VARIABLE LABELS long_utf8_text 'Long UTF-8 string value exceeding 255 bytes'.
+VALUE LABELS long_utf8_text
+  'coded' 'Short code stored in a very-long string variable'.
 VARIABLE ATTRIBUTE VARIABLES=long_utf8_text
   ATTRIBUTE=source_tags[1]('synthetic')
             source_tags[2]('utf8')
