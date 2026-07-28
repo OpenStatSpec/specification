@@ -1,51 +1,48 @@
 * OpenStatSpec SPSS SAV/ZSAV 1.0 conformance-fixture generator.
 *
-* Run this file in IBM SPSS Statistics after changing the output directory
-* below. It creates synthetic data only. OpenStatSpec may publish the
-* resulting fixtures under CC0-1.0; no third-party data are included.
-*
-* The generator deliberately writes a separate file per conformance concern.
+* Before running: create C:\OpenStatSpec-fixtures\ or replace that directory
+* in every GET FILE and SAVE OUTFILE command below.  No SPSS macro is used.
+* The generated data is synthetic and intended for CC0 publication.
 
 SET UNICODE=ON.
-
-* CHANGE THIS DIRECTORY BEFORE RUNNING.
-DEFINE !OUT() 'C:\\OpenStatSpec-fixtures\\' !ENDDEFINE.
 
 * -------------------------------------------------------------------------.
 * core-numeric-string.sav.
 * -------------------------------------------------------------------------.
-DATA LIST LIST /
+DATA LIST FREE /
   id (F3.0)
   score (F10.4)
   text_value (A40).
 BEGIN DATA
 1 1.5 "alpha"
-2 -12345.6789 ""
+2 -12345.6789 "not_blank_yet"
 3 . "trailing spaces   "
 4 0 "München"
 END DATA.
+IF id = 2 text_value = ''.
 VARIABLE LABELS
   id 'Synthetic case identifier'
   score 'Binary64-oriented numeric test value'
   text_value 'Short text; blank is an ordinary value'.
 VARIABLE LEVEL id (NOMINAL) score (SCALE) text_value (NOMINAL).
-SAVE OUTFILE=!CONCAT(!OUT,'core-numeric-string.sav').
+SAVE OUTFILE='C:\OpenStatSpec-fixtures\core-numeric-string.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
 * dictionary-and-display.sav.
 * -------------------------------------------------------------------------.
-DATA LIST LIST /
+DATA LIST FREE /
   respondent_id (F4.0)
   gender (F1.0)
   satisfaction (F1.0)
-  interview_date (ADATE10)
-  income (DOLLAR10.2)
+  income (F10.2)
   comment (A80).
 BEGIN DATA
-1001 1 4 15-JAN-2024 1234.50 "First response"
-1002 2 2 16-JAN-2024 98.75 "Second response"
+1001 1 4 1234.50 "First response"
+1002 2 2 98.75 "Second response"
 END DATA.
+COMPUTE interview_date = DATE.DMY(15,1,2024).
+IF respondent_id = 1002 interview_date = DATE.DMY(16,1,2024).
 FILE LABEL 'OpenStatSpec synthetic dictionary and display fixture'.
 ADD DOCUMENT
   "First ordered document line."
@@ -65,18 +62,20 @@ FORMATS respondent_id (F8.0) gender (F2.0) satisfaction (F2.0)
   interview_date (ADATE10) income (DOLLAR12.2) comment (A80).
 VARIABLE LEVEL gender (NOMINAL) satisfaction (ORDINAL)
   income (SCALE) comment (NOMINAL).
-VARIABLE ROLE respondent_id (RECORD ID) gender (INPUT) satisfaction (TARGET)
-  interview_date (INPUT) income (INPUT) comment (NONE).
+VARIABLE ROLE
+ /NONE respondent_id comment
+ /INPUT gender interview_date income
+ /TARGET satisfaction.
 VARIABLE WIDTH respondent_id (8) gender (8) satisfaction (10) comment (40).
 VARIABLE ALIGNMENT respondent_id (RIGHT) gender (CENTER) satisfaction (CENTER)
   comment (LEFT).
-SAVE OUTFILE=!CONCAT(!OUT,'dictionary-and-display.sav').
+SAVE OUTFILE='C:\OpenStatSpec-fixtures\dictionary-and-display.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
 * missing-rules.sav.
 * -------------------------------------------------------------------------.
-DATA LIST LIST /
+DATA LIST FREE /
   discrete_numeric (F3.0)
   discrete_string (A12)
   ranged_missing (F4.0)
@@ -86,24 +85,23 @@ DATA LIST LIST /
 BEGIN DATA
 1 "valid" 10 10 2 99
 97 "REFUSED" 97 97 -1 100
-98 "DON'T KNOW" 99 999 0 101
+98 "NOANSWER" 99 999 0 101
 99 "" 100 9999 -99999 99999
 END DATA.
 MISSING VALUES
   discrete_numeric (97, 98, 99)
- /discrete_string ('REFUSED', "DON'T KNOW")
+ /discrete_string ('REFUSED', 'NOANSWER')
  /ranged_missing (97 THRU 99)
  /range_plus_code (97 THRU 99, 9999)
  /lowest_to_zero (LOWEST THRU 0)
  /highest_from_100 (100 THRU HIGHEST).
-SAVE OUTFILE=!CONCAT(!OUT,'missing-rules.sav').
+SAVE OUTFILE='C:\OpenStatSpec-fixtures\missing-rules.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
 * long-utf8-and-attributes.sav.
-* This fixture is expected to exercise SPSS long-string continuation records.
 * -------------------------------------------------------------------------.
-DATA LIST LIST /
+DATA LIST FREE /
   short_text (A80)
   long_utf8_text (A512).
 BEGIN DATA
@@ -118,13 +116,13 @@ DATAFILE ATTRIBUTE
   ATTRIBUTE=fixture_metadata[1]('OpenStatSpec')
             fixture_metadata[2]('1.0')
             fixture_metadata[3]('synthetic').
-SAVE OUTFILE=!CONCAT(!OUT,'long-utf8-and-attributes.sav').
+SAVE OUTFILE='C:\OpenStatSpec-fixtures\long-utf8-and-attributes.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
-* sets.sav.
+* sets-source.sav. Define Variable Sets manually after this script completes.
 * -------------------------------------------------------------------------.
-DATA LIST LIST /
+DATA LIST FREE /
   respondent_id (F4.0)
   age (F3.0)
   gender (F1.0)
@@ -144,11 +142,15 @@ MRSETS
  /MCGROUP NAME=$preferred_contact LABEL='Preferred contact mode'
    VARIABLES=preferred_contact_1 preferred_contact_2.
 VALUE LABELS preferred_contact_1 preferred_contact_2 1 'Email' 2 'SMS' 3 'Web'.
-* SPSS does not expose saved Variable Sets records to ordinary command syntax.
-* It therefore saves this intermediate source file. Open it in the Data Editor,
-* use Utilities > Define Variable Sets to create the two documented sets, then
-* save it manually as sets.sav in the same output directory.
-SAVE OUTFILE=!CONCAT(!OUT,'sets-source.sav').
+SAVE OUTFILE='C:\OpenStatSpec-fixtures\sets-source.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
+* zsav-compressed.zsav: real ZLIB-compressed SPSS system file.
+* -------------------------------------------------------------------------.
+GET FILE='C:\OpenStatSpec-fixtures\dictionary-and-display.sav'.
+SAVE OUTFILE='C:\OpenStatSpec-fixtures\zsav-compressed.zsav' /ZCOMPRESSED.
+EXECUTE.
+
+* The preflight-too-wide fixture is SQL-profile-specific. Generate it later
+* in the conformance runner with one more variable than that profile permits.
