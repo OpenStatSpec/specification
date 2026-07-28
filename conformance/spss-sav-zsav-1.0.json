@@ -48,6 +48,7 @@
       "expects": ["utf8_source_encoding", "string_over_255_bytes", "no_string_truncation", "long_string_value_labels", "dataset_attribute_arrays", "variable_attribute_arrays"],
       "expected_catalog": {
         "dataset_attributes": [
+          {"name": "$VariableView2", "values": ["name", "type", "width", "decimals", "label", "values", "missing", "columns", "alignment", "measure", "role", "@source_tags"]},
           {"name": "fixture_metadata", "values": ["OpenStatSpec", "1.0", "synthetic"]}
         ],
         "variable_attributes": [
