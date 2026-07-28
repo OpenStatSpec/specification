@@ -24,6 +24,7 @@ Catalog tables exist solely to preserve source semantics needed to interpret and
 
 | Catalog relation | Purpose |
 | --- | --- |
+| `catalog_identity` | Single-row ownership contract identifier, catalog schema version, and creation timestamp. |
 | `dataset` | Dataset identity, physical table location, source provenance, encoding, labels, documents, and import state. |
 | `variable` | Ordered source-to-column mapping plus variable storage, format, label, display, role, and measurement metadata. |
 | `value_label_set` / `value_label` | Typed stored codes and their labels, in deterministic order. |
@@ -36,6 +37,12 @@ Catalog tables exist solely to preserve source semantics needed to interpret and
 | `fidelity_event` | Mandatory machine-readable import/export warnings and capability failures. |
 
 There are no core relations for cells, questions, responses, instruments, studies, waves, or harmonized variables.
+
+Catalog relation names are logical. A physical catalog occupies one declared,
+exclusive namespace and all access is resolved through that binding, either by qualification or by a fixed dedicated-connection context. An
+implementation verifies `catalog_identity` before migration or ordinary use
+and never adopts or modifies same-named foreign objects in an application's
+default namespace.
 
 ## Values and missingness
 

@@ -6,12 +6,16 @@ This is a versioned normative profile for unencrypted IBM SPSS Statistics system
 
 An implementation conforms to this profile only for the directions and database profiles it declares. It MUST publish a machine-readable capability declaration and MUST run the fixture expectations in `conformance/spss-sav-zsav-1.0.json` for every claimed direction. Encrypted files and portable (`.por`) files are outside this profile.
 
-The declaration MUST identify the exact specification release and immutable specification commit tested by the implementation. For every SQL profile it MUST distinguish theoretical engine limits from effective limits of the active connection. Effective limits MUST include their discovery source, and an implementation MUST use the same effective limits during preflight. A limit that cannot be discovered MUST be identified as theoretical rather than presented as an observed connection limit. Claimed server versions MUST be separated from versions exercised in CI.
+The declaration MUST identify the immutable specification commit tested by the implementation. It MUST declare `specification_status` as `release_candidate` or `released`. `specification_release` MUST contain the published release identifier only when the tested commit is the target of that release; it MUST be NULL for untagged release-candidate work. A release identifier never replaces the immutable commit.
+
+For every SQL profile the declaration MUST distinguish theoretical engine limits from effective limits of the active connection. Effective limits MUST include their discovery source, and an implementation MUST use the same effective limits during preflight. A limit that cannot be discovered MUST be identified as theoretical rather than presented as an observed connection limit. Claimed server versions MUST be separated from versions exercised in CI.
 
 At minimum, the declaration MUST expose:
 
+- specification status, immutable commit, and the release identifier or NULL;
 - claimed and CI-tested server versions;
-- theoretical and effective maximum columns, source variables, value bytes, row bytes, and identifier bytes; and
+- theoretical and effective maximum columns, source variables, value bytes, and row bytes;
+- an identifier limit with an explicit value, unit (bytes or characters), discovery source, and character repertoire or encoding policy; and
 - the active server version and configuration sources used to derive effective limits.
 
 ## Source-faithful relational contract
@@ -23,6 +27,16 @@ The table MUST have `__case_ordinal BIGINT NOT NULL PRIMARY KEY`, populated as 1
 The singular catalog relations in `sql/schema-outline.sql` are the normative source of truth for import and export. An implementation MAY retain a legacy or framework-specific compatibility catalog, but changing only that compatibility catalog MUST NOT change conformant export output. If duplicate metadata is retained during migration, the implementation MUST verify its equality with the normative catalog.
 
 The catalog MUST retain the source-to-physical mapping and the dictionary metadata. `dataset.physical_table_schema` and `dataset.physical_table_name` identify the target data table. A source variable name is authoritative. If a SQL profile cannot use it safely, it MUST create a deterministic unique physical name and retain the exact mapping in `variable`. Names beginning with `__` are reserved and MUST NOT be generated for source variables.
+
+## Catalog namespace and ownership
+
+The relation names in `sql/schema-outline.sql` are logical names. An implementation MUST bind every catalog relation to one declared, exclusive physical catalog namespace and MUST resolve every catalog DDL and DML statement through that binding. It MUST either qualify physical relation names or use a dedicated connection whose name-resolution context is fixed to that exclusive namespace for the complete operation. It MUST NOT create or adopt the bare logical relation names in a shared caller namespace.
+
+On engines with schemas or databases, the binding MUST use a dedicated configurable schema or database. SQLite MUST use a dedicated database file/connection; an attached database or declared reserved table-name prefix is also conforming when every statement resolves through that binding. The capability declaration MUST publish the binding mode, namespace or prefix, identity marker, and logical-to-physical relation mapping.
+
+Every catalog MUST contain exactly one `catalog_identity` row. An implementation MUST verify its contract identifier and schema version before ordinary use and before migrating an identity-bearing catalog. A migration from a catalog created before `catalog_identity` existed MAY bootstrap the marker only after positively validating the complete supported legacy schema and version; it MUST fail if ownership is ambiguous. If the declared namespace is occupied by objects that do not belong to the verified current or legacy catalog identity, installation and migration MUST fail without modifying them; `CREATE TABLE IF NOT EXISTS` alone is not an ownership check.
+
+The catalog namespace is distinct from `dataset.physical_table_schema`, which locates a dataset's wide data table. A profile MAY place data tables in the catalog namespace or in a separately declared data namespace, but their fully qualified physical identities MUST be deterministic and collision-free.
 
 ## Atomic preflight and diagnostics
 

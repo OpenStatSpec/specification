@@ -1,5 +1,20 @@
 -- OpenStatSpec SPSS SAV/ZSAV Profile 1.0: normative logical schema outline
 -- Concrete profiles select exact SQL types and quoting rules.
+--
+-- These relation names are logical. Physical DDL MUST resolve every catalog
+-- relation through one declared exclusive namespace, either with qualified
+-- names or with a dedicated connection whose resolution context is fixed to
+-- that namespace. Implementations MUST verify catalog_identity before
+-- adopting or migrating existing objects.
+
+CREATE TABLE catalog_identity (
+  catalog_identity_key    INTEGER PRIMARY KEY, -- exactly 1
+  contract_id             TEXT NOT NULL UNIQUE, -- openstatspec-strict-wide-table-v1
+  schema_version          INTEGER NOT NULL,
+  created_at              TIMESTAMP NOT NULL,
+  CHECK (catalog_identity_key = 1),
+  CHECK (contract_id = 'openstatspec-strict-wide-table-v1')
+);
 
 CREATE TABLE dataset (
   dataset_id              UUID PRIMARY KEY,

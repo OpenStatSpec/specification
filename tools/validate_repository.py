@@ -121,6 +121,54 @@ def validate_expected_catalog(identifier: str, catalog: object) -> None:
             require(len(members) == len(set(members)), f"{context}.members must be unique.")
 
 
+def validate_identifier_limit(profile: str, value: object) -> None:
+    context = f"dialect profile {profile}.identifier_limit"
+    require(isinstance(value, dict), f"{context}: must be an object.")
+    require(set(value) == {"value", "unit", "source", "repertoire"}, f"{context}: fields are incomplete.")
+    require(isinstance(value["value"], int) and value["value"] > 0, f"{context}.value must be positive.")
+    require(value["unit"] in {"bytes", "characters"}, f"{context}.unit must be bytes or characters.")
+    require_string(value["source"], context + ".source")
+    require_string(value["repertoire"], context + ".repertoire")
+
+
+def validate_dialect_baseline() -> None:
+    path = ROOT / "sql/dialect-profile-baseline.json"
+    baseline = json.loads(path.read_text(encoding="utf-8"))
+    require(baseline.get("contract") == "openstatspec-strict-wide-table-v1", "Unexpected SQL dialect contract.")
+    common = baseline.get("common")
+    require(isinstance(common, dict), "SQL dialect common contract is missing.")
+    binding = common.get("catalog_binding")
+    require(isinstance(binding, dict), "SQL dialect catalog binding is missing.")
+    require(
+        set(binding) == {
+            "exclusive_namespace_required",
+            "exclusive_resolution_required",
+            "identity_relation",
+            "foreign_object_collision",
+        },
+        "SQL dialect catalog binding fields are incomplete.",
+    )
+    require(binding["exclusive_namespace_required"] is True, "Catalog namespace isolation must be required.")
+    require(binding["exclusive_resolution_required"] is True, "Exclusive catalog resolution must be required.")
+    require(binding["identity_relation"] == "catalog_identity", "Unexpected catalog identity relation.")
+    require(binding["foreign_object_collision"] == "fail_without_modification", "Foreign catalog collisions must fail.")
+    profiles = baseline.get("profiles")
+    require(isinstance(profiles, dict) and profiles, "SQL dialect profiles are missing.")
+    expected_modes = {
+        "sqlite": ["dedicated_database", "attached_database", "reserved_prefix"],
+        "postgresql": ["schema"],
+        "mysql_mariadb_innodb": ["database"],
+    }
+    require(set(profiles) == set(expected_modes), "SQL dialect profile set is incomplete.")
+    for name, profile in profiles.items():
+        require(isinstance(name, str) and name, "SQL dialect profile name is invalid.")
+        require(isinstance(profile, dict), f"SQL dialect profile {name} must be an object.")
+        validate_identifier_limit(name, profile.get("identifier_limit"))
+        modes = profile.get("catalog_namespace_modes")
+        require_string_list(modes, f"dialect profile {name}.catalog_namespace_modes")
+        require(modes == expected_modes[name], f"Unexpected catalog namespace modes for {name}.")
+
+
 def main() -> None:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     require(manifest.get("manifest_version") == "1.0", "Unexpected manifest version.")
@@ -214,7 +262,20 @@ def main() -> None:
         require(path.name in generator, f"{identifier}: generator does not name {path.name}.")
 
     schema = (ROOT / "sql/schema-outline.sql").read_text(encoding="utf-8")
+    identity_ddl = schema.split("CREATE TABLE catalog_identity (", 1)[1].split(");", 1)[0]
+    for field in ("catalog_identity_key", "contract_id", "schema_version", "created_at"):
+        require(field in identity_ddl, f"Catalog identity field is missing: {field}")
+    require(
+        "CHECK (contract_id = 'openstatspec-strict-wide-table-v1')" in identity_ddl,
+        "Catalog identity contract is not enforced by the logical schema.",
+    )
+    for forbidden in ("specification_status", "specification_release", "specification_commit"):
+        require(forbidden not in identity_ddl, f"Catalog identity must not duplicate capability field: {forbidden}")
+    dialects = (ROOT / "sql/dialect-profiles.md").read_text(encoding="utf-8")
+    require("fixed single-schema `search_path`" in dialects, "PostgreSQL fixed-connection catalog binding is missing.")
+    require("connection fixed to that selected database" in dialects, "MySQL fixed-connection catalog binding is missing.")
     for table in (
+        "catalog_identity",
         "dataset",
         "operation",
         "variable",
@@ -230,11 +291,8 @@ def main() -> None:
     ):
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
 
-    for path in (
-        ROOT / "sql/dialect-profile-baseline.json",
-        MANIFEST,
-    ):
-        json.loads(path.read_text(encoding="utf-8"))
+    validate_dialect_baseline()
+    json.loads(MANIFEST.read_text(encoding="utf-8"))
 
     print(f"Validated {len(identifiers) - 1} binary fixtures and one generated preflight fixture.")
 

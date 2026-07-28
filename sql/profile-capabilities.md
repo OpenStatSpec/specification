@@ -7,9 +7,14 @@ A database dialect profile must publish enough capabilities for an importer to d
 
 Required declarations:
 
+- immutable specification commit, release-candidate/released status, and the
+  published release identifier or NULL;
 - maximum number of physical columns, including `__case_ordinal`;
-- maximum identifier length and identifier folding/quoting behavior;
+- maximum identifier length as { value, unit, source, repertoire }, where
+  unit is bytes or characters, plus identifier folding/quoting behavior;
 - reserved-word policy, reserved __ technical prefix, and deterministic physical-name algorithm;
+- exclusive catalog binding mode, namespace or prefix, logical-to-physical
+  relation mapping, and `catalog_identity` ownership check;
 - binary64-capable numeric type and any exceptional-value constraints;
 - lossless variable-length text type, encoding behavior, and text/value limit;
 - maximum row size or any related wide-table limit.

@@ -34,6 +34,17 @@ Physical variable names are dialect-specific. The catalog mapping from exact
 SPSS source name to quoted physical name MUST be total, deterministic and
 unique. Source names beginning with `__` are never used as physical names.
 
+Identifier limits are dimensioned. An adapter MUST publish the limit as a
+value plus an engine-native unit (`bytes` or `characters`), its discovery or
+policy source, and the character repertoire or encoding used to measure it.
+Preflight measures the final generated physical name after normalization and
+before DDL. It MUST NOT reinterpret a character limit as a byte limit or vice
+versa.
+
+The catalog relation names in the logical schema outline are not unqualified
+physical names. Every adapter MUST declare an exclusive catalog binding,
+resolve all catalog access through it using qualified names or a fixed dedicated-connection context, verify the single `catalog_identity` marker before use or migration, and fail without modifying foreign objects. Schema-capable engines use a dedicated schema/database. SQLite uses a dedicated database file/connection; an attached database or declared reserved prefix is also permitted.
+
 Catalog relations and the data table MUST be written in one transaction where
 the dialect supports transactional DDL. On dialects where DDL is not
 transactional, the importer MUST complete all preflight before DDL and remove
@@ -44,7 +55,8 @@ every object it created if a later write fails.
 | Property | Requirement |
 | --- | --- |
 | Quoting | Double-quote identifiers; escape an embedded quote by doubling it. |
-| Identifier limit | SQLite has no practical fixed identifier limit; the adapter MUST still impose and publish a deterministic application limit. |
+| Identifier limit | Baseline policy: 255 bytes over ASCII-safe generated names. An adapter MAY publish a stricter limit. SQLite has no separate engine identifier-length setting. |
+| Catalog binding | Dedicated database file/connection; an attached database or declared reserved table prefix is also permitted. |
 | Maximum columns | 2,000 under the default build. Treat this as an inclusive physical-table limit, including `__case_ordinal`. |
 | Numeric | `REAL`; adapters MUST document any non-finite-value limitation. |
 | Text | `TEXT NOT NULL` for SPSS strings. |
@@ -60,7 +72,8 @@ conforming SQLite adapter MUST retain the logical storage kind in metadata.
 | Property | Requirement |
 | --- | --- |
 | Quoting | Double-quote identifiers; escape an embedded quote by doubling it. |
-| Identifier limit | 63 bytes by default. The adapter MUST preflight encoded identifier length after quoting policy is applied. |
+| Identifier limit | 63 bytes by default, discovered from active `max_identifier_length`; measure the generated name in the active server encoding. |
+| Catalog binding | Dedicated PostgreSQL schema; use schema-qualified names or a connection with a fixed single-schema `search_path`. |
 | Maximum columns | 1,600, including `__case_ordinal`; a lower effective limit may arise from row-size constraints. |
 | Numeric | `DOUBLE PRECISION`. |
 | Text | `TEXT NOT NULL` for SPSS strings. |
@@ -77,7 +90,8 @@ policy that cannot collide through folding.
 | Property | Requirement |
 | --- | --- |
 | Quoting | Backtick-quote identifiers; escape an embedded backtick by doubling it. |
-| Identifier limit | 64 characters. The adapter MUST preflight generated names against the active server character set. |
+| Identifier limit | 64 Unicode BMP characters. This is a character limit, not a UTF-8 byte limit. |
+| Catalog binding | Dedicated MySQL/MariaDB database; use qualified names or a connection fixed to that selected database. |
 | Maximum columns | 1,017 InnoDB columns, including `__case_ordinal`; the active engine may impose a lower limit. |
 | Numeric | `DOUBLE`. |
 | Text | `TEXT NOT NULL` where its row and index constraints are acceptable; a profile MAY use a lossless `VARCHAR(n)` only after preflighting every declared source width. |
@@ -105,4 +119,5 @@ Each adapter needs to decide and declare:
 2. its deterministic source-name-to-physical-name algorithm;
 3. whether it supports non-finite SPSS binary64 values in each dialect;
 4. its tested text encoding and maximum value/row limits;
-5. its catalog transaction/cleanup procedure for MySQL and MariaDB.
+5. its catalog transaction/cleanup procedure for MySQL and MariaDB; and
+6. its catalog binding, physical relation mapping, and ownership check.

@@ -1,5 +1,5 @@
 {
-  "contract": "strict-wide-table-v1",
+  "contract": "openstatspec-strict-wide-table-v1",
   "common": {
     "one_dataset_one_physical_table": true,
     "technical_ordinal": "__case_ordinal",
@@ -8,38 +8,82 @@
     "numeric_system_missing": "sql_null",
     "string_system_missing": false,
     "automatic_table_splitting": false,
-    "automatic_reshaping": false
+    "automatic_reshaping": false,
+    "catalog_binding": {
+      "exclusive_namespace_required": true,
+      "identity_relation": "catalog_identity",
+      "foreign_object_collision": "fail_without_modification",
+      "exclusive_resolution_required": true
+    }
   },
   "profiles": {
     "sqlite": {
       "maximum_columns_default": 2000,
       "identifier_quoting": "double_quote",
-      "identifier_limit": "adapter_declared",
+      "identifier_limit": {
+        "value": 255,
+        "unit": "bytes",
+        "source": "OpenStatSpec adapter policy; SQLite has no separate engine identifier-length setting",
+        "repertoire": "ASCII-safe generated physical identifiers"
+      },
+      "catalog_namespace_modes": [
+        "dedicated_database",
+        "attached_database",
+        "reserved_prefix"
+      ],
       "numeric_type": "REAL",
       "string_type": "TEXT NOT NULL",
       "case_ordinal_type": "INTEGER NOT NULL PRIMARY KEY",
       "transactional_ddl": true,
-      "effective_limits_must_be_published": ["maximum_columns", "maximum_value_bytes", "maximum_row_bytes"]
+      "effective_limits_must_be_published": [
+        "maximum_columns",
+        "maximum_value_bytes",
+        "maximum_row_bytes"
+      ]
     },
     "postgresql": {
       "maximum_columns_default": 1600,
       "identifier_quoting": "double_quote",
-      "identifier_limit_bytes": 63,
+      "identifier_limit": {
+        "value": 63,
+        "unit": "bytes",
+        "source": "active max_identifier_length; default NAMEDATALEN minus one",
+        "repertoire": "active PostgreSQL server encoding"
+      },
+      "catalog_namespace_modes": [
+        "schema"
+      ],
       "numeric_type": "DOUBLE PRECISION",
       "string_type": "TEXT NOT NULL",
       "case_ordinal_type": "BIGINT NOT NULL PRIMARY KEY",
       "transactional_ddl": true,
-      "effective_limits_must_be_published": ["maximum_columns", "maximum_value_bytes", "maximum_row_bytes"]
+      "effective_limits_must_be_published": [
+        "maximum_columns",
+        "maximum_value_bytes",
+        "maximum_row_bytes"
+      ]
     },
     "mysql_mariadb_innodb": {
       "maximum_columns_default": 1017,
       "identifier_quoting": "backtick",
-      "identifier_limit_characters": 64,
+      "identifier_limit": {
+        "value": 64,
+        "unit": "characters",
+        "source": "MySQL/MariaDB schema-object identifier limit",
+        "repertoire": "Unicode Basic Multilingual Plane; U+0000 excluded"
+      },
+      "catalog_namespace_modes": [
+        "database"
+      ],
       "numeric_type": "DOUBLE",
       "string_type": "TEXT NOT NULL or preflighted lossless VARCHAR(n)",
       "case_ordinal_type": "BIGINT NOT NULL PRIMARY KEY",
       "transactional_ddl": false,
-      "effective_limits_must_be_published": ["maximum_columns", "maximum_value_bytes", "maximum_row_bytes"],
+      "effective_limits_must_be_published": [
+        "maximum_columns",
+        "maximum_value_bytes",
+        "maximum_row_bytes"
+      ],
       "failure_cleanup_required": true
     }
   }
