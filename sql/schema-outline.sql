@@ -50,6 +50,11 @@ CREATE TABLE variable (
   UNIQUE (dataset_id, physical_name)
 );
 
+CREATE TABLE dataset_weight_variable (
+  dataset_id              UUID PRIMARY KEY REFERENCES dataset(dataset_id),
+  variable_id             UUID NOT NULL UNIQUE REFERENCES variable(variable_id)
+);
+
 CREATE TABLE value_label_set (
   value_label_set_id      UUID PRIMARY KEY,
   dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
@@ -134,8 +139,11 @@ CREATE TABLE multiple_response_set (
   set_name                 TEXT NOT NULL,
   set_label                TEXT NULL,
   set_kind                 TEXT NOT NULL, -- MD | MC
+  counted_value_kind       TEXT NULL,     -- numeric | string for MD
   counted_numeric_value    DOUBLE PRECISION NULL,
+  counted_string_value     TEXT NULL,
   category_label_behavior  TEXT NULL,
+  label_source             TEXT NULL,
   UNIQUE (dataset_id, set_name)
 );
 

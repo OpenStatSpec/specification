@@ -12,7 +12,9 @@ For one imported SPSS dataset, an importer MUST create exactly one dedicated phy
 
 The table MUST have `__case_ordinal BIGINT NOT NULL PRIMARY KEY`, populated as 1 through the source case count in source order. It is technical state, not an SPSS variable, and an exporter MUST omit it. No respondent or natural key may be inferred.
 
-A catalog MUST retain the source-to-physical mapping and the dictionary metadata. `dataset.physical_table_schema` and `dataset.physical_table_name` identify the target data table. A source variable name is authoritative. If a SQL profile cannot use it safely, it MUST create a deterministic unique physical name and retain the exact mapping in `variable`. Names beginning with `__` are reserved and MUST NOT be generated for source variables.
+The singular catalog relations in `sql/schema-outline.sql` are the normative source of truth for import and export. An implementation MAY retain a legacy or framework-specific compatibility catalog, but changing only that compatibility catalog MUST NOT change conformant export output. If duplicate metadata is retained during migration, the implementation MUST verify its equality with the normative catalog.
+
+The catalog MUST retain the source-to-physical mapping and the dictionary metadata. `dataset.physical_table_schema` and `dataset.physical_table_name` identify the target data table. A source variable name is authoritative. If a SQL profile cannot use it safely, it MUST create a deterministic unique physical name and retain the exact mapping in `variable`. Names beginning with `__` are reserved and MUST NOT be generated for source variables.
 
 ## Atomic preflight and diagnostics
 
@@ -31,13 +33,14 @@ Dates, times, datetimes, and currencies MUST remain numeric stored values plus S
 For every supported SAV/ZSAV import/export, the following dictionary semantics MUST round-trip:
 
 - dataset file label, ordered document lines, source encoding, and source format;
+- the optional case-weight variable reference;
 - variable name, numeric/string storage kind, declared string width, label, print/write format family, width and decimals;
 - measurement level, role, display width, and display alignment;
 - typed numeric and string value labels in deterministic order;
 - system-missing, discrete user-missing values, inclusive numeric ranges, LOWEST/HIGHEST endpoints, and the SPSS range-plus-discrete combination;
 - ordered dataset and variable attributes, including attribute arrays;
 - variable sets and their ordered members;
-- multiple-response sets, including name, label, MD/MC kind, ordered members, MD counted value, and category-label behavior; and
+- multiple-response sets, including name, label, MD/MC kind, ordered members, numeric or string MD counted value, category-label behavior, and label source; and
 - long UTF-8 string values, their declared widths, labels, and supported missing metadata without truncation.
 
 A reader or writer that cannot preserve one of these items MUST declare the capability absent. An importer MAY retain unknown source extensions in a namespaced extension payload, but it MUST report a fidelity event rather than claim full profile fidelity.
