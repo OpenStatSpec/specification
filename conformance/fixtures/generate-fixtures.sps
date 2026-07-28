@@ -67,6 +67,7 @@ VARIABLE ROLE
 VARIABLE WIDTH respondent_id (8) gender (8) satisfaction (10) comment (40).
 VARIABLE ALIGNMENT respondent_id (RIGHT) gender (CENTER) satisfaction (CENTER)
   comment (LEFT).
+WEIGHT BY income.
 SAVE OUTFILE='C:\Users\admin\Downloads\dictionary-and-display.sav'.
 EXECUTE.
 
@@ -189,6 +190,30 @@ template = Path(r"C:\Users\admin\Downloads\openstatspec-varsets-template.sav")
 if template.exists():
     template.unlink()
 END PROGRAM.
+
+* -------------------------------------------------------------------------.
+* weight-and-string-mr.sav.
+* -------------------------------------------------------------------------.
+DATA LIST FREE /
+  respondent_id (F4.0)
+  survey_weight (F8.2)
+  channel_email_text (A3)
+  channel_sms_text (A3).
+BEGIN DATA
+1 1.25 "yes" "no"
+2 0.75 "no" "yes"
+END DATA.
+VARIABLE LABELS
+  survey_weight 'Synthetic case weight'
+  channel_email_text 'Email selected'
+  channel_sms_text 'SMS selected'.
+WEIGHT BY survey_weight.
+MRSETS
+ /MDGROUP NAME=$contact_text LABEL='Text-coded contact modes'
+   CATEGORYLABELS=VARLABELS
+   VARIABLES=channel_email_text channel_sms_text VALUE='yes'.
+SAVE OUTFILE='C:\Users\admin\Downloads\weight-and-string-mr.sav'.
+EXECUTE.
 
 * -------------------------------------------------------------------------.
 * zsav-compressed.zsav: real ZLIB-compressed SPSS system file.

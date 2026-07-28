@@ -64,6 +64,13 @@ def main() -> None:
             f"{identifier}: expectations must be unique non-empty strings.",
         )
 
+        expected_catalog = fixture.get("expected_catalog")
+        if expected_catalog is not None:
+            require(
+                isinstance(expected_catalog, dict) and expected_catalog,
+                f"{identifier}: expected_catalog must be a non-empty object.",
+            )
+
         path = ROOT / "conformance" / source
         if identifier == "preflight-failure":
             require(directions == ["import"], "The preflight fixture is import-only.")

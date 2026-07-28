@@ -5,8 +5,12 @@ fixtures named in `../spss-sav-zsav-1.0.json` under
 `C:\Users\admin\Downloads\`.
 
 The script is self-contained. It creates both SPSS multiple-response sets and
-ordinary Variable Sets. Since IBM SPSS exposes no command for defining ordinary
-Variable Sets, the script uses bundled `BEGIN PROGRAM Python3` code to materialize
+ordinary Variable Sets. `weight-and-string-mr.sav` is the explicit oracle for
+a case-weight reference and a string-valued MD counted value; these semantics
+must not be inferred from the more general set fixture.
+
+Since IBM SPSS exposes no command for defining ordinary Variable Sets, the script
+uses bundled `BEGIN PROGRAM Python3` code to materialize
 a tiny synthetic dictionary template and then imports only its `VARSETS` with
 `APPLY DICTIONARY`. The temporary template is removed automatically.
 

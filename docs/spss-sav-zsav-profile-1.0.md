@@ -6,6 +6,14 @@ This is a versioned normative profile for unencrypted IBM SPSS Statistics system
 
 An implementation conforms to this profile only for the directions and database profiles it declares. It MUST publish a machine-readable capability declaration and MUST run the fixture expectations in `conformance/spss-sav-zsav-1.0.json` for every claimed direction. Encrypted files and portable (`.por`) files are outside this profile.
 
+The declaration MUST identify the exact specification release and immutable specification commit tested by the implementation. For every SQL profile it MUST distinguish theoretical engine limits from effective limits of the active connection. Effective limits MUST include their discovery source, and an implementation MUST use the same effective limits during preflight. A limit that cannot be discovered MUST be identified as theoretical rather than presented as an observed connection limit. Claimed server versions MUST be separated from versions exercised in CI.
+
+At minimum, the declaration MUST expose:
+
+- claimed and CI-tested server versions;
+- theoretical and effective maximum columns, source variables, value bytes, row bytes, and identifier bytes; and
+- the active server version and configuration sources used to derive effective limits.
+
 ## Source-faithful relational contract
 
 For one imported SPSS dataset, an importer MUST create exactly one dedicated physical wide SQL data table. Every source case MUST map to one row, every source variable MUST map to one physical column, and no source variable may be transposed, split, stored in EAV/JSON, dropped, or coerced into a different logical shape.

@@ -21,7 +21,19 @@
       "id": "dictionary-and-display",
       "source": "fixtures/dictionary-and-display.sav",
       "directions": ["import", "export", "semantic_round_trip"],
-      "expects": ["file_label", "documents_order", "variable_labels", "print_write_formats", "measurement_level", "variable_role", "display_width", "display_alignment", "value_labels_typed_ordered"]
+      "expects": ["file_label", "documents_order", "variable_labels", "print_write_formats", "measurement_level", "variable_role", "display_width", "display_alignment", "value_labels_typed_ordered"],
+      "expected_catalog": {
+        "value_labels": [
+          {"variable": "gender", "ordinal": 1, "kind": "numeric", "value": 1.0, "label": "Woman"},
+          {"variable": "gender", "ordinal": 2, "kind": "numeric", "value": 2.0, "label": "Man"},
+          {"variable": "gender", "ordinal": 3, "kind": "numeric", "value": 9.0, "label": "Not stated"},
+          {"variable": "satisfaction", "ordinal": 1, "kind": "numeric", "value": 1.0, "label": "Very dissatisfied"},
+          {"variable": "satisfaction", "ordinal": 2, "kind": "numeric", "value": 2.0, "label": "Dissatisfied"},
+          {"variable": "satisfaction", "ordinal": 3, "kind": "numeric", "value": 3.0, "label": "Neutral"},
+          {"variable": "satisfaction", "ordinal": 4, "kind": "numeric", "value": 4.0, "label": "Satisfied"},
+          {"variable": "satisfaction", "ordinal": 5, "kind": "numeric", "value": 5.0, "label": "Very satisfied"}
+        ]
+      }
     },
     {
       "id": "missing-rules",
@@ -33,13 +45,46 @@
       "id": "long-utf8-and-attributes",
       "source": "fixtures/long-utf8-and-attributes.sav",
       "directions": ["import", "export", "semantic_round_trip"],
-      "expects": ["utf8_source_encoding", "string_over_255_bytes", "no_string_truncation", "long_string_value_labels", "dataset_attribute_arrays", "variable_attribute_arrays"]
+      "expects": ["utf8_source_encoding", "string_over_255_bytes", "no_string_truncation", "long_string_value_labels", "dataset_attribute_arrays", "variable_attribute_arrays"],
+      "expected_catalog": {
+        "dataset_attributes": [
+          {"name": "fixture_metadata", "values": ["OpenStatSpec", "1.0", "synthetic"]}
+        ],
+        "variable_attributes": [
+          {"variable": "long_utf8_text", "name": "source_tags", "values": ["synthetic", "utf8", "long-string"]}
+        ],
+        "value_labels": [
+          {"variable": "long_utf8_text", "ordinal": 1, "kind": "string", "value": "coded", "label": "Short code stored in a very-long string variable"}
+        ]
+      }
     },
     {
       "id": "sets",
       "source": "fixtures/sets.sav",
       "directions": ["import", "export", "semantic_round_trip"],
-      "expects": ["variable_sets_ordered", "multiple_response_md", "multiple_response_mc", "multiple_response_members_ordered", "multiple_response_counted_value", "multiple_response_category_label_behavior", "multiple_response_label_source"]
+      "expects": ["variable_sets_ordered", "multiple_response_md", "multiple_response_mc", "multiple_response_members_ordered", "multiple_response_counted_value", "multiple_response_category_label_behavior", "multiple_response_label_source"],
+      "expected_catalog": {
+        "variable_sets": [
+          {"ordinal": 1, "name": "demographics", "members": ["respondent_id", "age", "gender"]},
+          {"ordinal": 2, "name": "contact_channels", "members": ["channel_email", "channel_sms", "channel_web", "preferred_contact_1", "preferred_contact_2"]}
+        ],
+        "multiple_response_sets": [
+          {"ordinal": 1, "name": "$contact_modes", "kind": "MD", "label": "Contact modes (multiple)", "counted_kind": "numeric", "counted_value": 1.0, "category_labels": "variable_labels", "label_source": "set_label", "members": ["channel_email", "channel_sms", "channel_web"]},
+          {"ordinal": 2, "name": "$preferred_contact", "kind": "MC", "label": "Preferred contact mode", "counted_kind": null, "counted_value": null, "category_labels": "variable_labels", "label_source": "set_label", "members": ["preferred_contact_1", "preferred_contact_2"]}
+        ]
+      }
+    },
+    {
+      "id": "weight-and-string-mr",
+      "source": "fixtures/weight-and-string-mr.sav",
+      "directions": ["import", "export", "semantic_round_trip"],
+      "expects": ["weight_variable", "multiple_response_md", "multiple_response_members_ordered", "multiple_response_counted_value", "multiple_response_string_counted_value", "multiple_response_category_label_behavior", "multiple_response_label_source"],
+      "expected_catalog": {
+        "weight_variable": "survey_weight",
+        "multiple_response_sets": [
+          {"ordinal": 1, "name": "$contact_text", "kind": "MD", "label": "Text-coded contact modes", "counted_kind": "string", "counted_value": "yes", "category_labels": "counted_values", "label_source": "variable_label", "members": ["channel_email_text", "channel_sms_text"]}
+        ]
+      }
     },
     {
       "id": "zsav-compressed",

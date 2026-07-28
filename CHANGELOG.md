@@ -9,3 +9,4 @@
 - Added Python and PHP reference-adapter conformance coverage.
 - Made the singular normative catalog the required source of truth for export.
 - Added case-weight, typed multiple-response counted values, label-source, and explicit LOWEST/HIGHEST coverage.
+- Required immutable specification identity, theoretical/effective SQL limits, tested server versions, and concrete canonical fixture expectations in capability declarations and conformance runs.

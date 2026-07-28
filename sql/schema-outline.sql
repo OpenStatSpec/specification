@@ -123,6 +123,7 @@ CREATE TABLE variable_set (
   dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
   source_ordinal          INTEGER NOT NULL,
   set_name                TEXT NOT NULL,
+  UNIQUE (dataset_id, source_ordinal),
   UNIQUE (dataset_id, set_name)
 );
 
@@ -146,6 +147,7 @@ CREATE TABLE multiple_response_set (
   counted_string_value     TEXT NULL,
   category_label_behavior  TEXT NULL,
   label_source             TEXT NULL,
+  UNIQUE (dataset_id, source_ordinal),
   UNIQUE (dataset_id, set_name)
 );
 
