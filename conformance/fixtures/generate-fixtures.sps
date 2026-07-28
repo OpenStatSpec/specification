@@ -1,7 +1,5 @@
 * OpenStatSpec SPSS SAV/ZSAV 1.0 conformance-fixture generator.
-*
-* Before running: create C:\OpenStatSpec-fixtures\ or replace that directory
-* in every GET FILE and SAVE OUTFILE command below.  No SPSS macro is used.
+* Creates all files in C:\Users\admin\Downloads\ without manual steps.
 * The generated data is synthetic and intended for CC0 publication.
 
 SET UNICODE=ON.
@@ -25,7 +23,7 @@ VARIABLE LABELS
   score 'Binary64-oriented numeric test value'
   text_value 'Short text; blank is an ordinary value'.
 VARIABLE LEVEL id (NOMINAL) score (SCALE) text_value (NOMINAL).
-SAVE OUTFILE='C:\OpenStatSpec-fixtures\core-numeric-string.sav'.
+SAVE OUTFILE='C:\Users\admin\Downloads\core-numeric-string.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
@@ -69,7 +67,7 @@ VARIABLE ROLE
 VARIABLE WIDTH respondent_id (8) gender (8) satisfaction (10) comment (40).
 VARIABLE ALIGNMENT respondent_id (RIGHT) gender (CENTER) satisfaction (CENTER)
   comment (LEFT).
-SAVE OUTFILE='C:\OpenStatSpec-fixtures\dictionary-and-display.sav'.
+SAVE OUTFILE='C:\Users\admin\Downloads\dictionary-and-display.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
@@ -95,7 +93,7 @@ MISSING VALUES
  /range_plus_code (97 THRU 99, 9999)
  /lowest_to_zero (LOWEST THRU 0)
  /highest_from_100 (100 THRU HIGHEST).
-SAVE OUTFILE='C:\OpenStatSpec-fixtures\missing-rules.sav'.
+SAVE OUTFILE='C:\Users\admin\Downloads\missing-rules.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
@@ -116,11 +114,13 @@ DATAFILE ATTRIBUTE
   ATTRIBUTE=fixture_metadata[1]('OpenStatSpec')
             fixture_metadata[2]('1.0')
             fixture_metadata[3]('synthetic').
-SAVE OUTFILE='C:\OpenStatSpec-fixtures\long-utf8-and-attributes.sav'.
+SAVE OUTFILE='C:\Users\admin\Downloads\long-utf8-and-attributes.sav'.
 EXECUTE.
 
 * -------------------------------------------------------------------------.
-* sets-source.sav. Define Variable Sets manually after this script completes.
+* sets.sav, including MR sets and ordinary Variable Sets.
+* SPSS has no command that creates Variable Sets. The embedded Python writes
+* a tiny synthetic dictionary template, and APPLY DICTIONARY copies VARSETS.
 * -------------------------------------------------------------------------.
 DATA LIST FREE /
   respondent_id (F4.0)
@@ -142,14 +142,56 @@ MRSETS
  /MCGROUP NAME=$preferred_contact LABEL='Preferred contact mode'
    VARIABLES=preferred_contact_1 preferred_contact_2.
 VALUE LABELS preferred_contact_1 preferred_contact_2 1 'Email' 2 'SMS' 3 'Web'.
-SAVE OUTFILE='C:\OpenStatSpec-fixtures\sets-source.sav'.
+
+BEGIN PROGRAM Python3.
+import base64
+from pathlib import Path
+
+payload = (
+    "JEZMMkAoIykgU1BTUyBEQVRBIEZJTEUgTElOVVggUkVESEFUIDI5LjAuMi4wIHNwc3NpbyAgICAg"
+    "ICAgICAgIAIAAAAIAAAAAQAAAAAAAAABAAAAAAAAAAAAWUAyOCBKdWwgMjYxMToxNjo0MSAgICAg"
+    "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg"
+    "ICAAAAACAAAAAAAAAAAAAAAAAAAAAggFAAIIBQBSRVNQT05ERQIAAAAAAAAAAAAAAAAAAAACCAUA"
+    "AggFAEFHRSAgICAgAgAAAAAAAAAAAAAAAAAAAAIIBQACCAUAR0VOREVSICACAAAAAAAAAAAAAAAA"
+    "AAAAAggFAAIIBQBDSEFOTkVMIAIAAAAAAAAAAAAAAAAAAAACCAUAAggFAFY1X0EgICAgAgAAAAAA"
+    "AAAAAAAAAAAAAAIIBQACCAUAVjZfQSAgICACAAAAAAAAAAAAAAAAAAAAAggFAAIIBQBQUkVGRVJS"
+    "RQIAAAAAAAAAAAAAAAAAAAACCAUAAggFAFY4X0EgICAgBwAAAAMAAAAEAAAACAAAAB0AAAAAAAAA"
+    "yAAAANACAAABAAAAAQAAAAIAAADp/QAABwAAAAQAAAAIAAAAAwAAAP///////+//////////73/+"
+    "///////v/wcAAAAFAAAAAQAAAFQAAABkZW1vZ3JhcGhpY3M9IHJlc3BvbmRlIGFnZSBnZW5kZXIK"
+    "Y29udGFjdF9jaGFubmVscz0gY2hhbm5lbCB2NV9hIHY2X2EgcHJlZmVycmUgdjhfYQoHAAAACwAA"
+    "AAQAAAAYAAAAAwAAAAgAAAABAAAAAwAAAAgAAAABAAAAAwAAAAgAAAABAAAAAwAAAAgAAAABAAAA"
+    "AwAAAAgAAAABAAAAAwAAAAgAAAABAAAAAwAAAAgAAAABAAAAAwAAAAgAAAABAAAABwAAAA0AAAAB"
+    "AAAAmgAAAFJFU1BPTkRFPXJlc3BvbmRlbnRfaWQJQUdFPWFnZQlHRU5ERVI9Z2VuZGVyCUNIQU5O"
+    "RUw9Y2hhbm5lbF9lbWFpbAlWNV9BPWNoYW5uZWxfc21zCVY2X0E9Y2hhbm5lbF93ZWIJUFJFRkVS"
+    "UkU9cHJlZmVycmVkX2NvbnRhY3RfMQlWOF9BPXByZWZlcnJlZF9jb250YWN0XzIHAAAAEAAAAAgA"
+    "AAACAAAAAQAAAAAAAAABAAAAAAAAAAcAAAASAAAAAQAAAM4AAAByZXNwb25kZW50X2lkOiRAUm9s"
+    "ZSgnMCcKKS9hZ2U6JEBSb2xlKCcwJwopL2dlbmRlcjokQFJvbGUoJzAnCikvY2hhbm5lbF9lbWFp"
+    "bDokQFJvbGUoJzAnCikvY2hhbm5lbF9zbXM6JEBSb2xlKCcwJwopL2NoYW5uZWxfd2ViOiRAUm9s"
+    "ZSgnMCcKKS9wcmVmZXJyZWRfY29udGFjdF8xOiRAUm9sZSgnMCcKKS9wcmVmZXJyZWRfY29udGFj"
+    "dF8yOiRAUm9sZSgnMCcKKQcAAAAUAAAAAQAAAAUAAABVVEYtOOcDAAAAAAAAZGRkZGRkZGQ="
+)
+Path(r"C:\Users\admin\Downloads\openstatspec-varsets-template.sav").write_bytes(
+    base64.b64decode(payload)
+)
+END PROGRAM.
+
+APPLY DICTIONARY FROM='C:\Users\admin\Downloads\openstatspec-varsets-template.sav'
+ /FILEINFO VARSETS=REPLACE.
+SAVE OUTFILE='C:\Users\admin\Downloads\sets.sav'.
 EXECUTE.
+
+BEGIN PROGRAM Python3.
+from pathlib import Path
+template = Path(r"C:\Users\admin\Downloads\openstatspec-varsets-template.sav")
+if template.exists():
+    template.unlink()
+END PROGRAM.
 
 * -------------------------------------------------------------------------.
 * zsav-compressed.zsav: real ZLIB-compressed SPSS system file.
 * -------------------------------------------------------------------------.
-GET FILE='C:\OpenStatSpec-fixtures\dictionary-and-display.sav'.
-SAVE OUTFILE='C:\OpenStatSpec-fixtures\zsav-compressed.zsav' /ZCOMPRESSED.
+GET FILE='C:\Users\admin\Downloads\dictionary-and-display.sav'.
+SAVE OUTFILE='C:\Users\admin\Downloads\zsav-compressed.zsav' /ZCOMPRESSED.
 EXECUTE.
 
 * The preflight-too-wide fixture is SQL-profile-specific. Generate it later
