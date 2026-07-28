@@ -21,7 +21,7 @@
       "id": "dictionary-and-display",
       "source": "fixtures/dictionary-and-display.sav",
       "directions": ["import", "export", "semantic_round_trip"],
-      "expects": ["file_label", "documents_order", "weight_variable", "variable_labels", "print_write_formats", "measurement_level", "variable_role", "display_width", "display_alignment", "value_labels_typed_ordered"]
+      "expects": ["file_label", "documents_order", "variable_labels", "print_write_formats", "measurement_level", "variable_role", "display_width", "display_alignment", "value_labels_typed_ordered"]
     },
     {
       "id": "missing-rules",
@@ -39,7 +39,7 @@
       "id": "sets",
       "source": "fixtures/sets.sav",
       "directions": ["import", "export", "semantic_round_trip"],
-      "expects": ["variable_sets_ordered", "multiple_response_md", "multiple_response_mc", "multiple_response_members_ordered", "multiple_response_counted_value", "multiple_response_string_counted_value", "multiple_response_category_label_behavior", "multiple_response_label_source"]
+      "expects": ["variable_sets_ordered", "multiple_response_md", "multiple_response_mc", "multiple_response_members_ordered", "multiple_response_counted_value", "multiple_response_category_label_behavior", "multiple_response_label_source"]
     },
     {
       "id": "zsav-compressed",

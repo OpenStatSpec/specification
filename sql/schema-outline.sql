@@ -121,6 +121,7 @@ CREATE TABLE document (
 CREATE TABLE variable_set (
   variable_set_id         UUID PRIMARY KEY,
   dataset_id              UUID NOT NULL REFERENCES dataset(dataset_id),
+  source_ordinal          INTEGER NOT NULL,
   set_name                TEXT NOT NULL,
   UNIQUE (dataset_id, set_name)
 );
@@ -136,6 +137,7 @@ CREATE TABLE variable_set_member (
 CREATE TABLE multiple_response_set (
   multiple_response_set_id UUID PRIMARY KEY,
   dataset_id               UUID NOT NULL REFERENCES dataset(dataset_id),
+  source_ordinal           INTEGER NOT NULL,
   set_name                 TEXT NOT NULL,
   set_label                TEXT NULL,
   set_kind                 TEXT NOT NULL, -- MD | MC
