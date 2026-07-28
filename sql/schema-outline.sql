@@ -1,4 +1,4 @@
--- OpenStatSpec: dialect-neutral schema outline (draft)
+-- OpenStatSpec SPSS SAV/ZSAV Profile 1.0: normative logical schema outline
 -- Concrete profiles select exact SQL types and quoting rules.
 
 CREATE TABLE dataset (

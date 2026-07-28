@@ -4,17 +4,17 @@ This is a working to-do list for OpenStatSpec. Items below describe intended wor
 
 ## 1. Core SPSS relational specification
 
-- [ ] Complete the SPSS `.sav` and `.zsav` mapping rules for values, dictionary metadata, ordering, missing values, formats, attributes, documents, variable sets, and multiple-response sets.
-- [ ] Review the source-faithful wide-table contract for clarity and implementability.
-- [ ] Define the machine-readable fidelity-event and target-capability diagnostic fields.
+- [x] Complete the SPSS `.sav` and `.zsav` mapping rules for values, dictionary metadata, ordering, missing values, formats, attributes, documents, variable sets, and multiple-response sets.
+- [x] Review the source-faithful wide-table contract for clarity and implementability.
+- [x] Define the machine-readable fidelity-event and target-capability diagnostic fields.
 - [ ] Review terminology and examples with statistical-data practitioners and adapter implementers.
 
 ## 2. Canonical fixtures and conformance tests
 
-- [ ] Create small lawful SPSS fixtures covering ordinary values and dictionary metadata.
-- [ ] Add edge-case fixtures for system-missing, user-missing values and ranges, strings, labels, formats, long names, and identifier collisions.
-- [ ] Define expected relational outcomes and semantic round-trip checks.
-- [ ] Publish conformance-test guidance for dialect profiles and adapters.
+- [x] Create small lawful SPSS fixtures covering ordinary values and dictionary metadata.
+- [x] Add edge-case fixtures for system-missing, user-missing values and ranges, strings, labels, formats, long names, and identifier collisions.
+- [x] Define expected relational outcomes and semantic round-trip checks.
+- [x] Publish conformance-test guidance for dialect profiles and adapters.
 
 ## 3. Reference adapters
 
@@ -22,12 +22,12 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
 
 - [x] Establish a Python reference-adapter repository that imports and exports the SPSS profile, reports fidelity events, and runs the canonical fixtures.
 - [x] Establish a PHP reference-adapter repository with the same profile boundary and fixture expectations.
-- [ ] Document supported source features and declared database capabilities for each adapter.
+- [x] Document supported source features and declared database capabilities for each adapter.
 
 ## 4. CI, releases, and documentation
 
-- [ ] Add continuous checks for specification links, schema examples, fixtures, and adapter conformance once the relevant repositories exist.
-- [ ] Define versioning and compatibility guidance for the specification and profiles.
+- [x] Add continuous checks for specification links, schema examples, fixtures, and adapter conformance once the relevant repositories exist.
+- [x] Define versioning and compatibility guidance for the specification and profiles.
 - [ ] Publish release notes and tagged specification releases.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 

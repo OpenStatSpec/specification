@@ -1,0 +1,9 @@
+# Changelog
+
+## Unreleased - SPSS SAV/ZSAV Profile 1.0 release candidate
+
+- Defined the strict one-source-dataset to one-wide-table relational contract.
+- Added the normative operation and fidelity-event model.
+- Added SQLite, PostgreSQL, and MySQL/MariaDB dialect capability profiles.
+- Added generated CC0 SAV/ZSAV conformance fixtures and a machine-readable manifest.
+- Added Python and PHP reference-adapter conformance coverage.

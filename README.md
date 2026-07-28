@@ -6,7 +6,7 @@ The first profile targets IBM SPSS Statistics system files. It maps one source d
 
 ## Status
 
-This repository contains a working draft, not a released standard. It records the core design boundary before implementation libraries are created.
+The versioned [SPSS SAV/ZSAV Profile 1.0](docs/spss-sav-zsav-profile-1.0.md) is a release candidate with normative conformance language, a canonical relational schema, generated fixtures, and reference-adapter coverage. Until a release tag is created, implementations should pin the exact specification commit they test against.
 
 ## Core contract
 
@@ -20,7 +20,7 @@ This repository contains a working draft, not a released standard. It records th
 
 OpenStatSpec does not define long-form cells, EAV storage, table splitting, reshaping, automatic harmonization, or questionnaire/study entities. It does not infer respondent keys or combine datasets. All conformant database-object identifiers are generic; the double-underscore prefix is reserved for standard technical identifiers.
 
-[Roadmap](ROADMAP.md) tracks remaining project work and maintainer setup.
+[Versioning](VERSIONING.md) defines compatibility and release rules. [Roadmap](ROADMAP.md) tracks remaining project work and maintainer setup.
 
 
 ## Repository layout
@@ -45,7 +45,7 @@ OpenStatSpec is for people and projects that need to move statistical datasets b
 - database maintainers preparing a dialect profile with clear capability boundaries; and
 - users who need an inspectable, source-faithful relational target for SPSS data.
 
-## Trying the draft
+## Trying the profile
 
 Read the [SPSS profile](docs/spss-profile.md) and the [schema outline](sql/schema-outline.sql), then map a small unencrypted `.sav` or `.zsav` file to one dedicated wide table plus the catalog metadata. Preserve source case and variable order, retain raw values, and use the metadata tables to retain labels, missing-value rules, formats, and other dictionary semantics.
 
@@ -53,6 +53,6 @@ An implementation must publish its database dialect capabilities and reject any 
 
 ## Contribute and adopt
 
-This draft needs real-world review. Implementers, statistical-data practitioners, and database maintainers are invited to test it against actual SPSS datasets and contribute findings, fixtures, dialect profiles, adapter support, or documentation improvements. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+This profile welcomes real-world review. Implementers, statistical-data practitioners, and database maintainers are invited to test it against actual SPSS datasets and contribute findings, fixtures, dialect profiles, adapter support, or documentation improvements. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 The standard remains deliberately narrow: it defines a source-faithful relational representation, not a statistics engine, survey platform, harmonization system, or general data warehouse model.
