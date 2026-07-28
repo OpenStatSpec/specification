@@ -145,10 +145,10 @@ MRSETS
    VARIABLES=preferred_contact_1 preferred_contact_2.
 VALUE LABELS preferred_contact_1 preferred_contact_2 1 'Email' 2 'SMS' 3 'Web'.
 * SPSS does not expose saved Variable Sets records to ordinary command syntax.
-* Before the following SAVE, use Utilities > Define Variable Sets to create:
-* demographics: respondent_id age gender
-* contact_channels: channel_email channel_sms channel_web preferred_contact_1 preferred_contact_2
-SAVE OUTFILE=!CONCAT(!OUT,'sets.sav').
+* It therefore saves this intermediate source file. Open it in the Data Editor,
+* use Utilities > Define Variable Sets to create the two documented sets, then
+* save it manually as sets.sav in the same output directory.
+SAVE OUTFILE=!CONCAT(!OUT,'sets-source.sav').
 EXECUTE.
 
 * -------------------------------------------------------------------------.
