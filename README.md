@@ -22,6 +22,12 @@ OpenStatSpec does not define long-form cells, EAV storage, table splitting, resh
 
 [Versioning](VERSIONING.md) defines compatibility and release rules. [Roadmap](ROADMAP.md) tracks remaining project work and maintainer setup.
 
+## Optional SQL transformation workflow
+
+The [SQL Transformation Workflow Profile 0.1](docs/sql-transformation-workflow-profile-0.1.md)
+adds versioned, parameterized and auditable SQL-derived datasets beside the core.
+It never reclassifies derived output as a source-faithful core dataset and never
+permits a transformation to mutate a core import.
 
 ## Repository layout
 
@@ -30,6 +36,8 @@ OpenStatSpec does not define long-form cells, EAV storage, table splitting, resh
 - [Python / pinned pyspssio implementation profile](docs/implementation-profiles/python-pyspssio-0.5.1.md) — Python adapter pyspssio capability boundary; it does not relax the normative SAV/ZSAV profile.
 - `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, and MySQL/MariaDB physical profiles.
 - `sql/` — dialect-neutral schema outline and profile notes.
+- `sql/transformation-workflow-profile-schema.sql` - optional derived-data
+  catalog outline, separate from the immutable core catalog.
 - `examples/` — small illustrative mapping fixtures.
 
 ## Conformance principle
