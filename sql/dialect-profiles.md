@@ -165,6 +165,14 @@ available or complete compensating cleanup. An occupied database that does not
 carry the expected singleton `catalog_identity` is foreign and MUST fail
 without modification.
 
+In an otherwise empty dedicated database, after supported Dolt identity has
+been established, an adapter MAY initialize the normative catalog. It MUST
+immediately verify the new singleton `catalog_identity` and only then record
+the one permitted source-capability failure audit described above. Before
+creating any normative or mirror relation, the adapter MUST first prove the
+selected namespace is empty or already owned by the expected OpenStatSpec
+contract. A namespace that is neither empty nor owned MUST fail without modification.
+
 Dolt staging, commits and commit hashes are outside core conformance. An
 adapter extension MAY record such provenance only in its own namespaced
 extension. The optional SQL Transformation Workflow Profile is unsupported for

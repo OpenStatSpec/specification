@@ -464,6 +464,12 @@ def main() -> None:
         "not an observed Dolt row-size boundary",
         "Only after supported Dolt identity has been established",
         "Unknown or unclaimed identity never reaches this audit path",
+        "otherwise empty dedicated database",
+        "MAY initialize the normative catalog",
+        "immediately verify the new singleton `catalog_identity`",
+        "MUST first prove the",
+        "selected namespace is empty or already owned",
+        "neither empty nor owned MUST fail without modification",
         "SQL Transformation Workflow Profile is unsupported",
     ):
         require(phrase in dialects, f"Dolt normative declaration is missing: {phrase}")
