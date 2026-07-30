@@ -1,6 +1,6 @@
 # Contributing to OpenStatSpec
 
-OpenStatSpec is a working draft. Contributions that make its source-faithful SPSS-to-relational contract clearer, testable, or implementable are welcome.
+OpenStatSpec is at release-candidate status. Contributions that make its source-faithful SPSS-to-relational contract clearer, testable, or implementable are welcome.
 
 ## Useful first contributions
 

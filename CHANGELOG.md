@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased - SPSS SAV/ZSAV Profile 1.0 release candidate
+## v1.0.0-rc.1 - 2026-07-30
 
 - Defined the strict one-source-dataset to one-wide-table relational contract.
 - Added the normative operation and fidelity-event model.
