@@ -248,14 +248,33 @@ include `definition_hash_mismatch`, `dialect_not_supported`,
 Before execution, validate definition, bindings, inputs, privileges, dialect,
 expected shape, and capacity. Execute into an unpredictable profile-owned
 staging relation, validate, hash, then atomically publish relation and catalog.
+Before creating the staging relation, the executor MUST durably record its
+engine-native `staging_relation_key` on the `started` run. The key MUST resolve
+inside the declared profile-owned staging namespace and MUST be retained for
+audit and recovery.
 Transactional engines MUST perform staging through run success in one
 transaction. Engines with implicit DDL commits MUST use documented atomic
 rename/catalog-pointer publication plus compensating cleanup.
 
-Failure retains the run/events but MUST leave no derived-dataset row, published
-output name, or staging object. Cleanup failure is audited and cannot be
-reported as success. Crash recovery MUST reconcile `started` runs and only
-profile-owned staging objects.
+An ordinary failure MUST complete cleanup before the run becomes terminal. It
+retains the run and events, leaves no derived-dataset row or published output,
+verifies that the recorded staging relation is absent, and then transitions
+exactly once from `started` to terminal `failed`.
+
+If cleanup itself fails, or a process crash leaves the recorded staging
+relation present, that relation is recoverable quarantined staging: it MUST NOT
+be published, exposed, reused, or treated as a successful result. The run MUST
+remain non-terminal `started`, retain its `staging_relation_key`, and forbid a
+transition to `succeeded`. An observed cleanup failure MUST append a
+`cleanup_failed` event; a crash may leave no new event until reconciliation.
+
+The reconciler MUST consider only `started` runs and their recorded staging
+keys, re-verify the profile namespace and ownership before mutation, and never
+remove an ambiguous or unowned object. After it removes the quarantined object
+and verifies the recorded relation is absent, it completes the failure audit
+and transitions the run exactly once to terminal `failed`. If ownership cannot
+be verified or cleanup still fails, the object remains quarantined and the run
+remains `started` for another reconciliation attempt or manual intervention.
 
 ## Dialect and security boundary
 

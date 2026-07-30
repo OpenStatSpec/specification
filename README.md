@@ -6,7 +6,7 @@ The first profile targets IBM SPSS Statistics system files. It maps one source d
 
 ## Status
 
-The versioned [SPSS SAV/ZSAV Profile 1.0](docs/spss-sav-zsav-profile-1.0.md) is a release candidate with normative conformance language, a canonical relational schema, generated fixtures, and reference-adapter coverage. Until a release tag is created, implementations should pin the exact specification commit they test against.
+The versioned [SPSS SAV/ZSAV Profile 1.0](docs/spss-sav-zsav-profile-1.0.md) is a release candidate with normative conformance language, a canonical relational schema, generated fixtures, and reference-adapter coverage. The SQL layer includes independent SQLite, PostgreSQL, MySQL/MariaDB/InnoDB and Dolt profiles; Dolt currently claims the exact tested 2.2.2 envelope and does not claim the optional SQL Transformation Workflow. Until a release tag is created, implementations should pin the exact specification commit they test against.
 
 ## Core contract
 
@@ -34,7 +34,7 @@ permits a transformation to mutate a core import.
 - `docs/architecture.md` — model boundary and catalog outline.
 - `docs/spss-profile.md` — SPSS source-faithful mapping rules.
 - [Python / pinned pyspssio implementation profile](docs/implementation-profiles/python-pyspssio-0.5.1.md) — Python adapter pyspssio capability boundary; it does not relax the normative SAV/ZSAV profile.
-- `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, and MySQL/MariaDB physical profiles.
+- `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, MySQL/MariaDB and Dolt physical profiles.
 - `sql/` — dialect-neutral schema outline and profile notes.
 - `sql/transformation-workflow-profile-schema.sql` - optional derived-data
   catalog outline, separate from the immutable core catalog.

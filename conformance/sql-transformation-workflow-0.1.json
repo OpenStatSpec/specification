@@ -1682,6 +1682,45 @@
       "version_number": 1
     }
   ],
+  "recovery_cases": [
+    {
+      "id": "cleanup-failure-quarantines-staging",
+      "trigger": "cleanup_failed",
+      "initial_status": "started",
+      "staging_relation_key": "sqlite:main.__openstatspec_staging_cleanup_case",
+      "event": {
+        "code": "cleanup_failed",
+        "phase": "cleanup"
+      },
+      "invariants": [
+        "no_derived_dataset",
+        "no_published_output",
+        "quarantined_staging_not_exposed",
+        "run_remains_started_while_staging_exists",
+        "reconciliation_required",
+        "remove_only_recorded_profile_owned_staging",
+        "success_forbidden"
+      ],
+      "terminal_status_after_reconciliation": "failed"
+    },
+    {
+      "id": "crash-leaves-quarantined-staging",
+      "trigger": "process_crash",
+      "initial_status": "started",
+      "staging_relation_key": "sqlite:main.__openstatspec_staging_crash_case",
+      "event": null,
+      "invariants": [
+        "no_derived_dataset",
+        "no_published_output",
+        "quarantined_staging_not_exposed",
+        "run_remains_started_while_staging_exists",
+        "reconciliation_required",
+        "remove_only_recorded_profile_owned_staging",
+        "success_forbidden"
+      ],
+      "terminal_status_after_reconciliation": "failed"
+    }
+  ],
   "canonicalization_cases": [
     {
       "id": "unicode-utf16-key-order",

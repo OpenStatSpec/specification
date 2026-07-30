@@ -85,6 +85,94 @@
         "maximum_row_bytes"
       ],
       "failure_cleanup_required": true
+    },
+    "dolt": {
+      "engine": "dolt",
+      "transport": "mysql_compatible",
+      "identity": {
+        "required_probes": [
+          "@@version",
+          "@@version_comment",
+          "DOLT_VERSION()"
+        ],
+        "version_comment_normalized_equals": "dolt",
+        "signals_must_be_mutually_consistent": true,
+        "failure_policy": "fail_before_catalog_or_dataset_mutation"
+      },
+      "claimed_version_range": {
+        "minimum_inclusive": "2.2.2",
+        "maximum_inclusive": "2.2.2"
+      },
+      "exact_ci_tested_versions": [
+        "2.2.2"
+      ],
+      "maximum_columns_default": 306,
+      "maximum_source_variables_default": 305,
+      "identifier_quoting": "backtick",
+      "identifier_limit": {
+        "value": 64,
+        "unit": "bytes",
+        "source": "pinned live Dolt 2.2.2: 64-byte ASCII identifier succeeded and 65-byte identifier was rejected",
+        "repertoire": "ASCII-safe generated physical identifiers"
+      },
+      "catalog_namespace_modes": [
+        "database"
+      ],
+      "catalog_binding_policy": "dedicated_database",
+      "numeric_type": "DOUBLE",
+      "string_type": "LONGTEXT NOT NULL",
+      "case_ordinal_type": "BIGINT NOT NULL PRIMARY KEY",
+      "maximum_row_bytes_default": 65504,
+      "limit_evidence": {
+        "maximum_physical_columns": {
+          "value": 306,
+          "unit": "columns",
+          "classification": "proposed_adapter_envelope",
+          "source": "306 and 307 physical columns both succeeded on pinned live Dolt 2.2.2; 306 including __case_ordinal is the conservative adapter envelope, not a native maximum"
+        },
+        "maximum_source_variables": {
+          "value": 305,
+          "unit": "variables",
+          "classification": "proposed_adapter_envelope",
+          "source": "derived from the conservative 306-physical-column adapter envelope with one column reserved for __case_ordinal"
+        },
+        "identifier_length": {
+          "value": 64,
+          "unit": "bytes",
+          "classification": "observed_exact_version",
+          "source": "64-byte ASCII identifier succeeded and 65-byte identifier was rejected on pinned live Dolt 2.2.2"
+        },
+        "maximum_row_size": {
+          "value": 65504,
+          "unit": "bytes",
+          "classification": "proposed_adapter_envelope",
+          "source": "conservative row preflight ceiling supported by an observed 65,504-byte UTF-8 LONGTEXT value round trip on pinned live Dolt 2.2.2; no native row-size maximum is claimed"
+        }
+      },
+      "storage_evidence": {
+        "binary64": {
+          "type": "DOUBLE",
+          "classification": "observed_exact_version",
+          "source": "maximum finite binary64 round-tripped exactly on pinned live Dolt 2.2.2"
+        },
+        "text": {
+          "type": "LONGTEXT NOT NULL",
+          "observed_value_bytes": 65504,
+          "classification": "observed_exact_version",
+          "source": "65,504 UTF-8 bytes round-tripped exactly on pinned live Dolt 2.2.2"
+        }
+      },
+      "transactional_ddl": false,
+      "failure_cleanup_required": true,
+      "effective_limits_must_be_published": [
+        "maximum_physical_columns",
+        "maximum_source_variables",
+        "maximum_identifier_bytes",
+        "maximum_value_bytes",
+        "maximum_row_bytes",
+        "maximum_statement_bytes"
+      ],
+      "transformation_workflow": "unsupported"
     }
   }
 }

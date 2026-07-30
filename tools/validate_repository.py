@@ -135,6 +135,27 @@ def validate_identifier_limit(profile: str, value: object) -> None:
     require_string(value["repertoire"], context + ".repertoire")
 
 
+def validate_limit_evidence(
+    value: object,
+    context: str,
+    expected_value: int,
+    expected_unit: str,
+    expected_classification: str,
+) -> None:
+    require(isinstance(value, dict), f"{context}: must be an object.")
+    require(
+        set(value) == {"value", "unit", "classification", "source"},
+        f"{context}: fields are incomplete.",
+    )
+    require(value["value"] == expected_value, f"{context}.value is unexpected.")
+    require(value["unit"] == expected_unit, f"{context}.unit is unexpected.")
+    require(
+        value["classification"] == expected_classification,
+        f"{context}.classification is unexpected.",
+    )
+    require_string(value["source"], context + ".source")
+
+
 def validate_dialect_baseline() -> None:
     path = ROOT / "sql/dialect-profile-baseline.json"
     baseline = json.loads(path.read_text(encoding="utf-8"))
@@ -162,6 +183,7 @@ def validate_dialect_baseline() -> None:
         "sqlite": ["dedicated_database", "attached_database", "reserved_prefix"],
         "postgresql": ["schema"],
         "mysql_mariadb_innodb": ["database"],
+        "dolt": ["database"],
     }
     require(set(profiles) == set(expected_modes), "SQL dialect profile set is incomplete.")
     for name, profile in profiles.items():
@@ -171,6 +193,161 @@ def validate_dialect_baseline() -> None:
         modes = profile.get("catalog_namespace_modes")
         require_string_list(modes, f"dialect profile {name}.catalog_namespace_modes")
         require(modes == expected_modes[name], f"Unexpected catalog namespace modes for {name}.")
+    dolt = profiles["dolt"]
+    require(
+        set(dolt)
+        == {
+            "engine",
+            "transport",
+            "identity",
+            "claimed_version_range",
+            "exact_ci_tested_versions",
+            "maximum_columns_default",
+            "maximum_source_variables_default",
+            "identifier_quoting",
+            "identifier_limit",
+            "catalog_namespace_modes",
+            "catalog_binding_policy",
+            "numeric_type",
+            "string_type",
+            "case_ordinal_type",
+            "maximum_row_bytes_default",
+            "limit_evidence",
+            "storage_evidence",
+            "transactional_ddl",
+            "failure_cleanup_required",
+            "effective_limits_must_be_published",
+            "transformation_workflow",
+        },
+        "Dolt profile fields are incomplete.",
+    )
+    require(dolt["engine"] == "dolt", "Dolt engine identity is missing.")
+    require(dolt["transport"] == "mysql_compatible", "Dolt transport must remain separate from engine identity.")
+    identity = dolt["identity"]
+    require(isinstance(identity, dict), "Dolt identity declaration is missing.")
+    require(
+        set(identity)
+        == {
+            "required_probes",
+            "version_comment_normalized_equals",
+            "signals_must_be_mutually_consistent",
+            "failure_policy",
+        },
+        "Dolt identity declaration fields are incomplete.",
+    )
+    require(
+        identity["required_probes"] == ["@@version", "@@version_comment", "DOLT_VERSION()"],
+        "Dolt positive identity probes are incomplete.",
+    )
+    require(identity["version_comment_normalized_equals"] == "dolt", "Dolt version-comment identity is unexpected.")
+    require(identity["signals_must_be_mutually_consistent"] is True, "Dolt identity signals must agree.")
+    require(
+        identity["failure_policy"] == "fail_before_catalog_or_dataset_mutation",
+        "Dolt identity must fail closed before catalog or dataset mutation.",
+    )
+    require(
+        dolt["claimed_version_range"]
+        == {"minimum_inclusive": "2.2.2", "maximum_inclusive": "2.2.2"},
+        "Dolt claimed version range is unexpected.",
+    )
+    require(dolt["exact_ci_tested_versions"] == ["2.2.2"], "Dolt exact CI-tested versions are unexpected.")
+    require(dolt["maximum_columns_default"] == 306, "Dolt physical-column envelope is unexpected.")
+    require(dolt["maximum_source_variables_default"] == 305, "Dolt source-variable envelope is unexpected.")
+    require(dolt["identifier_quoting"] == "backtick", "Dolt identifier quoting is unexpected.")
+    require(dolt["identifier_limit"]["value"] == 64, "Dolt identifier envelope is unexpected.")
+    require(dolt["identifier_limit"]["unit"] == "bytes", "Dolt identifiers must be byte-measured.")
+    require(
+        dolt["identifier_limit"]["repertoire"] == "ASCII-safe generated physical identifiers",
+        "Dolt identifier repertoire is unexpected.",
+    )
+    require(dolt["catalog_binding_policy"] == "dedicated_database", "Dolt needs a dedicated database.")
+    require(dolt["numeric_type"] == "DOUBLE", "Dolt numeric type must preserve binary64.")
+    require(dolt["string_type"] == "LONGTEXT NOT NULL", "Dolt text type is unexpected.")
+    require(dolt["case_ordinal_type"] == "BIGINT NOT NULL PRIMARY KEY", "Dolt case ordinal type is unexpected.")
+    require(dolt["maximum_row_bytes_default"] == 65504, "Dolt row envelope is unexpected.")
+    evidence = dolt["limit_evidence"]
+    require(isinstance(evidence, dict), "Dolt limit evidence is missing.")
+    require(
+        set(evidence)
+        == {
+            "maximum_physical_columns",
+            "maximum_source_variables",
+            "identifier_length",
+            "maximum_row_size",
+        },
+        "Dolt limit evidence set is incomplete.",
+    )
+    validate_limit_evidence(
+        evidence["maximum_physical_columns"],
+        "Dolt physical columns",
+        306,
+        "columns",
+        "proposed_adapter_envelope",
+    )
+    validate_limit_evidence(
+        evidence["maximum_source_variables"],
+        "Dolt source variables",
+        305,
+        "variables",
+        "proposed_adapter_envelope",
+    )
+    validate_limit_evidence(
+        evidence["identifier_length"],
+        "Dolt identifier length",
+        64,
+        "bytes",
+        "observed_exact_version",
+    )
+    validate_limit_evidence(
+        evidence["maximum_row_size"],
+        "Dolt row size",
+        65504,
+        "bytes",
+        "proposed_adapter_envelope",
+    )
+    require(
+        "307 physical columns both succeeded" in evidence["maximum_physical_columns"]["source"],
+        "Dolt column evidence must state that 307 columns also succeeded.",
+    )
+    require(
+        "no native row-size maximum is claimed" in evidence["maximum_row_size"]["source"],
+        "Dolt row evidence must not claim a native boundary.",
+    )
+    storage = dolt["storage_evidence"]
+    require(isinstance(storage, dict) and set(storage) == {"binary64", "text"}, "Dolt storage evidence is incomplete.")
+    require(
+        storage["binary64"]
+        == {
+            "type": "DOUBLE",
+            "classification": "observed_exact_version",
+            "source": "maximum finite binary64 round-tripped exactly on pinned live Dolt 2.2.2",
+        },
+        "Dolt DOUBLE evidence is unexpected.",
+    )
+    require(
+        storage["text"]["type"] == "LONGTEXT NOT NULL"
+        and storage["text"]["observed_value_bytes"] == 65504
+        and storage["text"]["classification"] == "observed_exact_version"
+        and isinstance(storage["text"]["source"], str)
+        and bool(storage["text"]["source"]),
+        "Dolt LONGTEXT evidence is unexpected.",
+    )
+    require(dolt["transactional_ddl"] is False, "Dolt DDL must be treated as non-atomic.")
+    require(dolt["failure_cleanup_required"] is True, "Dolt compensating cleanup is required.")
+    require(
+        dolt["effective_limits_must_be_published"]
+        == [
+            "maximum_physical_columns",
+            "maximum_source_variables",
+            "maximum_identifier_bytes",
+            "maximum_value_bytes",
+            "maximum_row_bytes",
+            "maximum_statement_bytes",
+        ],
+        "Dolt effective limit declarations are incomplete.",
+    )
+    require(dolt["transformation_workflow"] == "unsupported", "Dolt must not claim the Transformation Workflow.")
+
 
 
 JCS_SAFE_INTEGER = 9_007_199_254_740_991
@@ -237,7 +414,7 @@ def relation_snapshot_hash(schema_hash: str, rows: list[list[object]]) -> str:
 def validate_transformation_profile() -> None:
     path = ROOT / "conformance/sql-transformation-workflow-0.1.json"
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    require(set(manifest) == {"manifest_version", "profile", "contract", "hash_profile", "canonicalization_cases", "fixtures", "cases"}, "Transformation manifest fields are incomplete.")
+    require(set(manifest) == {"manifest_version", "profile", "contract", "hash_profile", "canonicalization_cases", "fixtures", "cases", "recovery_cases"}, "Transformation manifest fields are incomplete.")
     require(manifest["manifest_version"] == "0.1", "Unexpected transformation manifest version.")
     require(manifest["profile"] == "OpenStatSpec SQL Transformation Workflow 0.1", "Unexpected transformation profile.")
     require(manifest["contract"] == "openstatspec-sql-transformation-workflow-v0.1", "Unexpected transformation contract.")
@@ -371,6 +548,41 @@ def validate_transformation_profile() -> None:
             require({"failed_run_retained", "no_derived_dataset", "no_published_output"} <= set(expected["invariants"]), f"{identifier}: failure atomicity invariants are incomplete.")
     require(identifiers == required_cases, "Transformation conformance case set is incomplete.")
 
+    recovery_cases = manifest["recovery_cases"]
+    require(isinstance(recovery_cases, list), "Transformation recovery cases must be an array.")
+    require(len(recovery_cases) == 2, "Transformation recovery case set is incomplete.")
+    recovery_fields = {
+        "id", "trigger", "initial_status", "staging_relation_key", "event",
+        "invariants", "terminal_status_after_reconciliation",
+    }
+    expected_recovery = {
+        "cleanup-failure-quarantines-staging": ("cleanup_failed", {"code": "cleanup_failed", "phase": "cleanup"}),
+        "crash-leaves-quarantined-staging": ("process_crash", None),
+    }
+    recovery_ids: set[str] = set()
+    required_recovery_invariants = {
+        "no_derived_dataset", "no_published_output",
+        "quarantined_staging_not_exposed",
+        "run_remains_started_while_staging_exists",
+        "reconciliation_required",
+        "remove_only_recorded_profile_owned_staging", "success_forbidden",
+    }
+    for recovery in recovery_cases:
+        require(isinstance(recovery, dict) and set(recovery) == recovery_fields, "Transformation recovery case fields are incomplete.")
+        identifier = require_string(recovery["id"], "transformation recovery case id")
+        require(identifier not in recovery_ids, f"Duplicate transformation recovery case: {identifier}")
+        recovery_ids.add(identifier)
+        require(identifier in expected_recovery, f"Unexpected transformation recovery case: {identifier}")
+        trigger, event = expected_recovery[identifier]
+        require(recovery["trigger"] == trigger, f"{identifier}: unexpected recovery trigger.")
+        require(recovery["event"] == event, f"{identifier}: unexpected recovery event.")
+        require(recovery["initial_status"] == "started", f"{identifier}: quarantined staging must keep the run started.")
+        require(recovery["terminal_status_after_reconciliation"] == "failed", f"{identifier}: reconciliation must terminate as failed.")
+        require_string(recovery["staging_relation_key"], f"{identifier}.staging_relation_key")
+        require(recovery["staging_relation_key"].startswith("sqlite:main.__openstatspec_staging_"), f"{identifier}: staging key is outside the profile-owned namespace.")
+        require(set(recovery["invariants"]) == required_recovery_invariants, f"{identifier}: recovery invariants are incomplete.")
+    require(recovery_ids == set(expected_recovery), "Transformation recovery case identifiers are incomplete.")
+
     fixture = fixture_map["core-respondents"]
     columns = fixture["schema"]["variables"]
     connection = sqlite3.connect(":memory:")
@@ -427,6 +639,8 @@ def validate_transformation_profile() -> None:
     for phrase in ("Lookup relations are forbidden", "openstatspec-relation-snapshot-v1", "openstatspec-parameter-set-v1", "openstatspec-input-set-v1", "physical_relation_key", "physical_removal_requested", "crash reconciler", "non_unique_order_key", "dialect-aware AST parser", "database MUST enforce an authorizer", "`transformation_id`, positive `version_number`", "stored `query_sql` MUST already equal", "non-collatable", "default is insufficient", "`input_alias`"):
         require(phrase in profile, f"Transformation profile requirement is missing: {phrase}")
     example = (ROOT / "examples/sql-transformation-workflow.md").read_text(encoding="utf-8")
+    for phrase in ("recoverable quarantined staging", "remain non-terminal `started`", "`succeeded`. An observed cleanup failure"):
+        require(phrase in profile, f"Transformation recovery requirement is missing: {phrase}")
     require("FROM parent" in example and ":minimum_age" in example, "Transformation example is incomplete.")
     require('"collation": null' in example and "respondent_id COLLATE BINARY" not in example, "PostgreSQL numeric order example has an invalid collation.")
     print(f"Validated 3 executable-success and {len(cases) - 3} structural-failure SQL workflow cases with {len(fixtures)} executable fixture.")
@@ -536,6 +750,46 @@ def main() -> None:
     dialects = (ROOT / "sql/dialect-profiles.md").read_text(encoding="utf-8")
     require("fixed single-schema `search_path`" in dialects, "PostgreSQL fixed-connection catalog binding is missing.")
     require("connection fixed to that selected database" in dialects, "MySQL fixed-connection catalog binding is missing.")
+    for phrase in (
+        "## Dolt profile",
+        "`profile=dolt`",
+        "`engine=dolt`",
+        "`@@version_comment` MUST equal `dolt`",
+        "`DOLT_VERSION()`",
+        "before catalog creation, migration or audit writes",
+        "Identity failure always leaves zero database mutation",
+        "One dedicated Dolt database",
+        "307 physical columns",
+        "not an observed Dolt row-size boundary",
+        "Only after supported Dolt identity has been established",
+        "Unknown or unclaimed identity never reaches this audit path",
+        "otherwise empty dedicated database",
+        "MAY initialize the normative catalog",
+        "immediately verify the new singleton `catalog_identity`",
+        "MUST first prove the",
+        "selected namespace is empty or already owned",
+        "neither empty nor owned MUST fail without modification",
+        "SQL Transformation Workflow Profile is unsupported",
+    ):
+        require(phrase in dialects, f"Dolt normative declaration is missing: {phrase}")
+    capabilities = (ROOT / "sql/profile-capabilities.md").read_text(encoding="utf-8")
+    for phrase in (
+        "selected profile and database engine separately from transport and driver",
+        "separate list of exact CI-tested server versions",
+        "maximum value, row-size and per-statement limits",
+        "transport selection is not product identity",
+        "zero database mutation",
+    ):
+        require(phrase in capabilities, f"Dolt capability requirement is missing: {phrase}")
+    require("row-count" not in capabilities, "Capabilities must not invent an unsupported row-count limit.")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    require("Dolt profiles" in readme, "README does not list the independent Dolt profile.")
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    require(
+        "independent, fail-closed Dolt 2.2.2 SQL profile" in changelog,
+        "Changelog does not record the Dolt profile.",
+    )
+
     for table in (
         "catalog_identity",
         "dataset",

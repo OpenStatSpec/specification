@@ -103,6 +103,81 @@ The profile applies only when all OpenStatSpec catalog and data tables use an
 engine with the declared behavior. An adapter MUST reject a non-transactional
 or incompatible storage configuration rather than claiming atomic import.
 
+## Dolt profile
+
+Dolt is an independent SQL profile. Its MySQL-compatible wire protocol and
+driver family describe transport only; they do not select or imply the
+`mysql_mariadb_innodb` profile. A conforming adapter MUST publish
+`profile=dolt`, `engine=dolt`, the MySQL-compatible transport and driver, the
+raw and normalized server versions, the identity-probe results, the claimed
+version range, the exact CI-tested versions, and the immutable specification
+identity required by [Dialect Profile Capabilities](profile-capabilities.md).
+
+Identity resolution is fail-closed. The adapter MUST obtain non-empty
+`@@version` and `@@version_comment` values. After trimming and case-folding,
+`@@version_comment` MUST equal `dolt`; only then may the adapter call
+`DOLT_VERSION()`, which MUST also return a non-empty version consistent with
+the Dolt claim. A MySQL URL, MySQL-compatible driver, or a single ambiguous
+signal is insufficient. Missing, conflicting, unknown or unclaimed identity
+MUST fail before catalog creation, migration or audit writes and before any
+dataset mutation. A non-Dolt product MUST NOT be probed with
+`DOLT_VERSION()`. Identity failure always leaves zero database mutation.
+
+The initial claimed Dolt version range is exactly 2.2.2, and the exact
+CI-tested version list is independently `[2.2.2]`. An adapter MUST reject an
+active version outside its published claim before any catalog or dataset
+mutation. Until this profile is included in a tagged specification release,
+capabilities MUST name the immutable specification commit, report
+`release_candidate`, and publish a NULL release identifier.
+
+| Property | Requirement |
+| --- | --- |
+| Quoting and folding | Backtick-quote every generated identifier and double embedded backticks. Do not depend on unquoted-name folding. |
+| Identifier limit | Observed Dolt 2.2.2 boundary: a 64-byte ASCII identifier succeeds and a 65-byte identifier is rejected. Generated physical identifiers use the ASCII-safe 64-byte envelope. |
+| Catalog binding | One dedicated Dolt database is the exclusive OpenStatSpec namespace. Resolve all catalog and data relations through that database and verify its singleton `catalog_identity` before use or migration. |
+| Maximum columns | Proposed conservative adapter envelope: 306 physical columns including `__case_ordinal`, hence 305 source variables. Live Dolt 2.2.2 accepted both 306 and 307 physical columns, so 306 is not a claimed native maximum. |
+| Numeric | `DOUBLE`; the maximum finite binary64 value round-tripped exactly on Dolt 2.2.2. Binary64 preservation is required over the claimed envelope, and non-finite constraints MUST be published. |
+| Text | `LONGTEXT NOT NULL`; 65,504 UTF-8 bytes round-tripped exactly on Dolt 2.2.2. The adapter MUST preserve every accepted non-null string losslessly and publish its active value boundary. |
+| Primary key | `__case_ordinal BIGINT NOT NULL PRIMARY KEY`. |
+| Row/value boundary | Proposed conservative row preflight ceiling: 65,504 bytes, supported by an observed exact round trip of one UTF-8 `LONGTEXT` value of that size. This is not an observed Dolt row-size boundary or claimed native maximum. Active value and per-statement ceilings MUST be derived from and published with the active `@@max_allowed_packet` or a stricter measured deployment boundary. Batching below a statement ceiling is permitted and MUST NOT become a false whole-dataset rejection. |
+| Atomicity | Dolt DDL is treated as non-atomic. Complete every identity and source preflight before target DDL, then remove every profile-owned object created by a failed operation. |
+
+Every published Dolt limit MUST distinguish its value, unit, source and basis:
+theoretical engine limit, exact-version observation, proposed adapter envelope,
+or active effective limit. The 306-column and 305-variable values are proposed
+conservative adapter envelopes; the identifier limit is an observed 64-byte
+success/65-byte rejection boundary; and the proposed 65,504-byte row preflight
+ceiling is supported only by an observed exact `LONGTEXT` value round trip,
+not a measured row-size boundary. None is claimed as an absolute Dolt maximum.
+Adapters MUST also publish theoretical and active effective limits for physical
+columns, source variables, identifiers, values, row size and statements, and
+MUST preflight source width, generated names, values and row size before target
+DDL.
+
+Only after supported Dolt identity has been established and the singleton
+`catalog_identity` has been verified MAY a source capability preflight
+rejection append exactly one failed operation and one
+`target_capability_exceeded` fidelity event with `dataset_id` NULL. It MUST
+leave no dataset row, partial wide table or other partial dataset
+representation. Unknown or unclaimed identity never reaches this audit path
+and leaves zero mutation. Fault handling MUST prove transaction rollback where
+available or complete compensating cleanup. An occupied database that does not
+carry the expected singleton `catalog_identity` is foreign and MUST fail
+without modification.
+
+In an otherwise empty dedicated database, after supported Dolt identity has
+been established, an adapter MAY initialize the normative catalog. It MUST
+immediately verify the new singleton `catalog_identity` and only then record
+the one permitted source-capability failure audit described above. Before
+creating any normative or mirror relation, the adapter MUST first prove the
+selected namespace is empty or already owned by the expected OpenStatSpec
+contract. A namespace that is neither empty nor owned MUST fail without modification.
+
+Dolt staging, commits and commit hashes are outside core conformance. An
+adapter extension MAY record such provenance only in its own namespaced
+extension. The optional SQL Transformation Workflow Profile is unsupported for
+Dolt until it is claimed and tested separately.
+
 ## Required indexes
 
 The wide data table MUST have the primary-key index on `__case_ordinal`.
@@ -119,5 +194,5 @@ Each adapter needs to decide and declare:
 2. its deterministic source-name-to-physical-name algorithm;
 3. whether it supports non-finite SPSS binary64 values in each dialect;
 4. its tested text encoding and maximum value/row limits;
-5. its catalog transaction/cleanup procedure for MySQL and MariaDB; and
+5. its catalog transaction/cleanup procedure for MySQL, MariaDB and Dolt; and
 6. its catalog binding, physical relation mapping, and ownership check.

@@ -57,6 +57,7 @@ CREATE TABLE transformation_run (
   status                     TEXT NOT NULL, -- started | succeeded | failed
   executor_identity          TEXT NOT NULL,
   correlation_id             TEXT NOT NULL,
+  staging_relation_key       TEXT NULL, -- durably recorded before staging DDL; retained for recovery/audit
   engine_name                TEXT NOT NULL,
   engine_version             TEXT NOT NULL,
   dialect_profile            TEXT NOT NULL,
@@ -203,4 +204,6 @@ CREATE TABLE transformation_event (
 -- 64-character SHA-256 values, contiguous ordinals, run-state transitions,
 -- append-only publication/disposition events, same-dataset weight references,
 -- lineage variables belonging to the selected run input, exact hash domains,
--- and state transitions beyond the logical composite keys above.
+-- and state transitions beyond the logical composite keys above. A run with
+-- recoverable quarantined staging remains started until the recorded,
+-- profile-owned staging relation is absent; only then may it become failed.
