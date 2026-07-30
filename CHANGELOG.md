@@ -11,3 +11,4 @@
 - Added case-weight, typed multiple-response counted values, label-source, and explicit LOWEST/HIGHEST coverage.
 - Required immutable specification identity, theoretical/effective SQL limits, tested server versions, and concrete canonical fixture expectations in capability declarations and conformance runs.
 - Clarified prerelease identity, dimensioned identifier limits, and exclusive catalog namespace ownership.
+- Added optional SQL Transformation Workflow Profile 0.1 without changing the immutable source-faithful core contract.

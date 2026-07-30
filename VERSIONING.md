@@ -6,6 +6,11 @@ OpenStatSpec uses semantic versioning for tagged specification releases.
 - A minor release may add backward-compatible optional metadata, a new independent source or SQL profile, or new fixtures that do not invalidate an implementation's existing declared conformance scope.
 - A patch release may clarify wording, correct examples, or fix fixture and schema defects without changing normative meaning.
 
+Optional workflow profiles are versioned and claimed independently from the
+core source profile. Adding or revising an optional profile does not authorize
+changes to core datasets. A breaking workflow-profile change increments that
+profile's major version even when the core version is unchanged.
+
 The SPSS SAV/ZSAV profile is versioned independently in its document and manifest. A conforming implementation must publish the exact profile version, immutable specification commit, specification status, supported directions, supported SQL profiles, and engine capability declaration it tested.
 
 The immutable commit is mandatory for both release candidates and stable releases. `specification_release` is additive provenance, not an alternative to the commit:

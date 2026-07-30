@@ -1,0 +1,1708 @@
+{
+  "manifest_version": "0.1",
+  "profile": "OpenStatSpec SQL Transformation Workflow 0.1",
+  "contract": "openstatspec-sql-transformation-workflow-v0.1",
+  "hash_profile": {
+    "json_canonicalization": "RFC8785",
+    "hash_kind": "relation_snapshot",
+    "hash_algorithm": "sha256",
+    "hash_version": "openstatspec-relation-snapshot-v1"
+  },
+  "fixtures": [
+    {
+      "id": "core-respondents",
+      "dialect": "sqlite",
+      "technical_ordinal": "__case_ordinal",
+      "schema": {
+        "technical_ordinal": "__case_ordinal",
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false
+          }
+        ]
+      },
+      "rows": [
+        [
+          1,
+          104.0,
+          25.0,
+          "North",
+          0.92
+        ],
+        [
+          2,
+          109.0,
+          41.0,
+          "South",
+          1.08
+        ],
+        [
+          3,
+          112.0,
+          35.0,
+          "North",
+          1.0
+        ],
+        [
+          4,
+          115.0,
+          29.0,
+          "West",
+          0.95
+        ]
+      ],
+      "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+      "snapshot_hash": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426",
+      "dataset_id": "11111111-1111-4111-8111-111111111111",
+      "physical_relation_key": "sqlite:main.parent"
+    }
+  ],
+  "cases": [
+    {
+      "id": "parameterized-filter-materialized",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent WHERE age >= :minimum_age ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "succeeded",
+        "rows": [
+          [
+            109.0,
+            41.0,
+            "South",
+            1.08
+          ],
+          [
+            112.0,
+            35.0,
+            "North",
+            1.0
+          ]
+        ],
+        "schema_hash": "f08f19f547f684159a541ae6e7b73116483e4808cdcd30d24374d828b2e1eec4",
+        "content_hash": "2c96d86043689cb9ebde43937507426706bd5b9dac3843b66b515e1b4214f0e6",
+        "events": [],
+        "invariants": [
+          "one_derived_dataset",
+          "published_relation",
+          "no_staging_relation"
+        ],
+        "definition_hash": "1920e7a504ea991c86f034b2a4ac752e7634a157f559c0a118cd77960e23eda8",
+        "parameters_hash": "835e3da05e0577f37e0628a725e97c26ae6929ed7a49fcf6018da4799055d86d",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "filter",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [
+        {
+          "parameter_ordinal": 1,
+          "parameter_name": "minimum_age",
+          "logical_type": "binary64",
+          "is_nullable": false,
+          "default_canonical_json": null,
+          "is_sensitive": false
+        }
+      ],
+      "parameter_envelopes": [
+        {
+          "parameter_ordinal": 1,
+          "parameter_name": "minimum_age",
+          "logical_type": "binary64",
+          "value_envelope": {
+            "t": "f64",
+            "v": "403e000000000000"
+          }
+        }
+      ],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {
+        "minimum_age": 30.0
+      },
+      "transformation_id": "0caf708a-d3ae-5b3e-874d-7ce186182b7a",
+      "version_number": 1
+    },
+    {
+      "id": "aggregate-drops-implicit-weight",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT region, CAST(COUNT(respondent_id) AS REAL) AS unweighted_n, SUM(survey_weight) AS weighted_n FROM parent GROUP BY region ORDER BY region COLLATE BINARY ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "region",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": "BINARY"
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "grouping"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "unweighted_n",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "aggregate",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "contributing"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "weighted_n",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "aggregate",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "contributing"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": null
+      },
+      "fault": null,
+      "expected": {
+        "status": "succeeded",
+        "rows": [
+          [
+            "North",
+            2.0,
+            1.92
+          ],
+          [
+            "South",
+            1.0,
+            1.08
+          ],
+          [
+            "West",
+            1.0,
+            0.95
+          ]
+        ],
+        "schema_hash": "0d5d7c38f2f19cc5e38ae8103a0c5af6005961f83162f0400383a66c8cc13cf5",
+        "content_hash": "857059f3ba3fd939d37780846dab04feddc419222f88687d8119fa3ee37a8685",
+        "events": [],
+        "invariants": [
+          "one_derived_dataset",
+          "published_relation",
+          "no_staging_relation"
+        ],
+        "definition_hash": "db20d3acc9adf5b3ad1519fa028a74d3fde4ebdece68aaf5d7a3514bbd4188e8",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "aggregate",
+      "metadata_policy": "declared",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "f4527a21-23cf-5380-b2dd-db499e85631b",
+      "version_number": 1
+    },
+    {
+      "id": "parameter-free-immutable-view",
+      "fixture_id": "core-respondents",
+      "output_mode": "view",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "succeeded",
+        "rows": [
+          [
+            104.0,
+            25.0,
+            "North",
+            0.92
+          ],
+          [
+            109.0,
+            41.0,
+            "South",
+            1.08
+          ],
+          [
+            112.0,
+            35.0,
+            "North",
+            1.0
+          ],
+          [
+            115.0,
+            29.0,
+            "West",
+            0.95
+          ]
+        ],
+        "schema_hash": "f08f19f547f684159a541ae6e7b73116483e4808cdcd30d24374d828b2e1eec4",
+        "content_hash": "eb83daa63f19ab9bf2ea4bcb595a3863c51ca5ab5b28e7cbf9b7bf3cf6be7763",
+        "events": [],
+        "invariants": [
+          "one_derived_dataset",
+          "published_relation",
+          "no_staging_relation"
+        ],
+        "definition_hash": "ad705c19c0cef8ef78715caabfd2bc0e1114f7e8fc150bb16a87835cc43667d9",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "one_to_one",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "a6e407c7-dfb4-5984-8868-05f1d4c98f09",
+      "version_number": 1
+    },
+    {
+      "id": "reject-view-with-parameters",
+      "fixture_id": "core-respondents",
+      "output_mode": "view",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent WHERE age >= :minimum_age ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "parameter_invalid",
+            "phase": "preflight"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "c3a4211c1554fbeae816d0431d7013dbcd0043db4684df5d9df87c8196f6611c",
+        "parameters_hash": "835e3da05e0577f37e0628a725e97c26ae6929ed7a49fcf6018da4799055d86d",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "filter",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [
+        {
+          "parameter_ordinal": 1,
+          "parameter_name": "minimum_age",
+          "logical_type": "binary64",
+          "is_nullable": false,
+          "default_canonical_json": null,
+          "is_sensitive": false
+        }
+      ],
+      "parameter_envelopes": [
+        {
+          "parameter_ordinal": 1,
+          "parameter_name": "minimum_age",
+          "logical_type": "binary64",
+          "value_envelope": {
+            "t": "f64",
+            "v": "403e000000000000"
+          }
+        }
+      ],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {
+        "minimum_age": 30.0
+      },
+      "transformation_id": "e07a3233-e4d3-5ec4-8a98-dcc26f4357f0",
+      "version_number": 1
+    },
+    {
+      "id": "reject-mutating-sql",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "DELETE FROM parent",
+      "order_key": [],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "unsafe_sql",
+            "phase": "ast_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "9a5561f58c387bb8c6e3fce2f4a3b1a85ccca6f704cc99843aa50c74c1c39fe8",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "filter",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "df0e7764-6437-5d63-a176-335dc5a5323d",
+      "version_number": 1
+    },
+    {
+      "id": "reject-undeclared-relation",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id FROM other ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": null
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "undeclared_relation_access",
+            "phase": "ast_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "57d1766faf34b1d2851c922670a48e99ad1109001b15b7391db60b19901929bc",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "filter",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "9ed098aa-7c8b-5023-a6b3-40771353ea11",
+      "version_number": 1
+    },
+    {
+      "id": "reject-input-hash-change",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": {
+        "kind": "input_hash_override",
+        "value": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "input_hash_mismatch",
+            "phase": "input_snapshot"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "9f24b900921cf64f06817587a7d487c7c1517b99fa8cb15296eb357639c38d9f",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "one_to_one",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "7264c295-f109-53da-89e4-e64c852fadc5",
+      "version_number": 1
+    },
+    {
+      "id": "reject-cyclic-lineage",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": {
+        "kind": "lineage_cycle"
+      },
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "input_not_immutable",
+            "phase": "lineage_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "1b344f4f0a041878e4846b7890db7e3cbef4395399121951f598a28abd42d44c",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "one_to_one",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "5130d75b-56f5-5694-a747-c7ba2465617d",
+      "version_number": 1
+    },
+    {
+      "id": "reject-invalid-weight-propagation",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT region, CAST(COUNT(respondent_id) AS REAL) AS unweighted_n, SUM(survey_weight) AS weighted_n FROM parent GROUP BY region ORDER BY region COLLATE BINARY ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "region",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": "BINARY"
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "grouping"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "unweighted_n",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "aggregate",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "contributing"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "weighted_n",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "aggregate",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "contributing"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "weighted_n",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "output_validation_failed",
+            "phase": "output_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "869c345b0a778349eb9e289d1d1d0cee21ad8d47fcaa995aeca75d3698a6ca1d",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "aggregate",
+      "metadata_policy": "declared",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "00c0eb82-91dc-51e6-bfdb-d1ed3641703c",
+      "version_number": 1
+    },
+    {
+      "id": "publication-failure-is-atomic",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": {
+        "kind": "publication_failure"
+      },
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "publication_failed",
+            "phase": "publication"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output",
+          "no_staging_relation",
+          "cleanup_audited"
+        ],
+        "definition_hash": "b4b1105cb06be7e5e7c0afa297a3d4122c274252d58e5b090dbd7d57fbce4607",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "one_to_one",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "5ab4cd3e-9018-57ac-aad8-fee38d5a28cb",
+      "version_number": 1
+    },
+    {
+      "id": "reject-volatile-function",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id FROM parent WHERE random() > 0 ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": null
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "volatile_sql",
+            "phase": "ast_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "1aa33e5e9cdc5b2ca9eb1766e2257051069fd81204abfc5ec1b1204741834915",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "one_to_one",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "a224b645-512e-5079-8ade-70da855ec28f",
+      "version_number": 1
+    },
+    {
+      "id": "reject-external-io-function",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT * FROM read_csv('outside.csv') ORDER BY respondent_id ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "respondent_id",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": null
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "external_io_forbidden",
+            "phase": "ast_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "4d9c6e1c87773110c88f30855b03ad67a72b054b3ff319b20b1a671ac5b39484",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "one_to_one",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "4daf259f-8110-5b71-a0b7-4ca53e852226",
+      "version_number": 1
+    },
+    {
+      "id": "reject-tied-order-key",
+      "fixture_id": "core-respondents",
+      "output_mode": "materialized",
+      "query_sql": "SELECT respondent_id, age, region, survey_weight FROM parent ORDER BY region COLLATE BINARY ASC NULLS LAST",
+      "order_key": [
+        {
+          "expression": "region",
+          "direction": "ASC",
+          "nulls": "LAST",
+          "collation": "BINARY"
+        }
+      ],
+      "declared_output_schema": {
+        "variables": [
+          {
+            "column_ordinal": 1,
+            "physical_name": "respondent_id",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "respondent_id",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 2,
+            "physical_name": "age",
+            "logical_storage_kind": "numeric",
+            "is_nullable": true,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "age",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 3,
+            "physical_name": "region",
+            "logical_storage_kind": "string",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "region",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          },
+          {
+            "column_ordinal": 4,
+            "physical_name": "survey_weight",
+            "logical_storage_kind": "numeric",
+            "is_nullable": false,
+            "lineage_kind": "identity",
+            "lineage": [
+              {
+                "input_alias": "parent",
+                "parent_column": "survey_weight",
+                "expression_role": "identity"
+              }
+            ],
+            "metadata": null
+          }
+        ],
+        "weight": {
+          "physical_name": "survey_weight",
+          "derivation_kind": "identity",
+          "meaning": null
+        }
+      },
+      "fault": null,
+      "expected": {
+        "status": "failed",
+        "rows": null,
+        "schema_hash": null,
+        "content_hash": null,
+        "events": [
+          {
+            "code": "non_unique_order_key",
+            "phase": "order_validation"
+          }
+        ],
+        "invariants": [
+          "failed_run_retained",
+          "no_derived_dataset",
+          "no_published_output"
+        ],
+        "definition_hash": "beb05f38e33d8c8f01356237dd4aef14ee7a5d83f8fef885faf28b1a3f0eaace",
+        "parameters_hash": "9c18ebfd087e0e847b389da7922411dd66f4b114a8892877316f4b7e13f01f71",
+        "input_set_hash": "ba3cf95fe6fa6fc7814e1137209de12962cce2ba578d5863572e81818e767652"
+      },
+      "row_semantics": "filter",
+      "metadata_policy": "identity_only",
+      "parameter_declarations": [],
+      "parameter_envelopes": [],
+      "input_envelopes": [
+        {
+          "input_ordinal": 1,
+          "input_alias": "parent",
+          "input_kind": "core",
+          "dataset_id": "11111111-1111-4111-8111-111111111111",
+          "physical_relation_key": "sqlite:main.parent",
+          "schema_hash": "f8e4797b27a6a02209366dd8a913bb5cd62c6c37ba66428517d0bdb06cf42c5f",
+          "snapshot_hash_kind": "relation_snapshot",
+          "snapshot_hash_algorithm": "sha256",
+          "snapshot_hash_version": "openstatspec-relation-snapshot-v1",
+          "snapshot_hash_value": "ac28e8b20298b131dfbc2a0ddc5dc886b0630b0681e0f5d39f78b327a2f83426"
+        }
+      ],
+      "dialect_family": "sqlite",
+      "server_version_constraint": ">=3.40 <4",
+      "driver_bindings": {},
+      "transformation_id": "bf2024f3-9731-5522-b38e-025b6e07e6e5",
+      "version_number": 1
+    }
+  ],
+  "canonicalization_cases": [
+    {
+      "id": "unicode-utf16-key-order",
+      "value": {
+        "": "bmp",
+        "😀": "astral"
+      },
+      "canonical": "{\"😀\":\"astral\",\"\":\"bmp\"}"
+    },
+    {
+      "id": "safe-integer-edges",
+      "value": [
+        -9007199254740991,
+        9007199254740991
+      ],
+      "canonical": "[-9007199254740991,9007199254740991]"
+    },
+    {
+      "id": "reject-out-of-range-integer",
+      "value": 9007199254740992,
+      "expected_error": "integer_out_of_range"
+    }
+  ]
+}
