@@ -12,3 +12,4 @@
 - Required immutable specification identity, theoretical/effective SQL limits, tested server versions, and concrete canonical fixture expectations in capability declarations and conformance runs.
 - Clarified prerelease identity, dimensioned identifier limits, and exclusive catalog namespace ownership.
 - Added an independent, fail-closed Dolt 2.2.2 SQL profile with a dedicated-database binding, evidence-labelled adapter limits, and complete compensating cleanup for non-atomic DDL.
+- Added optional SQL Transformation Workflow Profile 0.1 without changing the immutable source-faithful core contract.

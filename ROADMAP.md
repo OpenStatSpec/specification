@@ -38,6 +38,14 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
 - [ ] Assess separate source-faithful profiles and adapters for SAS, Stata, and other statistical packages.
 - [ ] Do not begin a future adapter by broadening the relational contract; each profile must preserve the source package's native rectangular data model and declare its own fidelity boundary.
 
+## 6. Optional SQL transformation workflow
+
+- [x] Define an independent catalog for immutable SQL-derived datasets.
+- [x] Define parameter binding, lineage, hashes, audit, metadata and weight
+  propagation, dialect boundaries, and atomic publication.
+- [x] Add machine-readable positive and failure conformance cases.
+- [ ] Run all cases in reference adapters before publishing profile 1.0.
+
 ## Maintainer setup
 
 These are maintainer actions, not implementation tasks for the specification repository itself.
