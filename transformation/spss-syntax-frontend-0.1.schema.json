@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openstatspec.org/schemas/spss-syntax-frontend-0.1.schema.json",
+  "title": "OpenStatSpec SPSS-like Syntax Frontend Request 0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "": {
+    "typed_value": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "bits"],
+          "properties": {
+            "type": {"const": "binary64"},
+            "bits": {"type": "string", "pattern": "^(?!8000000000000000$)(?!(?:7ff|fff)[0-9a-f]{13}$)[0-9a-f]{16}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": {"const": "string"},
+            "value": {"type": "string"}
+          }
+        }
+      ]
+    }
+  },
+  "required": ["contract", "input_alias", "input_schema", "source_text"],
+  "properties": {
+    "contract": {"const": "openstatspec-spss-syntax-frontend-v0.1"},
+    "input_alias": {"type": "string", "minLength": 1},
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variables"],
+      "properties": {
+        "variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "storage_kind"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "storage_kind": {"enum": ["numeric", "string"]},
+              "variable_label": {"type": ["string", "null"]},
+              "value_labels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["value", "label"],
+                  "properties": {
+                    "value": {"": "#//typed_value"},
+                    "label": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "source_text": {"type": "string", "minLength": 1}
+  }
+}

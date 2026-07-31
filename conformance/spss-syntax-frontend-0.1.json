@@ -1,0 +1,255 @@
+{
+  "manifest_version": "0.1",
+  "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.1",
+  "contract": "openstatspec-spss-syntax-frontend-v0.1",
+  "plan_contract": "openstatspec-transformation-plan-v0.1",
+  "request_schema": "../transformation/spss-syntax-frontend-0.1.schema.json",
+  "plan_schema": "../transformation/plan-0.1.schema.json",
+  "cases": [
+    {
+      "id": "recode-labels-and-value-labels",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {"name": "q1", "storage_kind": "numeric"},
+            {"name": "color", "storage_kind": "string"}
+          ]
+        },
+        "source_text": "RECODE q1 (1,2 = 0) (3 THRU 5 = 1) (ELSE = SYSMIS) INTO q1_binary.\nVARIABLE LABELS q1_binary 'Positive response'.\nVALUE LABELS q1_binary 0 'No' 1 'Yes'."
+      },
+      "expected_plan_case": "numeric-recode-and-declared-labels",
+      "expected_source_hash": "f1fecad0279dd633564b36fbdffe6f6960290d220a0ae3ebb6b532615a4b5b45",
+      "expected_error": null
+    },
+    {
+      "id": "in-place-recode-default-copy",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric", "variable_label": "Original score", "value_labels": [{"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Original one"}]}]},
+        "source_text": "recode Q1 (1 = 0)."
+      },
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "recode",
+            "source": "q1",
+            "target": "q1",
+            "target_mode": "replace",
+            "rules": [
+              {
+                "match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]},
+                "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}
+              }
+            ],
+            "unmatched": {"kind": "copy"}
+          }
+        ]
+      },
+      "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
+      "expected_output_metadata": {"q1": {"variable_label": "Original score", "value_labels": [{"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Original one"}]}},
+      "expected_source_hash": "b514062ee809bf573a85aade715964b9829893db7c6202704ca73d9962fa72da",
+      "expected_error": null
+    },
+    {
+      "id": "string-value-labels",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "color", "storage_kind": "string"}]},
+        "source_text": "VALUE LABELS color 'R' 'Punane' 'B' 'Sinine'."
+      },
+      "expected_plan_case": "string-value-label-replacement",
+      "expected_source_hash": "6bf99a32ed5365a10625f9a88b7d2c3b88d072ce12ecdc8e3459c1b4b5e1eb6a",
+      "expected_error": null
+    },
+    {
+      "id": "recode-varlists-positionally",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {"name": "a", "storage_kind": "numeric"},
+            {"name": "b", "storage_kind": "numeric"}
+          ]
+        },
+        "source_text": "RECODE a b (1 = 9) INTO a9 b9."
+      },
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "recode",
+            "source": "a",
+            "target": "a9",
+            "target_mode": "create",
+            "rules": [
+              {
+                "match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]},
+                "result": {"kind": "literal", "value": {"type": "binary64", "bits": "4022000000000000"}}
+              }
+            ],
+            "unmatched": {"kind": "system_missing"}
+          },
+          {
+            "op": "recode",
+            "source": "b",
+            "target": "b9",
+            "target_mode": "create",
+            "rules": [
+              {
+                "match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]},
+                "result": {"kind": "literal", "value": {"type": "binary64", "bits": "4022000000000000"}}
+              }
+            ],
+            "unmatched": {"kind": "system_missing"}
+          }
+        ]
+      },
+      "expected_plan_hash": "b20bbdffeff3e7ca5f393c52393df1a3cf807845abf87ee97e504e1be5b438d3",
+      "expected_source_hash": "5448419b3e2dfdcc6118b4328e5192b8cdb47895d406394670d54404a2e50f58",
+      "expected_error": null
+    },
+    {
+      "id": "value-label-varlists-and-groups",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {"name": "a", "storage_kind": "numeric"},
+            {"name": "b", "storage_kind": "numeric"},
+            {"name": "color", "storage_kind": "string"}
+          ]
+        },
+        "source_text": "VALUE LABELS a b 0 'No' 1 'Yes' / color 'R' 'Red'."
+      },
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "replace_value_labels",
+            "variable": "a",
+            "labels": [
+              {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"},
+              {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}
+            ]
+          },
+          {
+            "op": "replace_value_labels",
+            "variable": "b",
+            "labels": [
+              {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"},
+              {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}
+            ]
+          },
+          {
+            "op": "replace_value_labels",
+            "variable": "color",
+            "labels": [
+              {"value": {"type": "string", "value": "R"}, "label": "Red"}
+            ]
+          }
+        ]
+      },
+      "expected_plan_hash": "632e2075874257f7bf2400d6a2642f9336a9fc4ddf9664a20150a333d32414ad",
+      "expected_source_hash": "94954e5cdeada2bdee1f862078cb89e620bea3a7cd7c0e24d8c735786d469174",
+      "expected_error": null
+    },
+    {
+      "id": "reject-unknown-command",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "FREQUENCIES q1."
+      },
+      "expected_source_hash": "da8351d58a9b5683dfb05d1d182276ddb87da4988f7d3566ffda2b07299ce95f",
+      "expected_error": "unsupported_spss_command"
+    },
+    {
+      "id": "reject-unknown-variable",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "VARIABLE LABELS absent 'Missing'."
+      },
+      "expected_source_hash": "d4d9fffd92209394931d18976dc1c2f82eb2110e1df19b8e204ef7f3e0e8f92e",
+      "expected_error": "unknown_variable"
+    },
+    {
+      "id": "reject-nonfinal-else",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "RECODE q1 (ELSE = 0) (1 = 1)."
+      },
+      "expected_source_hash": "b0b915eba5289a2009aa42cdca6d7510e7668121b73105ea49edd45a55483b78",
+      "expected_error": "else_not_last"
+    },
+    {
+      "id": "reject-string-system-missing",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "color", "storage_kind": "string"}]},
+        "source_text": "RECODE color ('R' = SYSMIS)."
+      },
+      "expected_source_hash": "031d87c7a3c50a220a45e667ae33f2af64a248dd13075c3a788a39f8c3301df9",
+      "expected_error": "system_missing_for_string"
+    },
+    {
+      "id": "reject-duplicate-value-label",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "VALUE LABELS q1 1 'One' 1 'Uno'."
+      },
+      "expected_source_hash": "021ed8548a4ead1108488d12b62480a4c426be1c475ce51f3a292c0d5674b6a6",
+      "expected_error": "duplicate_value_label"
+    },
+    {
+      "id": "reject-string-target-without-declaration",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "color", "storage_kind": "string"}]},
+        "source_text": "RECODE color ('R' = 'red') INTO normalized."
+      },
+      "expected_source_hash": "b9fc5d8e6dbb83b2f360886a7c4112c76fac09b9fd0ea00bfac7e86dead5f5fc",
+      "expected_error": "string_target_requires_declaration"
+    },
+    {
+      "id": "reject-comment-command",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "* comment."
+      },
+      "expected_source_hash": "8bfac9af8d0884b68cebc65a42360871592dd6e4e9cbead0bdf7029b6b64f4fc",
+      "expected_error": "unsupported_spss_command"
+    },
+    {
+      "id": "reject-inline-comment",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.1",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "RECODE q1 (1 = 0) /* comment */."
+      },
+      "expected_source_hash": "3c4ef459e9a2021100ef166ef0038c5f920b126d916db4c7273537d21b256f65",
+      "expected_error": "spss_syntax_error"
+    }
+  ]
+}

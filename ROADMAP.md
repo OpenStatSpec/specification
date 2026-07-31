@@ -46,7 +46,20 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
 - [x] Add machine-readable positive and failure conformance cases.
 - [ ] Run all cases in reference adapters before publishing profile 1.0.
 
-## 7. Microsoft SQL Server dialect
+## 7. Canonical transformation plans and syntax frontends
+
+- [x] Define a language-neutral canonical plan for ordered recodes and variable
+  and value-label metadata operations.
+- [x] Define a bounded SPSS-syntax frontend with stable diagnostics and
+  machine-readable conformance cases.
+- [x] Define the in-place binding that preserves dataset/table identity on
+  supported SQL profiles and never creates an OpenStatSpec undo/copy layer.
+- [ ] Run the in-place apply service matrix against every claimed SQL profile
+  before publishing execution claims.
+- [ ] Evaluate additional language frontends as separate adapters that lower to
+  the same canonical plan.
+
+## 8. Microsoft SQL Server dialect
 
 Microsoft SQL Server is not currently supported. The
 [MSSQL dialect roadmap](docs/mssql-dialect-roadmap.md) defines the future

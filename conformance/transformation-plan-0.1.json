@@ -1,0 +1,140 @@
+{
+  "manifest_version": "0.1",
+  "profile": "OpenStatSpec Transformation Plan 0.1",
+  "contract": "openstatspec-transformation-plan-v0.1",
+  "schema": "../transformation/plan-0.1.schema.json",
+  "cases": [
+    {
+      "id": "numeric-recode-and-declared-labels",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "recode",
+            "source": "q1",
+            "target": "q1_binary",
+            "target_mode": "create",
+            "rules": [
+              {
+                "match": {
+                  "kind": "values",
+                  "values": [
+                    {"type": "binary64", "bits": "3ff0000000000000"},
+                    {"type": "binary64", "bits": "4000000000000000"}
+                  ]
+                },
+                "result": {
+                  "kind": "literal",
+                  "value": {"type": "binary64", "bits": "0000000000000000"}
+                }
+              },
+              {
+                "match": {
+                  "kind": "range",
+                  "lower": {"type": "binary64", "bits": "4008000000000000"},
+                  "upper": {"type": "binary64", "bits": "4014000000000000"}
+                },
+                "result": {
+                  "kind": "literal",
+                  "value": {"type": "binary64", "bits": "3ff0000000000000"}
+                }
+              }
+            ],
+            "unmatched": {"kind": "system_missing"}
+          },
+          {
+            "op": "set_variable_label",
+            "variable": "q1_binary",
+            "label": "Positive response"
+          },
+          {
+            "op": "replace_value_labels",
+            "variable": "q1_binary",
+            "labels": [
+              {
+                "value": {"type": "binary64", "bits": "0000000000000000"},
+                "label": "No"
+              },
+              {
+                "value": {"type": "binary64", "bits": "3ff0000000000000"},
+                "label": "Yes"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_plan_hash": "075571b4f84b0f60f289aebb6ec990ad61d34a96b46655802ea8f8bc07a1a405",
+      "expected_error": null
+    },
+    {
+      "id": "string-value-label-replacement",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "replace_value_labels",
+            "variable": "color",
+            "labels": [
+              {"value": {"type": "string", "value": "R"}, "label": "Punane"},
+              {"value": {"type": "string", "value": "B"}, "label": "Sinine"}
+            ]
+          }
+        ]
+      },
+      "expected_plan_hash": "dae504208847790e782b2b730a2cc258a5c4c89be470a30f17272187c3aeb101",
+      "expected_error": null
+    },
+    {
+      "id": "reject-descending-range",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "recode",
+            "source": "q1",
+            "target": "q1",
+            "target_mode": "replace",
+            "rules": [
+              {
+                "match": {
+                  "kind": "range",
+                  "lower": {"type": "binary64", "bits": "4014000000000000"},
+                  "upper": {"type": "binary64", "bits": "4008000000000000"}
+                },
+                "result": {
+                  "kind": "literal",
+                  "value": {"type": "binary64", "bits": "3ff0000000000000"}
+                }
+              }
+            ],
+            "unmatched": {"kind": "copy"}
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "invalid_numeric_range"
+    },
+    {
+      "id": "reject-duplicate-value-label",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "replace_value_labels",
+            "variable": "q1",
+            "labels": [
+              {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "One"},
+              {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Uno"}
+            ]
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "duplicate_value_label"
+    }
+  ]
+}

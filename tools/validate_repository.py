@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import struct
 from pathlib import Path
@@ -17,6 +18,32 @@ MANIFEST = ROOT / "conformance/spss-sav-zsav-1.0.json"
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise SystemExit(message)
+
+
+def require_well_formed_create_table_blocks(
+    schema: str,
+    context: str,
+) -> None:
+    matches = list(re.finditer(
+        r"(?m)^CREATE TABLE ([A-Za-z_][A-Za-z0-9_]*) \(", schema
+    ))
+    names = [match.group(1) for match in matches]
+    require(
+        len(names) == len(set(names)),
+        f"{context}: duplicate CREATE TABLE declaration.",
+    )
+    for index, match in enumerate(matches):
+        next_start = (
+            matches[index + 1].start()
+            if index + 1 < len(matches)
+            else len(schema)
+        )
+        terminator = schema.find(");", match.end())
+        require(
+            terminator != -1 and terminator < next_start,
+            f"{context}: CREATE TABLE {match.group(1)} is not terminated "
+            "before the next declaration.",
+        )
 
 
 def require_string(value: object, context: str) -> str:
@@ -676,6 +703,15 @@ def validate_transformation_profile() -> None:
             require(all(item["expression_role"] in expression_roles for item in variable["lineage"]), f"{case['id']}: invalid expression_role.")
 
     schema = (ROOT / "sql/transformation-workflow-profile-schema.sql").read_text(encoding="utf-8")
+    require_well_formed_create_table_blocks(
+        schema, "SQL Transformation Workflow schema"
+    )
+    require_well_formed_create_table_blocks(
+        (ROOT / "sql/transformation-plan-profile-schema.sql").read_text(
+            encoding="utf-8"
+        ),
+        "Transformation Plan schema",
+    )
     require("CHECK (contract_id = 'openstatspec-sql-transformation-workflow-v0.1')" in schema, "Transformation profile identity is not enforced.")
     require("CHECK (core_contract_id = 'openstatspec-strict-wide-table-v1')" in schema, "Transformation profile does not bind the immutable core contract.")
     for field in ("output_schema_json", "deterministic_order_json", "physical_relation_key", "snapshot_hash_kind", "snapshot_hash_algorithm", "snapshot_hash_version", "content_hash_kind", "content_hash_algorithm", "content_hash_version"):
@@ -888,6 +924,9 @@ def main() -> None:
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
 
     validate_transformation_profile()
+    from validate_transformation_plan import validate_all as validate_transformation_plan
+
+    validate_transformation_plan()
     validate_dialect_baseline()
     json.loads(MANIFEST.read_text(encoding="utf-8"))
 

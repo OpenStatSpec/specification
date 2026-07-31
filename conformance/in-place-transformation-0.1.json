@@ -1,0 +1,147 @@
+{
+  "manifest_version": "0.1",
+  "profile": "OpenStatSpec In-Place Transformation Binding 0.1",
+  "contract": "openstatspec-in-place-transformation-v0.1",
+  "cases": [
+    {
+      "id": "mysql-recode-and-labels-preserve-dataset-and-table-identity",
+      "database_profile": "mysql",
+      "source_text": "RECODE score (1,2 = 0) (3 = 1).\nVARIABLE LABELS score 'Score band'.\nVALUE LABELS score 0 'Lower' 1 'Upper'.",
+      "before": {
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_schema": "survey_data",
+        "physical_table_name": "data_survey",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1
+      },
+      "after": {
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_schema": "survey_data",
+        "physical_table_name": "data_survey",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "same_table_recode_target": "score",
+        "variable_label": "Score band",
+        "value_labels": [[0, "Lower"], [1, "Upper"]]
+      },
+      "forbidden_artifacts": [
+        "derived_dataset_row",
+        "persistent_output_table",
+        "full_table_copy",
+        "staging_dataset",
+        "staging_relation",
+        "snapshot_table",
+        "rollback_table",
+        "dataset_version_row",
+        "retirement_or_recovery_row",
+        "temporary_object_residue"
+      ],
+      "required_audit_fields": [
+        "apply_id",
+        "contract_id",
+        "database_profile",
+        "dataset_id",
+        "physical_table_schema",
+        "physical_table_name",
+        "plan_hash",
+        "source_hash",
+        "actor",
+        "status",
+        "dolt_branch",
+        "dolt_head_before",
+        "dolt_head_after",
+        "operation_count",
+        "started_at",
+        "completed_at"
+      ]
+    },
+    {
+      "id": "dolt-recode-and-labels-preserve-controlled-context",
+      "database_profile": "dolt",
+      "source_text": "RECODE score (1,2 = 0) (3 = 1).\nVARIABLE LABELS score 'Score band'.\nVALUE LABELS score 0 'Lower' 1 'Upper'.",
+      "before": {
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_schema": null,
+        "physical_table_name": "data_survey",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "dolt_branch": "feature/recode",
+        "dolt_head": "expected-head"
+      },
+      "after": {
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_schema": null,
+        "physical_table_name": "data_survey",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "same_table_recode_target": "score",
+        "variable_label": "Score band",
+        "value_labels": [[0, "Lower"], [1, "Upper"]],
+        "dolt_branch": "feature/recode",
+        "dolt_head": "expected-head",
+        "dolt_commit_performed": false
+      },
+      "forbidden_artifacts": [
+        "derived_dataset_row",
+        "persistent_output_table",
+        "full_table_copy",
+        "staging_dataset",
+        "staging_relation",
+        "snapshot_table",
+        "rollback_table",
+        "dataset_version_row",
+        "retirement_or_recovery_row",
+        "temporary_object_residue"
+      ],
+      "required_audit_fields": [
+        "apply_id",
+        "contract_id",
+        "database_profile",
+        "dataset_id",
+        "physical_table_schema",
+        "physical_table_name",
+        "plan_hash",
+        "source_hash",
+        "actor",
+        "status",
+        "dolt_branch",
+        "dolt_head_before",
+        "dolt_head_after",
+        "operation_count",
+        "started_at",
+        "completed_at"
+      ]
+    },
+    {
+      "id": "reject-dolt-branch-mismatch",
+      "database_profile": "dolt",
+      "expected_context": {"branch": "feature/recode", "head": "expected-head"},
+      "observed_context": {"branch": "main", "head": "expected-head", "working_set_clean": true},
+      "expected_error": "dolt_branch_mismatch",
+      "mutation_started": false
+    },
+    {
+      "id": "reject-dolt-head-mismatch",
+      "database_profile": "dolt",
+      "expected_context": {"branch": "feature/recode", "head": "expected-head"},
+      "observed_context": {"branch": "feature/recode", "head": "other-head", "working_set_clean": true},
+      "expected_error": "dolt_head_mismatch",
+      "mutation_started": false
+    },
+    {
+      "id": "reject-dolt-dirty-working-set",
+      "database_profile": "dolt",
+      "expected_context": {"branch": "feature/recode", "head": "expected-head"},
+      "observed_context": {"branch": "feature/recode", "head": "expected-head", "working_set_clean": false},
+      "expected_error": "dolt_working_set_dirty",
+      "mutation_started": false
+    },
+    {
+      "id": "reject-mysql-nontransactional-create-target",
+      "database_profile": "mysql",
+      "source_text": "RECODE score (1,2 = 0) (3 = 1) INTO score_band.",
+      "expected_error": "schema_change_not_atomic",
+      "mutation_started": false
+    }
+  ]
+}
