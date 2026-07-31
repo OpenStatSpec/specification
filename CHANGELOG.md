@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Defined conservative maintained release-series claims and exact CI targets
+  for MySQL 8.4.11/9.7.2, MariaDB 11.4.12/11.8.8/12.3.2 and PostgreSQL
+  17.10/18.4.
+- Preserved the independent exact Dolt 2.2.2 profile and clarified the
+  non-conflicting SQLite core/optional-workflow policies.
+- Added an explicitly unsupported Microsoft SQL Server dialect roadmap.
+
 ## v1.0.0-rc.1 - 2026-07-30
 
 - Defined the strict one-source-dataset to one-wide-table relational contract.

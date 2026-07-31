@@ -12,6 +12,9 @@ Required declarations:
 - selected profile and database engine separately from transport and driver;
 - raw and normalized server versions, the claimed server-version range, and a
   separate list of exact CI-tested server versions;
+- CI evidence MUST name exact tested patch versions and the exact container tag
+  or equivalent reproducible service identity; a floating major, minor or
+  `latest` tag is not exact-version evidence;
 - positive product-identity probes and their normalized results; missing,
   conflicting, unknown or unclaimed identity must fail before any catalog
   creation, migration, audit write or dataset mutation;

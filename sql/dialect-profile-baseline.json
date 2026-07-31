@@ -16,6 +16,48 @@
       "exclusive_resolution_required": true
     }
   },
+  "server_version_policy": {
+    "reviewed_on": "2026-07-31",
+    "claim_scope": "maintained_release_series",
+    "ci_evidence": "exact_patch_version",
+    "reference_adapter_targets": {
+      "mysql": {
+        "claimed_release_series": [
+          "8.4.x",
+          "9.7.x"
+        ],
+        "exact_ci_target_versions": [
+          "8.4.11",
+          "9.7.2"
+        ],
+        "latest_stable_version": "9.7.2"
+      },
+      "mariadb": {
+        "claimed_release_series": [
+          "11.4.x",
+          "11.8.x",
+          "12.3.x"
+        ],
+        "exact_ci_target_versions": [
+          "11.4.12",
+          "11.8.8",
+          "12.3.2"
+        ],
+        "latest_stable_version": "12.3.2"
+      },
+      "postgresql": {
+        "claimed_release_series": [
+          "17.x",
+          "18.x"
+        ],
+        "exact_ci_target_versions": [
+          "17.10",
+          "18.4"
+        ],
+        "latest_stable_version": "18.4"
+      }
+    }
+  },
   "profiles": {
     "sqlite": {
       "maximum_columns_default": 2000,

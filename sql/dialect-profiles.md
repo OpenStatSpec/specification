@@ -5,6 +5,10 @@ The compact, machine-readable baseline is
 conformance input, not a substitute for the server-specific declaration each
 adapter must publish.
 
+The normative [SQL Server Version Policy](server-version-policy.md) separately
+defines the maintained MySQL, MariaDB and PostgreSQL release-series claims and
+the exact patch versions required as reference-adapter CI evidence.
+
 This document is normative for the first SQL profiles. It defines only the
 physical choices necessary to create the single dedicated wide table required
 by the SPSS profile. It does not introduce a second data shape, EAV/cells

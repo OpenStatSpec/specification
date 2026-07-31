@@ -177,6 +177,52 @@ def validate_dialect_baseline() -> None:
     require(binding["exclusive_resolution_required"] is True, "Exclusive catalog resolution must be required.")
     require(binding["identity_relation"] == "catalog_identity", "Unexpected catalog identity relation.")
     require(binding["foreign_object_collision"] == "fail_without_modification", "Foreign catalog collisions must fail.")
+    version_policy = baseline.get("server_version_policy")
+    require(isinstance(version_policy, dict), "SQL server version policy is missing.")
+    require(
+        set(version_policy)
+        == {"reviewed_on", "claim_scope", "ci_evidence", "reference_adapter_targets"},
+        "SQL server version policy fields are incomplete.",
+    )
+    require(version_policy["reviewed_on"] == "2026-07-31", "SQL server policy review date is unexpected.")
+    require(
+        version_policy["claim_scope"] == "maintained_release_series",
+        "Server claims must remain conservative release-series claims.",
+    )
+    require(
+        version_policy["ci_evidence"] == "exact_patch_version",
+        "Server CI evidence must name exact patch versions.",
+    )
+    targets = version_policy["reference_adapter_targets"]
+    expected_targets = {
+        "mysql": (["8.4.x", "9.7.x"], ["8.4.11", "9.7.2"], "9.7.2"),
+        "mariadb": (
+            ["11.4.x", "11.8.x", "12.3.x"],
+            ["11.4.12", "11.8.8", "12.3.2"],
+            "12.3.2",
+        ),
+        "postgresql": (["17.x", "18.x"], ["17.10", "18.4"], "18.4"),
+    }
+    require(
+        isinstance(targets, dict) and set(targets) == set(expected_targets),
+        "Reference-adapter server target set is incomplete.",
+    )
+    for engine, expected in expected_targets.items():
+        target = targets[engine]
+        require(
+            isinstance(target, dict)
+            and set(target)
+            == {"claimed_release_series", "exact_ci_target_versions", "latest_stable_version"},
+            f"{engine} server target fields are incomplete.",
+        )
+        require_string_list(target["claimed_release_series"], f"{engine} claimed release series")
+        require_string_list(target["exact_ci_target_versions"], f"{engine} exact CI targets")
+        require(
+            target["claimed_release_series"] == expected[0]
+            and target["exact_ci_target_versions"] == expected[1]
+            and target["latest_stable_version"] == expected[2],
+            f"{engine} server target policy is unexpected.",
+        )
     profiles = baseline.get("profiles")
     require(isinstance(profiles, dict) and profiles, "SQL dialect profiles are missing.")
     expected_modes = {
@@ -782,6 +828,32 @@ def main() -> None:
     ):
         require(phrase in capabilities, f"Dolt capability requirement is missing: {phrase}")
     require("row-count" not in capabilities, "Capabilities must not invent an unsupported row-count limit.")
+    server_policy = (ROOT / "sql/server-version-policy.md").read_text(encoding="utf-8")
+    for phrase in (
+        "A floating major, minor or",
+        "MySQL 26.7 is excluded",
+        "Dolt remains an independent, essential profile",
+        "`>=3.24.0,<4.0.0`",
+        "`>=3.35.0,<4.0.0`",
+        "roadmap-only; see the",
+    ):
+        require(phrase in server_policy, f"SQL server version policy is missing: {phrase}")
+    mssql_roadmap = (ROOT / "docs/mssql-dialect-roadmap.md").read_text(encoding="utf-8")
+    for phrase in (
+        "supported OpenStatSpec target",
+        "`mssql-python`",
+        "`pyodbc`",
+        "`PDO_SQLSRV`",
+        "`SERVERPROPERTY`",
+        "`ProductVersion`",
+        "`mcr.microsoft.com/mssql/server`",
+        "exact cumulative-update tag",
+        "complete official fixture manifest",
+        "`SET XACT_ABORT ON`",
+        "`XACT_STATE()`",
+        "forbidden while any partial",
+    ):
+        require(phrase in mssql_roadmap, f"MSSQL roadmap is missing: {phrase}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     require("Dolt profiles" in readme, "README does not list the independent Dolt profile.")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")

@@ -46,6 +46,18 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
 - [x] Add machine-readable positive and failure conformance cases.
 - [ ] Run all cases in reference adapters before publishing profile 1.0.
 
+## 7. Microsoft SQL Server dialect
+
+Microsoft SQL Server is not currently supported. The
+[MSSQL dialect roadmap](docs/mssql-dialect-roadmap.md) defines the future
+scope without creating a capability claim.
+
+- [ ] Select and pin Python and PHP driver stacks after fidelity and security evaluation.
+- [ ] Define T-SQL types, quoting, catalog binding, identity probes and effective-limit preflight.
+- [ ] Add exact cumulative-update CI services and complete conformance/fault-injection evidence.
+- [ ] Publish an independent dialect profile only after both reference adapters pass the evidence gate.
+- [ ] Evaluate Azure SQL identities separately; do not inherit a SQL Server claim implicitly.
+
 ## Maintainer setup
 
 These are maintainer actions, not implementation tasks for the specification repository itself.
