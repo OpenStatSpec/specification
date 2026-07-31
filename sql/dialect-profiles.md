@@ -127,12 +127,12 @@ MUST fail before catalog creation, migration or audit writes and before any
 dataset mutation. A non-Dolt product MUST NOT be probed with
 `DOLT_VERSION()`. Identity failure always leaves zero database mutation.
 
-The initial claimed Dolt version range is exactly 2.2.2, and the exact
-CI-tested version list is independently `[2.2.2]`. An adapter MUST reject an
-active version outside its published claim before any catalog or dataset
-mutation. Until this profile is included in a tagged specification release,
-capabilities MUST name the immutable specification commit, report
-`release_candidate`, and publish a NULL release identifier.
+The claimed Dolt version range is `>=2.2.2,<2.3.0`, the conservative supported
+portion of the 2.2.x family, and the exact CI-tested version list is independently
+`[2.2.2, 2.2.3]`. An adapter MUST reject an active version outside its
+published claim before any catalog or dataset mutation. Capabilities MUST name
+the immutable specification commit and MAY report release `v0.1.0` only when
+that published tag targets the declared commit.
 
 | Property | Requirement |
 | --- | --- |

@@ -55,6 +55,18 @@
           "18.4"
         ],
         "latest_stable_version": "18.4"
+      },
+      "dolt": {
+        "claimed_release_series": [
+          "2.2.x"
+        ],
+        "minimum_inclusive": "2.2.2",
+        "maximum_exclusive": "2.3.0",
+        "exact_ci_target_versions": [
+          "2.2.2",
+          "2.2.3"
+        ],
+        "latest_stable_version": "2.2.3"
       }
     }
   },
@@ -143,10 +155,11 @@
       },
       "claimed_version_range": {
         "minimum_inclusive": "2.2.2",
-        "maximum_inclusive": "2.2.2"
+        "maximum_exclusive": "2.3.0"
       },
       "exact_ci_tested_versions": [
-        "2.2.2"
+        "2.2.2",
+        "2.2.3"
       ],
       "maximum_columns_default": 306,
       "maximum_source_variables_default": 305,

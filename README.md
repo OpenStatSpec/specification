@@ -6,7 +6,7 @@ The first profile targets IBM SPSS Statistics system files. It maps one source d
 
 ## Status
 
-The versioned [SPSS SAV/ZSAV Profile 1.0](docs/spss-sav-zsav-profile-1.0.md) is prepared as release candidate `v1.0.0-rc.1`, dated 2026-07-30, with normative conformance language, a canonical relational schema, generated fixtures, and reference-adapter coverage. The SQL layer includes independent SQLite, PostgreSQL, MySQL/MariaDB/InnoDB and Dolt profiles; Dolt claims only the exact tested 2.2.2 envelope and does not claim the optional SQL Transformation Workflow Profile 0.1. Implementations must pin the exact specification commit they test against and may identify `v1.0.0-rc.1` as `specification_release` only when the published tag targets that commit.
+The versioned [SPSS SAV/ZSAV Profile 1.0](docs/spss-sav-zsav-profile-1.0.md) is prepared for publication as OpenStatSpec `v0.1.0`, dated 2026-07-31, with normative conformance language, a canonical relational schema, generated fixtures, and reference-adapter coverage. The SQL layer includes independent SQLite, PostgreSQL, MySQL/MariaDB/InnoDB and Dolt profiles; Dolt supports the conservative `>=2.2.2,<2.3.0` portion of the 2.2.x family, with exact 2.2.2 and 2.2.3 CI evidence, and does not claim the optional SQL Transformation Workflow Profile 0.1. Implementations must pin the exact specification commit they test against and may identify `v0.1.0` as `specification_release` only when the published tag targets that commit.
 
 The [server-version policy](sql/server-version-policy.md) covers the maintained
 MySQL 8.4.x/9.7.x, MariaDB 11.4.x/11.8.x/12.3.x and PostgreSQL 17.x/18.x

@@ -195,13 +195,28 @@ def validate_dialect_baseline() -> None:
     )
     targets = version_policy["reference_adapter_targets"]
     expected_targets = {
-        "mysql": (["8.4.x", "9.7.x"], ["8.4.11", "9.7.2"], "9.7.2"),
-        "mariadb": (
-            ["11.4.x", "11.8.x", "12.3.x"],
-            ["11.4.12", "11.8.8", "12.3.2"],
-            "12.3.2",
-        ),
-        "postgresql": (["17.x", "18.x"], ["17.10", "18.4"], "18.4"),
+        "mysql": {
+            "claimed_release_series": ["8.4.x", "9.7.x"],
+            "exact_ci_target_versions": ["8.4.11", "9.7.2"],
+            "latest_stable_version": "9.7.2",
+        },
+        "mariadb": {
+            "claimed_release_series": ["11.4.x", "11.8.x", "12.3.x"],
+            "exact_ci_target_versions": ["11.4.12", "11.8.8", "12.3.2"],
+            "latest_stable_version": "12.3.2",
+        },
+        "postgresql": {
+            "claimed_release_series": ["17.x", "18.x"],
+            "exact_ci_target_versions": ["17.10", "18.4"],
+            "latest_stable_version": "18.4",
+        },
+        "dolt": {
+            "claimed_release_series": ["2.2.x"],
+            "minimum_inclusive": "2.2.2",
+            "maximum_exclusive": "2.3.0",
+            "exact_ci_target_versions": ["2.2.2", "2.2.3"],
+            "latest_stable_version": "2.2.3",
+        },
     }
     require(
         isinstance(targets, dict) and set(targets) == set(expected_targets),
@@ -210,19 +225,12 @@ def validate_dialect_baseline() -> None:
     for engine, expected in expected_targets.items():
         target = targets[engine]
         require(
-            isinstance(target, dict)
-            and set(target)
-            == {"claimed_release_series", "exact_ci_target_versions", "latest_stable_version"},
+            isinstance(target, dict) and set(target) == set(expected),
             f"{engine} server target fields are incomplete.",
         )
         require_string_list(target["claimed_release_series"], f"{engine} claimed release series")
         require_string_list(target["exact_ci_target_versions"], f"{engine} exact CI targets")
-        require(
-            target["claimed_release_series"] == expected[0]
-            and target["exact_ci_target_versions"] == expected[1]
-            and target["latest_stable_version"] == expected[2],
-            f"{engine} server target policy is unexpected.",
-        )
+        require(target == expected, f"{engine} server target policy is unexpected.")
     profiles = baseline.get("profiles")
     require(isinstance(profiles, dict) and profiles, "SQL dialect profiles are missing.")
     expected_modes = {
@@ -293,10 +301,10 @@ def validate_dialect_baseline() -> None:
     )
     require(
         dolt["claimed_version_range"]
-        == {"minimum_inclusive": "2.2.2", "maximum_inclusive": "2.2.2"},
+        == {"minimum_inclusive": "2.2.2", "maximum_exclusive": "2.3.0"},
         "Dolt claimed version range is unexpected.",
     )
-    require(dolt["exact_ci_tested_versions"] == ["2.2.2"], "Dolt exact CI-tested versions are unexpected.")
+    require(dolt["exact_ci_tested_versions"] == ["2.2.2", "2.2.3"], "Dolt exact CI-tested versions are unexpected.")
     require(dolt["maximum_columns_default"] == 306, "Dolt physical-column envelope is unexpected.")
     require(dolt["maximum_source_variables_default"] == 305, "Dolt source-variable envelope is unexpected.")
     require(dolt["identifier_quoting"] == "backtick", "Dolt identifier quoting is unexpected.")

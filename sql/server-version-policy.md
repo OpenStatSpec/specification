@@ -28,6 +28,7 @@ preflight coverage and live conformance evidence.
 | MySQL | 8.4.x, 9.7.x | 8.4.11, 9.7.2 | 9.7.2 |
 | MariaDB | 11.4.x, 11.8.x, 12.3.x | 11.4.12, 11.8.8, 12.3.2 | 12.3.2 |
 | PostgreSQL | 17.x, 18.x | 17.10, 18.4 | 18.4 |
+| Dolt | 2.2.x (`>=2.2.2,<2.3.0`) | 2.2.2, 2.2.3 | 2.2.3 |
 
 The retained older rows provide an actively exercised migration and
 compatibility baseline. The newest row for each engine covers the latest GA or
@@ -45,12 +46,18 @@ Images library definitions for [MySQL](https://github.com/docker-library/officia
 [MariaDB](https://github.com/docker-library/official-images/blob/master/library/mariadb)
 and [PostgreSQL](https://github.com/docker-library/official-images/blob/master/library/postgres).
 
-## Dolt and SQLite are unchanged
+## Dolt family policy and SQLite
 
-Dolt remains an independent, essential profile with an exact claim and exact
-CI target of 2.2.2. Its MySQL-compatible transport does not place it in the
-MySQL release-series policy, and none of its identity, evidence or cleanup
-gates are weakened by this matrix.
+Dolt remains an independent, essential profile. Its conservative 2.2.x claim
+starts at the previously validated 2.2.2 floor and ends before 2.3.0; runtime
+preflight MUST reject versions outside `>=2.2.2,<2.3.0` before mutation. Exact
+CI evidence covers 2.2.2 and 2.2.3. The family policy follows Dolt's
+patch-release compatibility contract while retaining exact-version evidence separately.
+Its MySQL-compatible transport does not place it in the MySQL release-series
+policy, and none of its identity, evidence or cleanup gates are weakened.
+The primary sources are the official
+[Dolt 2.2.3 release](https://github.com/dolthub/dolt/releases/tag/v2.2.3)
+and [versioning policy](https://www.dolthub.com/docs/other/versioning/).
 
 SQLite is not a server-service row. The core adapter policy remains
 `>=3.24.0,<4.0.0`. The Python-only optional SQL Transformation Workflow has a
