@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.2.0 - 2026-07-31
 
 - Added canonical Transformation Plan and SPSS Syntax Frontend profiles for a
   bounded `RECODE`, `VARIABLE LABELS`, and `VALUE LABELS` subset.
