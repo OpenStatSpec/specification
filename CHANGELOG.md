@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Added canonical Transformation Plan and SPSS Syntax Frontend profiles for a
+  bounded `RECODE`, `VARIABLE LABELS`, and `VALUE LABELS` subset.
+- Added plan/frontend JSON Schemas, canonical-hash conformance cases, examples,
+  and repository validation gates.
+- Added a product-neutral in-place binding for supported SQL profiles: direct
+  same-table data/metadata mutation, compact operation audit, no automatic
+  commit, and no derived/copy/snapshot/rollback history layer. Dolt adds a
+  controlled branch/HEAD/working-set context.
+
 ## v0.1.0 - 2026-07-31
 
 - Defined conservative maintained release-series claims and exact CI targets
