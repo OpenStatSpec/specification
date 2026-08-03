@@ -202,6 +202,11 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
     legacy_manifest = json.loads(FRONTEND_0_1.read_text(encoding="utf-8"))
     legacy_cases = {case["id"]: case for case in legacy_manifest["cases"]}
     identifiers = set()
+    expected_failures = {
+        "reject-string-expression": "expression_type_unsupported",
+        "reject-missing-conditional-target": "conditional_target_missing",
+        "reject-invalid-format": "invalid_format",
+    }
     for case in manifest["cases"]:
         identifier = require_string(case["id"], "0.2 frontend case id")
         require(identifier not in identifiers, f"Duplicate 0.2 frontend case: {identifier}")
@@ -211,7 +216,17 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         source = request["source_text"].replace("\r\n", "\n").replace("\r", "\n")
         require(source == request["source_text"], f"{identifier}: source is not normalized.")
         require(case["expected_source_hash"] == hashlib.sha256(source.encode("utf-8")).hexdigest(), f"{identifier}: source hash differs.")
-        if "expected_plan_case" in case:
+        if identifier in expected_failures:
+            require(
+                set(case) == {"id", "request", "expected_source_hash", "expected_error"},
+                f"{identifier}: frontend failure fields differ.",
+            )
+            require(
+                case["expected_error"] == expected_failures[identifier],
+                f"{identifier}: frontend diagnostic differs.",
+            )
+        elif "expected_plan_case" in case:
+            require(case["expected_error"] is None, f"{identifier}: frontend success claims an error.")
             require(set(case) == {"id", "request", "expected_plan_case", "expected_plan_hash", "expected_source_hash", "expected_error"}, f"{identifier}: frontend success fields differ.")
             require(case["expected_plan_case"] in plan_cases, f"{identifier}: plan fixture missing.")
             require(case["expected_plan_hash"] == plan_cases[case["expected_plan_case"]]["expected_plan_hash"], f"{identifier}: plan hash link differs.")
@@ -243,6 +258,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "three-term-and-flattens-source-order",
         "nested-or-inequality-variable-operands-create",
         "old-subset-retains-v0.1-plan",
+        "reject-string-expression",
+        "reject-missing-conditional-target",
+        "reject-invalid-format",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
