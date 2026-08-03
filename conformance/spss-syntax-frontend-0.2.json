@@ -1033,6 +1033,26 @@
       "expected_plan_hash": "a663a7160957447ab125cbe8a106ea3419b6eb0855ea0287dea5ce71b6b08f20",
       "expected_source_hash": "b70575af343e328875753476282962fca4224de98e46c656f84a415dc033b162",
       "expected_error": null
+    },
+    {
+      "id": "string-measurement-level-target",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "color",
+              "storage_kind": "string"
+            }
+          ]
+        },
+        "source_text": "VARIABLE LEVEL color (NOMINAL).\nEXECUTE."
+      },
+      "expected_plan_case": "string-measurement-level-target",
+      "expected_plan_hash": "5693460d700531e6e9162a9cf112bd276b475f9d414bd58c283c6f2db8fdbf9d",
+      "expected_source_hash": "0887befe1d3a49a4e196976eb5925688cd402bbbfb6efae602a27a1fe0c8196e",
+      "expected_error": null
     }
   ]
 }
