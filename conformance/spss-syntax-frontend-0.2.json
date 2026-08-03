@@ -878,6 +878,26 @@
       },
       "expected_source_hash": "2bf027ec059026ac05177003ae52f9a4fb1bb994d16ba899dcebcb2df347ee61",
       "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "negative-zero-canonical-positive-zero",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = -0.\nEXECUTE."
+      },
+      "expected_plan_case": "negative-zero-canonical-positive-zero",
+      "expected_plan_hash": "0e881516aef24bbd5e3c6e2afe12a2f7f712d58f33fcba2bce2b74691bfe5a9c",
+      "expected_source_hash": "3bce3721dc895b4f58cf180cc72792494936cbaf4e1995b8c09a5ab50fee98a5",
+      "expected_error": null
     }
   ]
 }
