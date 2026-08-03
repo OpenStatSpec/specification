@@ -99,7 +99,8 @@
         "operation_count": 7,
         "dolt_branch": "feature/recode",
         "dolt_head_before": "provisioning-commit",
-        "dolt_head_after": "provisioning-commit"
+        "dolt_head_after": "provisioning-commit",
+        "actor": "conformance-runner"
       },
       "forbidden_artifacts": [
         "derived_dataset_row",
@@ -216,6 +217,13 @@
         }
       ],
       "expected_error": null
+    },
+    {
+      "id": "dolt-empty-actor-fails-before-mutation",
+      "database_profile": "dolt",
+      "actor": "",
+      "expected_error": "actor_required",
+      "mutation_started": false
     }
   ]
 }
