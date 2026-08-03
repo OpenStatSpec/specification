@@ -964,6 +964,35 @@
       },
       "expected_source_hash": "84514670d918d0bb42619c32c75aa85225ad9e4f24ac2a0df1cd584f1deb7d97",
       "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "metadata-only-value-labels-retains-v0.1-plan",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "color",
+              "storage_kind": "string"
+            }
+          ]
+        },
+        "source_text": "VALUE LABELS a b 0 'No' 1 'Yes' / color 'R' 'Red'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_case_0_1": "value-label-varlists-and-groups",
+      "expected_plan_hash": "632e2075874257f7bf2400d6a2642f9336a9fc4ddf9664a20150a333d32414ad",
+      "expected_source_hash": "94954e5cdeada2bdee1f862078cb89e620bea3a7cd7c0e24d8c735786d469174",
+      "expected_error": null
     }
   ]
 }
