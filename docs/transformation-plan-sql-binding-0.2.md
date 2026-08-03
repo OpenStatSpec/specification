@@ -1,5 +1,9 @@
 # In-Place Transformation Binding 0.2
 
+## Status
+
+Status: release candidate for the planned OpenStatSpec `v0.3.0` release. This profile is not a published stable specification until a `v0.3.0` tag targets its exact commit.
+
 ## Normative decision
 
 This binding extends In-Place Transformation Binding 0.1 for Transformation
