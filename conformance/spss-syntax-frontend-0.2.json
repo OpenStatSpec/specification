@@ -790,6 +790,94 @@
       "expected_plan_hash": "4b5e8d6c2e8043e25c1483b455dc497910cb66835916f6cdf7afa1eba8d334b8",
       "expected_source_hash": "c9ba1298688876632af6cb435c8f363ae9d56f2475f4adf3d8ad63862e7aae20",
       "expected_error": null
+    },
+    {
+      "id": "reject-if-without-parentheses",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF source_a = 1 target = 1."
+      },
+      "expected_source_hash": "543af0de6ddedd40be3b64e372a28fc897bb80db7cc7b0ec883dd24aa3de5eae",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-if-else-form",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = 1) target = 1 ELSE target = 0."
+      },
+      "expected_source_hash": "ea118668e92255019e7f70ea60c7c6aee2e1a45333d424b48a9f6c3ed3b8660a",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-non-f-format",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "FORMATS target (A8)."
+      },
+      "expected_source_hash": "37a5fd0884cddbba67253ed76b5bc3f47a1dcd6b6acd75f207aa7f2bec40232b",
+      "expected_error": "invalid_format"
+    },
+    {
+      "id": "reject-invalid-measurement-level",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "VARIABLE LEVEL target (UNKNOWN)."
+      },
+      "expected_source_hash": "2bf027ec059026ac05177003ae52f9a4fb1bb994d16ba899dcebcb2df347ee61",
+      "expected_error": "spss_syntax_error"
     }
   ]
 }
