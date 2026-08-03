@@ -79,14 +79,21 @@ values or copied state.
 ## Audit schema compatibility
 
 The versioned `sql/transformation-plan-profile-schema.sql` DDL accepts both the
-0.1 and 0.2 in-place binding contract identifiers in the same existing
+0.1 and 0.2 in-place binding contract identifiers in the same logical
 `transformation_apply` table. Before the first 0.2 apply, an installation whose
-0.1 table still has the single-contract check MUST migrate that check in place,
-using its database profile's transactional DDL procedure where available. The
-migration preserves every existing compact audit row and MUST NOT create a
-second audit table, dataset, data-table copy, snapshot, or rollback artifact.
-It is a schema migration completed before an apply; it is not part of the
-transformation apply boundary.
+0.1 table still has the single-contract check MUST migrate that check using its
+database profile's transactional DDL procedure where available. The migration
+preserves every existing compact audit row and logical audit-table identity.
+
+SQLite, whose `ALTER TABLE` cannot drop the existing table-level check, MUST
+perform the standard create/copy/drop/rename table rebuild inside one native
+transaction. The replacement table is strictly ephemeral migration state: it
+must use the versioned DDL, receive only the existing compact audit rows, and be
+renamed to `transformation_apply` before commit. After successful migration
+there MUST be exactly one persistent audit table, with no dataset, data-table
+copy, snapshot, rollback artifact, or recovery-version layer added. A failure
+rolls back the entire rebuild. This schema migration is completed before an
+apply and is not part of the transformation apply boundary.
 
 Machine-readable binding cases are in
 [`../conformance/in-place-transformation-0.2.json`](../conformance/in-place-transformation-0.2.json).
