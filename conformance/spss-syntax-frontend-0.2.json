@@ -120,6 +120,64 @@
       "expected_plan_hash": "926f2cd93ed0bfa330bdb2d0b31b241f552c86c116dd35a315a20408bf997daf",
       "expected_source_hash": "4b3b35660b1ec57de0b8b0485dcc85bb51a05796df9e9624f4f1790d78e2bfeb",
       "expected_error": null
+    },
+    {
+      "id": "reject-string-expression",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "color",
+              "storage_kind": "string"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = color."
+      },
+      "expected_source_hash": "9d44d6aa5554a716d55ecbcf04e9744f59a9a4ecf0281652ab713a7482d581c4",
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-missing-conditional-target",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = 1) missing_target = 1."
+      },
+      "expected_source_hash": "7a7956e282fb7e2de12daa1f1a3af5cd89e20193e0c0269ba5c63a27ac81e06f",
+      "expected_error": "conditional_target_missing"
+    },
+    {
+      "id": "reject-invalid-format",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "FORMATS target (F2.2)."
+      },
+      "expected_source_hash": "307aee8e2ca8a03939d4d487a3c9303d78abfc82f55f6434cab92e710defe8d5",
+      "expected_error": "invalid_format"
     }
   ]
 }
