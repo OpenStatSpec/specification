@@ -729,6 +729,82 @@
       },
       "expected_error": null,
       "expected_plan_hash": "9fd5d95f078924be3ce0809c985f47ffedb1c5fbbecadc739591d37df6297625"
+    },
+    {
+      "id": "comparison-operand-permutations",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "and",
+              "operands": [
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_a"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "variable",
+                    "variable": "source_b"
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  },
+                  "operator": "<",
+                  "right": {
+                    "kind": "variable",
+                    "variable": "source_c"
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_plan_hash": "cd8e04360419bc5b5d6db9a8800f4c58e267d2a29f0c2926cfba8d266892f021",
+      "expected_error": null
     }
   ]
 }
