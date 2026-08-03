@@ -805,6 +805,80 @@
       },
       "expected_plan_hash": "cd8e04360419bc5b5d6db9a8800f4c58e267d2a29f0c2926cfba8d266892f021",
       "expected_error": null
+    },
+    {
+      "id": "minimum-nonzero-subnormal",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "0000000000000001"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "fec5cad101adf699cfac0cbfbc1e0371f512f8e674345269d1de8d3a8a4538de"
+    },
+    {
+      "id": "grouped-format-and-measurement-level-order",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "set_format",
+            "variable": "source_a",
+            "family": "F",
+            "width": 8,
+            "decimals": 2
+          },
+          {
+            "op": "set_format",
+            "variable": "source_b",
+            "family": "F",
+            "width": 10,
+            "decimals": 3
+          },
+          {
+            "op": "set_measurement_level",
+            "variable": "source_a",
+            "level": "ordinal"
+          },
+          {
+            "op": "set_measurement_level",
+            "variable": "source_b",
+            "level": "ordinal"
+          },
+          {
+            "op": "set_measurement_level",
+            "variable": "source_c",
+            "level": "scale"
+          },
+          {
+            "op": "set_measurement_level",
+            "variable": "target",
+            "level": "scale"
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "4b5e8d6c2e8043e25c1483b455dc497910cb66835916f6cdf7afa1eba8d334b8"
     }
   ]
 }
