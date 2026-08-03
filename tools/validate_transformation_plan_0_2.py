@@ -19,6 +19,7 @@ PLAN_SCHEMA_0_1 = ROOT / "transformation/plan-0.1.schema.json"
 PLAN = ROOT / "conformance/transformation-plan-0.2.json"
 FRONTEND = ROOT / "conformance/spss-syntax-frontend-0.2.json"
 IN_PLACE = ROOT / "conformance/in-place-transformation-0.2.json"
+AUDIT_SCHEMA = ROOT / "sql/transformation-plan-profile-schema.sql"
 PLAN_SCHEMA = ROOT / "transformation/plan-0.2.schema.json"
 FRONTEND_SCHEMA = ROOT / "transformation/spss-syntax-frontend-0.2.schema.json"
 
@@ -73,6 +74,15 @@ def predicate(value: object, context: str) -> bool:
     require(value["operator"] in {"and", "or"}, f"{context}: boolean operator differs.")
     children = value["operands"]
     require(isinstance(children, list) and len(children) >= 2, f"{context}: boolean operands differ.")
+    for index, child in enumerate(children):
+        require(
+            not (
+                isinstance(child, dict)
+                and child.get("expression") == "boolean"
+                and child.get("operator") == value["operator"]
+            ),
+            f"{context}.operands[{index}]: same-operator boolean chain must be flattened.",
+        )
     return any(predicate(child, f"{context}.operands[{index}]") for index, child in enumerate(children))
 
 
@@ -155,6 +165,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
     cases = {}
     expected = {
         "sequential-conditional-binary-existing-target": None,
+        "three-term-and-flattens-source-order": None,
         "reject-string-predicate": "expression_type_unsupported",
         "nested-or-inequalities-variable-operands-create": None,
         "reject-invalid-format": "invalid_format",
@@ -204,11 +215,17 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
             require(set(case) == {"id", "request", "expected_plan_case", "expected_plan_hash", "expected_source_hash", "expected_error"}, f"{identifier}: frontend success fields differ.")
             require(case["expected_plan_case"] in plan_cases, f"{identifier}: plan fixture missing.")
             require(case["expected_plan_hash"] == plan_cases[case["expected_plan_case"]]["expected_plan_hash"], f"{identifier}: plan hash link differs.")
-            required_tokens = (
-                ("COMPUTE ", "IF (", " AND ", "FORMATS ", "VARIABLE LEVEL ", "EXECUTE.")
-                if identifier == "compute-if-labels-format-level-execute-existing-target"
-                else ("COMPUTE ", "IF (", " OR ", " AND ", ">=", "<", "<=", "EXECUTE.")
-            )
+            required_tokens = {
+                "compute-if-labels-format-level-execute-existing-target": (
+                    "COMPUTE ", "IF (", " AND ", "FORMATS ", "VARIABLE LEVEL ", "EXECUTE.",
+                ),
+                "three-term-and-flattens-source-order": (
+                    "IF (", "source_a = 1 AND source_b = 1 AND source_c = 1", "EXECUTE.",
+                ),
+                "nested-or-inequality-variable-operands-create": (
+                    "COMPUTE ", "IF (", " OR ", " AND ", ">=", "<", "<=", "EXECUTE.",
+                ),
+            }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
         else:
@@ -223,6 +240,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
             require(case["expected_plan_hash"] == canonical_hash(legacy_plan), f"{identifier}: 0.1 canonical hash differs.")
     require(identifiers == {
         "compute-if-labels-format-level-execute-existing-target",
+        "three-term-and-flattens-source-order",
         "nested-or-inequality-variable-operands-create",
         "old-subset-retains-v0.1-plan",
     }, "0.2 frontend case set differs.")
@@ -231,9 +249,25 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
 
 def validate_in_place() -> None:
     manifest = json.loads(IN_PLACE.read_text(encoding="utf-8"))
-    require(set(manifest) == {"manifest_version", "profile", "contract", "cases"}, "0.2 binding manifest fields differ.")
+    require(
+        set(manifest) == {"manifest_version", "profile", "contract", "audit_schema", "cases"},
+        "0.2 binding manifest fields differ.",
+    )
     require(manifest["manifest_version"] == "0.2", "0.2 binding manifest version differs.")
     require(manifest["contract"] == "openstatspec-in-place-transformation-v0.2", "0.2 binding contract differs.")
+    require(
+        manifest["audit_schema"] == "../sql/transformation-plan-profile-schema.sql",
+        "0.2 binding audit schema link differs.",
+    )
+    audit_schema_path = (IN_PLACE.parent / manifest["audit_schema"]).resolve()
+    require(audit_schema_path == AUDIT_SCHEMA.resolve(), "0.2 binding audit schema path differs.")
+    audit_schema = audit_schema_path.read_text(encoding="utf-8")
+    require(
+        "contract_id IN (" in audit_schema
+        and "'openstatspec-in-place-transformation-v0.1'" in audit_schema
+        and f"'{manifest['contract']}'" in audit_schema,
+        "In-place audit schema does not accept both 0.1 and 0.2 contracts.",
+    )
     case_list = manifest["cases"]
     require(isinstance(case_list, list), "0.2 binding cases must be an array.")
     cases = {require_string(case.get("id"), "0.2 binding case id"): case for case in case_list}
