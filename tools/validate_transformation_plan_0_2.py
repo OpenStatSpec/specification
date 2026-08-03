@@ -433,8 +433,10 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
     return len(identifiers)
 
 
-def validate_in_place() -> None:
+def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     manifest = json.loads(IN_PLACE.read_text(encoding="utf-8"))
+    frontend_manifest = json.loads(FRONTEND.read_text(encoding="utf-8"))
+    frontend_cases = {case["id"]: case for case in frontend_manifest["cases"]}
     require(
         set(manifest) == {"manifest_version", "profile", "contract", "audit_schema", "cases"},
         "0.2 binding manifest fields differ.",
@@ -477,10 +479,12 @@ def validate_in_place() -> None:
 
     success = cases["dolt-preprovisioned-target-sequential-null-semantics"]
     require(set(success) == {
-        "id", "database_profile", "before", "after", "expected_audit",
-        "forbidden_artifacts", "required_audit_fields", "expected_error",
+        "id", "database_profile", "applied_plan_case", "applied_frontend_case", "before", "after",
+        "expected_audit", "forbidden_artifacts", "required_audit_fields", "expected_error",
     }, "0.2 binding success fields differ.")
     require(success["database_profile"] == "dolt" and success["expected_error"] is None, "Dolt success identity differs.")
+    require(success["applied_plan_case"] in plan_cases, "Dolt applied plan fixture missing.")
+    require(success["applied_frontend_case"] in frontend_cases, "Dolt applied frontend fixture missing.")
     before, after = success["before"], success["after"]
     for field in (
         "dataset_id", "physical_table_schema", "physical_table_name",
@@ -504,6 +508,8 @@ def validate_in_place() -> None:
         "contract_id": manifest["contract"],
         "actor": "conformance-runner",
         "operation_count": 7,
+        "plan_hash": plan_cases[success["applied_plan_case"]]["expected_plan_hash"],
+        "source_hash": frontend_cases[success["applied_frontend_case"]]["expected_source_hash"],
         "dolt_branch": before["dolt_branch"],
         "dolt_head_before": before["dolt_head"],
         "dolt_head_after": after["dolt_head"],
@@ -711,7 +717,7 @@ def validate_links() -> None:
 def validate_all() -> tuple[int, int]:
     plan_cases = validate_plan_manifest()
     frontend_count = validate_frontend(plan_cases)
-    validate_in_place()
+    validate_in_place(plan_cases)
     validate_links()
     return len(plan_cases), frontend_count
 
