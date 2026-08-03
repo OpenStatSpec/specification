@@ -179,6 +179,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "comparison-operand-permutations": None,
         "minimum-nonzero-subnormal": None,
         "grouped-format-and-measurement-level-order": None,
+        "negative-zero-canonical-positive-zero": None,
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -210,6 +211,12 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
                 == "0000000000000001",
                 "Minimum-subnormal conversion golden bits differ.",
             )
+        elif identifier == "negative-zero-canonical-positive-zero":
+            require(
+                case["plan"]["operations"][0]["value"]["value"]["bits"]
+                == "0000000000000000",
+                "Negative-zero canonical conversion bits differ.",
+            )
     require(set(cases) == set(expected), "0.2 plan case set differs.")
     return cases
 
@@ -217,7 +224,18 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
 def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
     manifest = json.loads(FRONTEND.read_text(encoding="utf-8"))
     require(set(manifest) == {"manifest_version", "profile", "contract", "plan_contracts", "request_schema", "plan_schemas", "cases"}, "0.2 frontend manifest fields differ.")
+    require(manifest["manifest_version"] == "0.2", "0.2 frontend manifest version differs.")
+    require(manifest["profile"] == "OpenStatSpec SPSS-like Syntax Frontend 0.2", "0.2 frontend profile differs.")
     require(manifest["contract"] == "openstatspec-spss-syntax-frontend-v0.2", "0.2 frontend contract differs.")
+    require(
+        manifest["request_schema"] == "../transformation/spss-syntax-frontend-0.2.schema.json",
+        "0.2 frontend request-schema link differs.",
+    )
+    request_schema_path = (FRONTEND.parent / manifest["request_schema"]).resolve()
+    require(
+        request_schema_path == FRONTEND_SCHEMA.resolve() and request_schema_path.is_file(),
+        "0.2 frontend request schema is missing or mismatched.",
+    )
     require(manifest["plan_contracts"] == [
         "openstatspec-transformation-plan-v0.1",
         "openstatspec-transformation-plan-v0.2",
@@ -311,6 +329,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                     "VARIABLE LEVEL source_a source_b (ORDINAL) / source_c target (SCALE).",
                     "EXECUTE.",
                 ),
+                "negative-zero-canonical-positive-zero": ("COMPUTE target = -0.", "EXECUTE."),
             }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
@@ -356,6 +375,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-if-else-form",
         "reject-non-f-format",
         "reject-invalid-measurement-level",
+        "negative-zero-canonical-positive-zero",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
