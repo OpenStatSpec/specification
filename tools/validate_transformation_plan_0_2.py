@@ -346,7 +346,13 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
         else:
-            require(identifier == "old-subset-retains-v0.1-plan", f"Unexpected 0.2 frontend case: {identifier}")
+            require(
+                identifier in {
+                    "old-subset-retains-v0.1-plan",
+                    "metadata-only-value-labels-retains-v0.1-plan",
+                },
+                f"Unexpected 0.2 frontend case: {identifier}",
+            )
             require(set(case) == {"id", "request", "expected_plan_contract", "expected_plan_case_0_1", "expected_plan_hash", "expected_source_hash", "expected_error"}, f"{identifier}: 0.1 compatibility fields differ.")
             legacy_case = legacy_cases.get(case["expected_plan_case_0_1"])
             require(legacy_case is not None and "expected_plan" in legacy_case, f"{identifier}: immutable 0.1 plan fixture missing.")
@@ -391,6 +397,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-string-target-compute",
         "reject-string-target-conditional",
         "reject-string-target-format",
+        "metadata-only-value-labels-retains-v0.1-plan",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
@@ -402,6 +409,10 @@ def validate_in_place() -> None:
         "0.2 binding manifest fields differ.",
     )
     require(manifest["manifest_version"] == "0.2", "0.2 binding manifest version differs.")
+    require(
+        manifest["profile"] == "OpenStatSpec In-Place Transformation Binding 0.2",
+        "0.2 binding profile differs.",
+    )
     require(manifest["contract"] == "openstatspec-in-place-transformation-v0.2", "0.2 binding contract differs.")
     require(
         manifest["audit_schema"] == "../sql/transformation-plan-profile-schema.sql",
@@ -423,6 +434,7 @@ def validate_in_place() -> None:
     expected_ids = {
         "dolt-preprovisioned-target-sequential-null-semantics",
         "dolt-preprovisioned-target-or-null-semantics",
+        "dolt-preprovisioned-target-variable-missing-propagation",
     } | {
         f"{profile}-create-target-fails-before-mutation"
         for profile in ("dolt", "mysql", "mariadb")
@@ -489,6 +501,30 @@ def validate_in_place() -> None:
         {"__case_ordinal": 2, "target": 0},
     ], "Dolt OR three-valued outputs differ.")
     require(or_case["expected_error"] is None, "Dolt OR-null case unexpectedly fails.")
+
+    missing_case = cases["dolt-preprovisioned-target-variable-missing-propagation"]
+    require(set(missing_case) == {
+        "id", "database_profile", "target_preprovisioned", "assign",
+        "before_rows", "after_rows", "expected_error",
+    }, "Dolt missing-propagation case fields differ.")
+    require(
+        missing_case["database_profile"] == "dolt"
+        and missing_case["target_preprovisioned"] is True,
+        "Dolt missing-propagation identity differs.",
+    )
+    require(
+        missing_case["assign"] == {"target": "target", "value_variable": "source_a"},
+        "Dolt missing-propagation assignment differs.",
+    )
+    require(missing_case["before_rows"] == [
+        {"__case_ordinal": 1, "source_a": None, "target": 7},
+        {"__case_ordinal": 2, "source_a": 2, "target": 7},
+    ], "Dolt missing-propagation inputs differ.")
+    require(missing_case["after_rows"] == [
+        {"__case_ordinal": 1, "target": None},
+        {"__case_ordinal": 2, "target": 2},
+    ], "Dolt variable assignment does not preserve missing.")
+    require(missing_case["expected_error"] is None, "Dolt missing-propagation case unexpectedly fails.")
 
     for profile in ("dolt", "mysql", "mariadb"):
         case = cases[f"{profile}-create-target-fails-before-mutation"]
