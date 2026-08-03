@@ -2,6 +2,8 @@
 
 ## Status and boundary
 
+Status: release candidate for the planned OpenStatSpec `v0.3.0` release. This profile is not a published stable specification until a `v0.3.0` tag targets its exact commit.
+
 This optional frontend maps a bounded SPSS-like command language to
 Transformation Plan 0.1 or 0.2. Its request contract is
 `openstatspec-spss-syntax-frontend-v0.2`. It is not full IBM SPSS Statistics
