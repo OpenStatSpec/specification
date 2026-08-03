@@ -993,6 +993,46 @@
       "expected_plan_hash": "632e2075874257f7bf2400d6a2642f9336a9fc4ddf9664a20150a333d32414ad",
       "expected_source_hash": "94954e5cdeada2bdee1f862078cb89e620bea3a7cd7c0e24d8c735786d469174",
       "expected_error": null
+    },
+    {
+      "id": "metadata-only-variable-labels-retains-v0.1-plan",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "b",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "VARIABLE LABELS a 'Alpha' b 'Beta'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "set_variable_label",
+            "variable": "a",
+            "label": "Alpha"
+          },
+          {
+            "op": "set_variable_label",
+            "variable": "b",
+            "label": "Beta"
+          }
+        ]
+      },
+      "expected_plan_hash": "a663a7160957447ab125cbe8a106ea3419b6eb0855ea0287dea5ce71b6b08f20",
+      "expected_source_hash": "b70575af343e328875753476282962fca4224de98e46c656f84a415dc033b162",
+      "expected_error": null
     }
   ]
 }
