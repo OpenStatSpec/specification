@@ -396,6 +396,102 @@
       },
       "expected_source_hash": "a2d5ced231ee88930405e9e36f8f68ab86f57ba720fd02579e28616d9d71f1cf",
       "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "three-term-or-flattens-source-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = 1 OR source_b = 1 OR source_c = 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "three-term-or-flattens-source-order",
+      "expected_plan_hash": "e61850fd0e65726dbb13af184091b726ed70ead948300ae1d6163df2c23663f9",
+      "expected_source_hash": "6aeb46935565cb16b84c503e6df4481d0542b095a68b9788e1c0f0a7a9fcf318",
+      "expected_error": null
+    },
+    {
+      "id": "parenthesized-three-term-or-flattens-source-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF ((source_a = 1 OR source_b = 1) OR source_c = 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "three-term-or-flattens-source-order",
+      "expected_plan_hash": "e61850fd0e65726dbb13af184091b726ed70ead948300ae1d6163df2c23663f9",
+      "expected_source_hash": "26f683849987d5489d66822c8315f1b7be07c6583cfd88c8a8449cfe3ac9c3ea",
+      "expected_error": null
+    },
+    {
+      "id": "strict-greater-than",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a > 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "strict-greater-than",
+      "expected_plan_hash": "9fd5d95f078924be3ce0809c985f47ffedb1c5fbbecadc739591d37df6297625",
+      "expected_source_hash": "f8e21c1e96b872c65395a7319dcfb4c93b60798a3e1c578fb7ba63825391afcf",
+      "expected_error": null
     }
   ]
 }
