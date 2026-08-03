@@ -1,7 +1,9 @@
 # Changelog
 
 
-## v0.3.0 - 2026-07-31
+## Unreleased
+
+Planned specification release: `v0.3.0`, after the reference-adapter conformance gates pass.
 
 - Added backward-compatible Transformation Plan and SPSS Syntax Frontend 0.2
   contracts for sequential numeric `COMPUTE` and conditional `IF`, bounded
