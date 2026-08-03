@@ -879,6 +879,32 @@
       },
       "expected_error": null,
       "expected_plan_hash": "4b5e8d6c2e8043e25c1483b455dc497910cb66835916f6cdf7afa1eba8d334b8"
+    },
+    {
+      "id": "negative-zero-canonical-positive-zero",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "0000000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_plan_hash": "0e881516aef24bbd5e3c6e2afe12a2f7f712d58f33fcba2bce2b74691bfe5a9c",
+      "expected_error": null
     }
   ]
 }
