@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Prepared `openstatspec-specification` 0.2.1 with the reusable,
+  fail-closed Dolt adapter declaration validator and packaged schema resources.
+  This package update adds no concrete Dolt support declaration.
+
 ## v0.2.0 - 2026-07-31
 
 - Added canonical Transformation Plan and SPSS Syntax Frontend profiles for a
