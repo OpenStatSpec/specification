@@ -28,7 +28,8 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
 
 - [x] Add continuous checks for specification links, schema examples, fixtures, and adapter conformance once the relevant repositories exist.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [ ] Publish release notes and tagged specification releases.
+- [x] Publish release notes and tagged specification releases; `v0.2.0` is the
+  current public specification release.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
 ## 5. Future adapters
@@ -71,11 +72,36 @@ scope without creating a capability claim.
 - [ ] Publish an independent dialect profile only after both reference adapters pass the evidence gate.
 - [ ] Evaluate Azure SQL identities separately; do not inherit a SQL Server claim implicitly.
 
+## 9. Next release dependency order
+
+The next release work must proceed in this order. Completion of an earlier
+artifact is a dependency, not evidence that later adapter or service-matrix
+work has passed.
+
+1. [ ] Publish the reusable Dolt declaration package before adapters bind their
+   lifecycle behavior to it.
+2. [ ] Bind the Python catalog/Dolt lifecycle implementation only after that
+   package release is available as an exact dependency.
+3. [ ] Publish the conditional transformation profile 0.2, then pin its final
+   specification identity in Python v0.5 before making the adapter claim.
+4. [ ] Migrate PHP to the canonical transformation plan before it claims
+   conditional transformation profile 0.2 support.
+
+The pending in-place service matrix and adapter conformance work in sections 6
+and 7 remains required; package publication or a specification pin does not
+complete either evidence gate.
+
 ## Maintainer setup
 
 These are maintainer actions, not implementation tasks for the specification repository itself.
 
-- [ ] For the Python repository: create and secure PyPI and TestPyPI project ownership, then configure PyPI Trusted Publishing for the repository's release workflow before the first package release.
-- [ ] For the PHP repository: register the package with Packagist and configure repository-based automatic updates before the first public release.
+- [x] Publish the OpenStatSpec Python distribution and establish its public PyPI
+  project. Published package releases establish the public project; they do not
+  by themselves re-verify owner security or the Trusted Publishing workflow.
+- [ ] Re-verify secure PyPI/TestPyPI ownership and Trusted Publishing before the
+  next Python release workflow is relied on.
+- [x] Register and publish the OpenStatSpec PHP package through Packagist. The
+  public package establishes the registry setup; repository update ownership
+  still needs release-process verification.
 - [ ] Decide the release owner(s), tag naming convention, and release checklist for every repository.
-- [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow.
+- [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow; `main` is currently unprotected.
