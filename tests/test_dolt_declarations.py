@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.openstatspec_specification.dolt import (
+from openstatspec_specification.dolt import (
     DoltDeclarationError,
     DoltDeclarationSource,
     load_validated_dolt_declarations,
