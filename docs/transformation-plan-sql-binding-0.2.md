@@ -76,5 +76,17 @@ The compact audit and forbidden-artifact requirements from Binding 0.1 are
 unchanged. It records exact plan/source hashes and operation count, not row
 values or copied state.
 
+## Audit schema compatibility
+
+The versioned `sql/transformation-plan-profile-schema.sql` DDL accepts both the
+0.1 and 0.2 in-place binding contract identifiers in the same existing
+`transformation_apply` table. Before the first 0.2 apply, an installation whose
+0.1 table still has the single-contract check MUST migrate that check in place,
+using its database profile's transactional DDL procedure where available. The
+migration preserves every existing compact audit row and MUST NOT create a
+second audit table, dataset, data-table copy, snapshot, or rollback artifact.
+It is a schema migration completed before an apply; it is not part of the
+transformation apply boundary.
+
 Machine-readable binding cases are in
 [`../conformance/in-place-transformation-0.2.json`](../conformance/in-place-transformation-0.2.json).
