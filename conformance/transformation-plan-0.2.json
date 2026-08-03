@@ -387,6 +387,232 @@
       },
       "expected_plan_hash": null,
       "expected_error": "duplicate_value_label"
+    },
+    {
+      "id": "mixed-default-and-precedence",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "or",
+              "operands": [
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_a"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "boolean",
+                  "operator": "and",
+                  "operands": [
+                    {
+                      "expression": "comparison",
+                      "left": {
+                        "kind": "variable",
+                        "variable": "source_b"
+                      },
+                      "operator": "=",
+                      "right": {
+                        "kind": "literal",
+                        "value": {
+                          "type": "binary64",
+                          "bits": "3ff0000000000000"
+                        }
+                      }
+                    },
+                    {
+                      "expression": "comparison",
+                      "left": {
+                        "kind": "variable",
+                        "variable": "source_c"
+                      },
+                      "operator": "=",
+                      "right": {
+                        "kind": "literal",
+                        "value": {
+                          "type": "binary64",
+                          "bits": "3ff0000000000000"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "5fc4c6e5c41661f6b0f7806d3e4b5054e8282d0f4f3f4ae9da60eae68b7f9d43"
+    },
+    {
+      "id": "mixed-parentheses-override-precedence",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "and",
+              "operands": [
+                {
+                  "expression": "boolean",
+                  "operator": "or",
+                  "operands": [
+                    {
+                      "expression": "comparison",
+                      "left": {
+                        "kind": "variable",
+                        "variable": "source_a"
+                      },
+                      "operator": "=",
+                      "right": {
+                        "kind": "literal",
+                        "value": {
+                          "type": "binary64",
+                          "bits": "3ff0000000000000"
+                        }
+                      }
+                    },
+                    {
+                      "expression": "comparison",
+                      "left": {
+                        "kind": "variable",
+                        "variable": "source_b"
+                      },
+                      "operator": "=",
+                      "right": {
+                        "kind": "literal",
+                        "value": {
+                          "type": "binary64",
+                          "bits": "3ff0000000000000"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_c"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "dd283eacad64052470bc44b6fb69817db94a95aa6391b34b93f522dcbc63a279"
+    },
+    {
+      "id": "finite-number-rounding-exponent-underflow",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000002"
+              }
+            }
+          },
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "c05f400000000000"
+              }
+            }
+          },
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "0000000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "5abd09242071c929f3fe7e597ad605c9e2cf06a6e2c72fe2b62584dd4ccccb05"
     }
   ]
 }
