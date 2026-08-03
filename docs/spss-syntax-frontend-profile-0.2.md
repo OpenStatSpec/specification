@@ -41,6 +41,27 @@ parentheses. Keywords are ASCII case-insensitive. Unary operators, arithmetic,
 functions, strings, `NOT`, `~=`, `<>`, `MISSING`, locale-dependent
 numbers, and implicit numeric/string coercion are unsupported.
 
+The `finite-number` token has this exact ASCII grammar:
+
+```text
+finite-number := "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)?
+                 ([eE] [+-]? [0-9]+)?
+```
+
+Whitespace is not allowed inside the token. A leading plus, leading decimal
+point, trailing decimal point, leading zero before another integer digit,
+`NaN`, and `Infinity` are rejected. Thus `-1` and `1E2` are accepted,
+while `.5` and `1.` are rejected.
+
+The frontend MUST interpret the token as an exact base-ten value, independent
+of host locale, then correctly round it to the nearest IEEE 754 binary64 value
+using ties-to-even. It MUST NOT first round through a host decimal or extended
+binary floating-point type. A result whose magnitude overflows to infinity is
+rejected with `spss_syntax_error`; a zero result, including signed or
+underflowed zero, is canonicalized to positive-zero bits
+`0000000000000000`. Emitted bits use exactly 16 lowercase hexadecimal digits.
+NaN and infinity can never be emitted.
+
 A numeric variable is resolved at the point its command is lowered, including
 variables created by preceding commands. All referenced variables and assigned
 values in this subset MUST be numeric.
