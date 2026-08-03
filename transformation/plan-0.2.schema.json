@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openstatspec.org/schemas/transformation-plan-0.2.schema.json",
+  "title": "OpenStatSpec Transformation Plan 0.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "input_alias", "operations"],
+  "properties": {
+    "contract": {"const": "openstatspec-transformation-plan-v0.2"},
+    "input_alias": {"type": "string", "minLength": 1},
+    "operations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/operation"}}
+  },
+  "$defs": {
+    "binary64_value": {
+      "type": "object", "additionalProperties": false, "required": ["type", "bits"],
+      "properties": {
+        "type": {"const": "binary64"},
+        "bits": {"type": "string", "pattern": "^(?!8000000000000000$)(?!(?:7ff|fff)[0-9a-f]{13}$)[0-9a-f]{16}$"}
+      }
+    },
+    "string_value": {
+      "type": "object", "additionalProperties": false, "required": ["type", "value"],
+      "properties": {"type": {"const": "string"}, "value": {"type": "string"}}
+    },
+    "typed_value": {"oneOf": [{"$ref": "#/$defs/binary64_value"}, {"$ref": "#/$defs/string_value"}]},
+    "literal": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "value"],
+      "properties": {"kind": {"const": "literal"}, "value": {"$ref": "#/$defs/typed_value"}}
+    },
+    "system_missing": {
+      "type": "object", "additionalProperties": false, "required": ["kind"],
+      "properties": {"kind": {"const": "system_missing"}}
+    },
+    "copy": {
+      "type": "object", "additionalProperties": false, "required": ["kind"],
+      "properties": {"kind": {"const": "copy"}}
+    },
+    "result": {"oneOf": [{"$ref": "#/$defs/literal"}, {"$ref": "#/$defs/system_missing"}, {"$ref": "#/$defs/copy"}]},
+    "variable_operand": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "variable"],
+      "properties": {"kind": {"const": "variable"}, "variable": {"type": "string", "minLength": 1}}
+    },
+    "operand": {"oneOf": [{"$ref": "#/$defs/variable_operand"}, {"$ref": "#/$defs/literal"}]},
+    "comparison": {
+      "type": "object", "additionalProperties": false,
+      "required": ["expression", "left", "operator", "right"],
+      "properties": {
+        "expression": {"const": "comparison"},
+        "left": {"$ref": "#/$defs/operand"},
+        "operator": {"enum": ["=", "<", "<=", ">", ">="]},
+        "right": {"$ref": "#/$defs/operand"}
+      }
+    },
+    "boolean": {
+      "type": "object", "additionalProperties": false,
+      "required": ["expression", "operator", "operands"],
+      "properties": {
+        "expression": {"const": "boolean"},
+        "operator": {"enum": ["and", "or"]},
+        "operands": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/predicate"}}
+      }
+    },
+    "predicate": {"oneOf": [{"$ref": "#/$defs/comparison"}, {"$ref": "#/$defs/boolean"}]},
+    "match": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["kind", "values"], "properties": {"kind": {"const": "values"}, "values": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/typed_value"}}}},
+        {"type": "object", "additionalProperties": false, "required": ["kind", "lower", "upper"], "properties": {"kind": {"const": "range"}, "lower": {"$ref": "#/$defs/binary64_value"}, "upper": {"$ref": "#/$defs/binary64_value"}}},
+        {"$ref": "#/$defs/system_missing"}
+      ]
+    },
+    "rule": {
+      "type": "object", "additionalProperties": false, "required": ["match", "result"],
+      "properties": {"match": {"$ref": "#/$defs/match"}, "result": {"$ref": "#/$defs/result"}}
+    },
+    "recode": {
+      "type": "object", "additionalProperties": false,
+      "required": ["op", "source", "target", "target_mode", "rules", "unmatched"],
+      "properties": {
+        "op": {"const": "recode"}, "source": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1}, "target_mode": {"enum": ["create", "replace"]},
+        "rules": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rule"}},
+        "unmatched": {"$ref": "#/$defs/result"}
+      }
+    },
+    "assign": {
+      "type": "object", "additionalProperties": false, "required": ["op", "target", "target_mode", "value"],
+      "properties": {
+        "op": {"const": "assign"}, "target": {"type": "string", "minLength": 1},
+        "target_mode": {"enum": ["create", "replace"]}, "value": {"$ref": "#/$defs/operand"}
+      }
+    },
+    "conditional_assign": {
+      "type": "object", "additionalProperties": false, "required": ["op", "condition", "target", "value"],
+      "properties": {
+        "op": {"const": "conditional_assign"}, "condition": {"$ref": "#/$defs/predicate"},
+        "target": {"type": "string", "minLength": 1}, "value": {"$ref": "#/$defs/operand"}
+      }
+    },
+    "set_variable_label": {
+      "type": "object", "additionalProperties": false, "required": ["op", "variable", "label"],
+      "properties": {"op": {"const": "set_variable_label"}, "variable": {"type": "string", "minLength": 1}, "label": {"type": "string"}}
+    },
+    "value_label": {
+      "type": "object", "additionalProperties": false, "required": ["value", "label"],
+      "properties": {"value": {"$ref": "#/$defs/typed_value"}, "label": {"type": "string"}}
+    },
+    "replace_value_labels": {
+      "type": "object", "additionalProperties": false, "required": ["op", "variable", "labels"],
+      "properties": {
+        "op": {"const": "replace_value_labels"}, "variable": {"type": "string", "minLength": 1},
+        "labels": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/value_label"}}
+      }
+    },
+    "set_format": {
+      "type": "object", "additionalProperties": false,
+      "required": ["op", "variable", "family", "width", "decimals"],
+      "properties": {
+        "op": {"const": "set_format"}, "variable": {"type": "string", "minLength": 1},
+        "family": {"const": "F"}, "width": {"type": "integer", "minimum": 1, "maximum": 40},
+        "decimals": {"type": "integer", "minimum": 0, "maximum": 16}
+      }
+    },
+    "set_measurement_level": {
+      "type": "object", "additionalProperties": false, "required": ["op", "variable", "level"],
+      "properties": {"op": {"const": "set_measurement_level"}, "variable": {"type": "string", "minLength": 1}, "level": {"enum": ["nominal", "ordinal", "scale"]}}
+    },
+    "execute": {
+      "type": "object", "additionalProperties": false, "required": ["op"],
+      "properties": {"op": {"const": "execute"}}
+    },
+    "operation": {
+      "oneOf": [
+        {"$ref": "#/$defs/recode"}, {"$ref": "#/$defs/assign"}, {"$ref": "#/$defs/conditional_assign"},
+        {"$ref": "#/$defs/set_variable_label"}, {"$ref": "#/$defs/replace_value_labels"},
+        {"$ref": "#/$defs/set_format"}, {"$ref": "#/$defs/set_measurement_level"}, {"$ref": "#/$defs/execute"}
+      ]
+    }
+  }
+}

@@ -1,5 +1,19 @@
 # Changelog
 
+
+## v0.3.0 - 2026-07-31
+
+- Added backward-compatible Transformation Plan and SPSS Syntax Frontend 0.2
+  contracts for sequential numeric `COMPUTE` and conditional `IF`, bounded
+  comparison/`AND`/`OR` expressions, `FORMATS`, `VARIABLE LEVEL`, and
+  `EXECUTE`.
+- Defined exact SQL three-valued missing semantics and deterministic complete
+  plan JSON hashing while preserving every 0.1 contract, fixture, and hash.
+- Kept create-target apply fail-closed on MySQL, MariaDB, and Dolt; these
+  profiles require a separately versioned physical-and-catalog provisioning
+  action followed by an existing-target apply with no automatic Dolt commit.
+- Added independent synthetic golden fixtures, hashes, examples, and repository
+  validation gates for the new contracts.
 ## v0.2.0 - 2026-07-31
 
 - Added canonical Transformation Plan and SPSS Syntax Frontend profiles for a

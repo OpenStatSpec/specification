@@ -1,0 +1,316 @@
+{
+  "manifest_version": "0.2",
+  "profile": "OpenStatSpec Transformation Plan 0.2",
+  "contract": "openstatspec-transformation-plan-v0.2",
+  "schema": "../transformation/plan-0.2.schema.json",
+  "canonicalization": "restricted-rfc8785-utf8-sha256",
+  "cases": [
+    {
+      "id": "sequential-conditional-binary-existing-target",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "0000000000000000"
+              }
+            }
+          },
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "and",
+              "operands": [
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_a"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_b"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "set_variable_label",
+            "variable": "target",
+            "label": "Synthetic conjunction"
+          },
+          {
+            "op": "replace_value_labels",
+            "variable": "target",
+            "labels": [
+              {
+                "value": {
+                  "type": "binary64",
+                  "bits": "0000000000000000"
+                },
+                "label": "No"
+              },
+              {
+                "value": {
+                  "type": "binary64",
+                  "bits": "3ff0000000000000"
+                },
+                "label": "Yes"
+              }
+            ]
+          },
+          {
+            "op": "set_format",
+            "variable": "target",
+            "family": "F",
+            "width": 1,
+            "decimals": 0
+          },
+          {
+            "op": "set_measurement_level",
+            "variable": "target",
+            "level": "nominal"
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_plan_hash": "8e9f72759f6ed53aa6957dc288bdc49894ca2e08a8313ca957da6b4dfd11acbd",
+      "expected_error": null
+    },
+    {
+      "id": "reject-string-predicate",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "comparison",
+              "left": {
+                "kind": "variable",
+                "variable": "color"
+              },
+              "operator": "=",
+              "right": {
+                "kind": "literal",
+                "value": {
+                  "type": "string",
+                  "value": "R"
+                }
+              }
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "nested-or-inequalities-variable-operands-create",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "create",
+            "value": {
+              "kind": "variable",
+              "variable": "source_a"
+            }
+          },
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "or",
+              "operands": [
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_a"
+                  },
+                  "operator": ">=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "0000000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "boolean",
+                  "operator": "and",
+                  "operands": [
+                    {
+                      "expression": "comparison",
+                      "left": {
+                        "kind": "variable",
+                        "variable": "source_b"
+                      },
+                      "operator": "<",
+                      "right": {
+                        "kind": "literal",
+                        "value": {
+                          "type": "binary64",
+                          "bits": "4014000000000000"
+                        }
+                      }
+                    },
+                    {
+                      "expression": "comparison",
+                      "left": {
+                        "kind": "variable",
+                        "variable": "source_c"
+                      },
+                      "operator": "<=",
+                      "right": {
+                        "kind": "literal",
+                        "value": {
+                          "type": "binary64",
+                          "bits": "4022000000000000"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "variable",
+              "variable": "source_b"
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_plan_hash": "926f2cd93ed0bfa330bdb2d0b31b241f552c86c116dd35a315a20408bf997daf",
+      "expected_error": null
+    },
+    {
+      "id": "reject-invalid-format",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "set_format",
+            "variable": "target",
+            "family": "F",
+            "width": 2,
+            "decimals": 2
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "invalid_format"
+    },
+    {
+      "id": "reject-reserved-assignment-target",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "__target",
+            "target_mode": "create",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "0000000000000000"
+              }
+            }
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "reserved_target_name"
+    },
+    {
+      "id": "reject-duplicate-value-label",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "replace_value_labels",
+            "variable": "target",
+            "labels": [
+              {
+                "value": {
+                  "type": "binary64",
+                  "bits": "3ff0000000000000"
+                },
+                "label": "One"
+              },
+              {
+                "value": {
+                  "type": "binary64",
+                  "bits": "3ff0000000000000"
+                },
+                "label": "Duplicate one"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "duplicate_value_label"
+    }
+  ]
+}

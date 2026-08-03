@@ -11,6 +11,15 @@ core source profile. Adding or revising an optional profile does not authorize
 changes to core datasets. A breaking workflow-profile change increments that
 profile's major version even when the core version is unchanged.
 
+Transformation Plan and frontend contracts are selected by their exact
+contract identifiers. An implementation may support multiple versions
+simultaneously. It MUST preserve the canonical bytes and hashes of accepted
+older plans and MUST NOT silently reinterpret or rewrite an older plan under a
+newer schema. A frontend that accepts a newer request contract but receives a
+program entirely inside the 0.1 command subset emits the exact 0.1 plan
+contract. Explicit recompilation to a newer plan is a new identified operation,
+not migration of the old plan or audit row.
+
 The SPSS SAV/ZSAV profile is versioned independently in its document and manifest. A conforming implementation must publish the exact profile version, immutable specification commit, specification status, supported directions, supported SQL profiles, and engine capability declaration it tested.
 
 The immutable commit is mandatory for both release candidates and stable releases. `specification_release` is additive provenance, not an alternative to the commit:

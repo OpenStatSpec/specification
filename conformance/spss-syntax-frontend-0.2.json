@@ -1,0 +1,93 @@
+{
+  "manifest_version": "0.2",
+  "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.2",
+  "contract": "openstatspec-spss-syntax-frontend-v0.2",
+  "plan_contracts": [
+    "openstatspec-transformation-plan-v0.1",
+    "openstatspec-transformation-plan-v0.2"
+  ],
+  "request_schema": "../transformation/spss-syntax-frontend-0.2.schema.json",
+  "plan_schemas": {
+    "openstatspec-transformation-plan-v0.1": "../transformation/plan-0.1.schema.json",
+    "openstatspec-transformation-plan-v0.2": "../transformation/plan-0.2.schema.json"
+  },
+  "cases": [
+    {
+      "id": "compute-if-labels-format-level-execute-existing-target",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = 0.\nIF (source_a = 1 AND source_b = 1) target = 1.\nVARIABLE LABELS target 'Synthetic conjunction'.\nVALUE LABELS target 0 'No' 1 'Yes'.\nFORMATS target (F1.0).\nVARIABLE LEVEL target (NOMINAL).\nEXECUTE."
+      },
+      "expected_plan_case": "sequential-conditional-binary-existing-target",
+      "expected_plan_hash": "8e9f72759f6ed53aa6957dc288bdc49894ca2e08a8313ca957da6b4dfd11acbd",
+      "expected_source_hash": "02bede796f1f0c8dcc22eb616d4afa48540ea8f09f637179842368af8a576481",
+      "expected_error": null
+    },
+    {
+      "id": "old-subset-retains-v0.1-plan",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "q1",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "RECODE q1 (1 = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_case_0_1": "in-place-recode-default-copy",
+      "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
+      "expected_source_hash": "68c05b0cae01476642c70956ddcaa693311be1a653ead1d1caf8b006843ed55b",
+      "expected_error": null
+    },
+    {
+      "id": "nested-or-inequality-variable-operands-create",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = source_a.\nIF (source_a >= 0 OR (source_b < 5 AND source_c <= 9)) target = source_b.\nEXECUTE."
+      },
+      "expected_plan_case": "nested-or-inequalities-variable-operands-create",
+      "expected_plan_hash": "926f2cd93ed0bfa330bdb2d0b31b241f552c86c116dd35a315a20408bf997daf",
+      "expected_source_hash": "4b3b35660b1ec57de0b8b0485dcc85bb51a05796df9e9624f4f1790d78e2bfeb",
+      "expected_error": null
+    }
+  ]
+}

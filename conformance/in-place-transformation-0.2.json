@@ -1,0 +1,188 @@
+{
+  "manifest_version": "0.2",
+  "profile": "OpenStatSpec In-Place Transformation Binding 0.2",
+  "contract": "openstatspec-in-place-transformation-v0.2",
+  "cases": [
+    {
+      "id": "dolt-preprovisioned-target-sequential-null-semantics",
+      "database_profile": "dolt",
+      "before": {
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_name": "data_synthetic",
+        "physical_table_schema": null,
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "case_count": 4,
+        "target_provisioning": {
+          "physical_column": true,
+          "catalog_variable": true,
+          "dolt_commit": "provisioning-commit"
+        },
+        "dolt_branch": "feature/recode",
+        "dolt_head": "provisioning-commit",
+        "working_set_clean": true,
+        "rows": [
+          {
+            "__case_ordinal": 1,
+            "source_a": 1,
+            "source_b": 1,
+            "target": null
+          },
+          {
+            "__case_ordinal": 2,
+            "source_a": 1,
+            "source_b": null,
+            "target": null
+          },
+          {
+            "__case_ordinal": 3,
+            "source_a": null,
+            "source_b": 1,
+            "target": null
+          },
+          {
+            "__case_ordinal": 4,
+            "source_a": 0,
+            "source_b": 1,
+            "target": null
+          }
+        ]
+      },
+      "after": {
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_name": "data_synthetic",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "physical_table_schema": null,
+        "dolt_branch": "feature/recode",
+        "dolt_head": "provisioning-commit",
+        "case_count": 4,
+        "dolt_commit_performed": false,
+        "working_set_clean": false,
+        "rows": [
+          {
+            "__case_ordinal": 1,
+            "target": 1
+          },
+          {
+            "__case_ordinal": 2,
+            "target": 0
+          },
+          {
+            "__case_ordinal": 3,
+            "target": 0
+          },
+          {
+            "__case_ordinal": 4,
+            "target": 0
+          }
+        ],
+        "target_metadata": {
+          "variable_label": "Synthetic conjunction",
+          "value_labels": [
+            [
+              0,
+              "No"
+            ],
+            [
+              1,
+              "Yes"
+            ]
+          ],
+          "format": "F1.0",
+          "measurement_level": "nominal"
+        }
+      },
+      "expected_audit": {
+        "contract_id": "openstatspec-in-place-transformation-v0.2",
+        "operation_count": 7,
+        "dolt_branch": "feature/recode",
+        "dolt_head_before": "provisioning-commit",
+        "dolt_head_after": "provisioning-commit"
+      },
+      "forbidden_artifacts": [
+        "derived_dataset_row",
+        "persistent_output_table",
+        "full_table_copy",
+        "staging_dataset",
+        "staging_relation",
+        "snapshot_table",
+        "rollback_table",
+        "dataset_version_row",
+        "retirement_or_recovery_row",
+        "temporary_object_residue"
+      ],
+      "required_audit_fields": [
+        "apply_id",
+        "contract_id",
+        "database_profile",
+        "dataset_id",
+        "physical_table_schema",
+        "physical_table_name",
+        "plan_hash",
+        "source_hash",
+        "actor",
+        "status",
+        "dolt_branch",
+        "dolt_head_before",
+        "dolt_head_after",
+        "operation_count",
+        "started_at",
+        "completed_at"
+      ],
+      "expected_error": null
+    },
+    {
+      "id": "dolt-preprovisioned-target-or-null-semantics",
+      "database_profile": "dolt",
+      "target_preprovisioned": true,
+      "condition": "source_a = 1 OR source_b = 1",
+      "before_rows": [
+        {
+          "__case_ordinal": 1,
+          "source_a": null,
+          "source_b": 1,
+          "target": 0
+        },
+        {
+          "__case_ordinal": 2,
+          "source_a": null,
+          "source_b": 0,
+          "target": 0
+        }
+      ],
+      "after_rows": [
+        {
+          "__case_ordinal": 1,
+          "target": 1
+        },
+        {
+          "__case_ordinal": 2,
+          "target": 0
+        }
+      ],
+      "expected_error": null
+    },
+    {
+      "id": "dolt-create-target-fails-before-mutation",
+      "database_profile": "dolt",
+      "target_mode": "create",
+      "expected_error": "schema_change_not_atomic",
+      "mutation_started": false
+    },
+    {
+      "id": "mysql-create-target-fails-before-mutation",
+      "database_profile": "mysql",
+      "target_mode": "create",
+      "expected_error": "schema_change_not_atomic",
+      "mutation_started": false
+    },
+    {
+      "id": "mariadb-create-target-fails-before-mutation",
+      "database_profile": "mariadb",
+      "target_mode": "create",
+      "expected_error": "schema_change_not_atomic",
+      "mutation_started": false
+    }
+  ]
+}

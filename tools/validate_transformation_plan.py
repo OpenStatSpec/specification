@@ -450,6 +450,9 @@ def validate_all() -> tuple[int, int]:
     plan_cases = validate_plan_manifest()
     frontend_count = validate_frontend_manifest(plan_cases)
     validate_repository_links()
+    from validate_transformation_plan_0_2 import validate_all as validate_0_2
+
+    validate_0_2()
     return len(plan_cases), frontend_count
 
 
