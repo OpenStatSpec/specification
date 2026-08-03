@@ -189,6 +189,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "negative-zero-canonical-positive-zero": None,
         "reject-string-assign-value": "expression_type_unsupported",
         "reject-string-conditional-assign-value": "expression_type_unsupported",
+        "string-measurement-level-target": None,
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -342,6 +343,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                     "EXECUTE.",
                 ),
                 "negative-zero-canonical-positive-zero": ("COMPUTE target = -0.", "EXECUTE."),
+                "string-measurement-level-target": (
+                    "VARIABLE LEVEL color (NOMINAL).", "EXECUTE.",
+                ),
             }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
@@ -409,6 +413,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-string-target-format",
         "metadata-only-value-labels-retains-v0.1-plan",
         "metadata-only-variable-labels-retains-v0.1-plan",
+        "string-measurement-level-target",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
