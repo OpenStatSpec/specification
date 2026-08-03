@@ -274,6 +274,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-if-else-form": "spss_syntax_error",
         "reject-non-f-format": "invalid_format",
         "reject-invalid-measurement-level": "spss_syntax_error",
+        "reject-string-target-compute": "expression_type_unsupported",
+        "reject-string-target-conditional": "expression_type_unsupported",
+        "reject-string-target-format": "expression_type_unsupported",
     }
     for case in manifest["cases"]:
         identifier = require_string(case["id"], "0.2 frontend case id")
@@ -385,6 +388,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-non-f-format",
         "reject-invalid-measurement-level",
         "negative-zero-canonical-positive-zero",
+        "reject-string-target-compute",
+        "reject-string-target-conditional",
+        "reject-string-target-format",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
