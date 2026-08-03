@@ -474,6 +474,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         "dolt-preprovisioned-target-conditional-variable-missing-propagation",
         "dolt-empty-actor-fails-before-mutation",
         "sqlite-create-target-atomic-success",
+        "sqlite-inequality-boundary-semantics",
+        "dolt-context-changed-after-mutation-rolls-back",
     } | {
         f"{profile}-create-target-fails-before-mutation"
         for profile in ("dolt", "mysql", "mariadb")
@@ -504,6 +506,17 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         "catalog_variable": True,
         "dolt_commit": before["dolt_head"],
     }, "Dolt physical/catalog provisioning is not coupled to HEAD.")
+    missing_values = [
+        {"ordinal": 1, "rule_kind": "discrete", "code_kind": "numeric", "numeric_value": -9},
+    ]
+    require(before["target_metadata"] == {"missing_values": missing_values}, "Dolt pre-apply missing values differ.")
+    require(after["target_metadata"] == {
+        "variable_label": "Synthetic conjunction",
+        "value_labels": [[0, "No"], [1, "Yes"]],
+        "format": "F1.0",
+        "measurement_level": "nominal",
+        "missing_values": missing_values,
+    }, "Dolt target metadata result or preserved missing values differ.")
     require(before["working_set_clean"] is True and after["working_set_clean"] is False, "Dolt working-set state differs.")
     require([row["target"] for row in after["rows"]] == [1, 0, 0, 0], "Three-valued IF result differs.")
     require(
@@ -513,6 +526,7 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     require(after["dolt_commit_performed"] is False, "Apply performs DOLT_COMMIT.")
     require(success["expected_audit"] == {
         "contract_id": manifest["contract"],
+        "database_profile": "dolt",
         "dataset_id": before["dataset_id"],
         "physical_table_schema": before["physical_table_schema"],
         "physical_table_name": before["physical_table_name"],
@@ -602,6 +616,30 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         {"__case_ordinal": 2, "target": 7},
     ], "Dolt conditional assignment does not preserve a missing RHS.")
     require(conditional_missing_case["expected_error"] is None, "Dolt conditional missing-propagation case unexpectedly fails.")
+    inequality_case = cases["sqlite-inequality-boundary-semantics"]
+    require(set(inequality_case) == {"id", "database_profile", "target_preprovisioned", "boundary", "before_rows", "operations", "after_rows", "expected_error"}, "Inequality-boundary fields differ.")
+    require(inequality_case["database_profile"] == "sqlite" and inequality_case["target_preprovisioned"] is True and inequality_case["boundary"] == 1, "Inequality-boundary identity differs.")
+    require(inequality_case["before_rows"] == [{"__case_ordinal": 1, "source": 0, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}, {"__case_ordinal": 2, "source": 1, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}, {"__case_ordinal": 3, "source": 2, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}], "Inequality-boundary inputs differ.")
+    require(inequality_case["operations"] == [
+        {"op": "conditional_assign", "condition": "source < 1", "target": "target_lt", "value": 1},
+        {"op": "conditional_assign", "condition": "source <= 1", "target": "target_le", "value": 1},
+        {"op": "conditional_assign", "condition": "source > 1", "target": "target_gt", "value": 1},
+        {"op": "conditional_assign", "condition": "source >= 1", "target": "target_ge", "value": 1},
+    ], "Inequality-boundary operations differ.")
+    require(inequality_case["after_rows"] == [
+        {"__case_ordinal": 1, "source": 0, "target_lt": 1, "target_le": 1, "target_gt": 0, "target_ge": 0},
+        {"__case_ordinal": 2, "source": 1, "target_lt": 0, "target_le": 1, "target_gt": 0, "target_ge": 1},
+        {"__case_ordinal": 3, "source": 2, "target_lt": 0, "target_le": 0, "target_gt": 1, "target_ge": 1},
+    ], "Strict and non-strict inequality results differ.")
+    require(inequality_case["expected_error"] is None, "Inequality-boundary apply unexpectedly fails.")
+    context_case = cases["dolt-context-changed-after-mutation-rolls-back"]
+    require(set(context_case) == {"id", "database_profile", "target_preprovisioned", "expected_context", "completion_context", "failure_point", "before", "after_failure", "mutation_started", "expected_error"}, "Dolt context-change fields differ.")
+    require(context_case["database_profile"] == "dolt" and context_case["target_preprovisioned"] is True, "Dolt context-change identity differs.")
+    require(context_case["expected_context"] == {"branch": "feature/recode", "head": "provisioning-commit"}, "Dolt expected context differs.")
+    require(context_case["completion_context"] == {"branch": "feature/recode", "head": "concurrent-commit"}, "Dolt changed context differs.")
+    require(context_case["failure_point"] == "after_data_and_metadata_before_audit" and context_case["mutation_started"] is True and context_case["expected_error"] == "dolt_context_changed", "Dolt post-mutation context-change diagnostic differs.")
+    require(context_case["before"] == {"rows": [{"__case_ordinal": 1, "target": 0}], "target_metadata": {"variable_label": "Before"}, "audit_row_count": 0}, "Dolt context-change pre-state differs.")
+    require(context_case["after_failure"] == context_case["before"], "Dolt context-change failure does not roll back data, metadata, and audit.")
 
     actor_case = cases["dolt-empty-actor-fails-before-mutation"]
     require(actor_case == {
