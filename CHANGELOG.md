@@ -3,7 +3,9 @@
 
 ## Unreleased
 
-Planned specification release: `v0.3.0`, after the reference-adapter conformance gates pass.
+Target stable specification release: `v0.3.0` (not published).
+
+Until a protected or signed `v0.3.0` tag targets this work, implementations MUST identify it with `specification_status: release_candidate`, `specification_release: null`, and the exact immutable specification commit. The entries below do not constitute a stable release.
 
 - Added backward-compatible Transformation Plan and SPSS Syntax Frontend 0.2
   contracts for sequential numeric `COMPUTE` and conditional `IF`, bounded
