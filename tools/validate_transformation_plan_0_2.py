@@ -237,6 +237,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                 "three-term-and-flattens-source-order": (
                     "IF (", "source_a = 1 AND source_b = 1 AND source_c = 1", "EXECUTE.",
                 ),
+                "parenthesized-three-term-and-flattens-source-order": (
+                    "IF ((source_a = 1 AND source_b = 1) AND source_c = 1)", "EXECUTE.",
+                ),
                 "nested-or-inequality-variable-operands-create": (
                     "COMPUTE ", "IF (", " OR ", " AND ", ">=", "<", "<=", "EXECUTE.",
                 ),
@@ -256,6 +259,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
     require(identifiers == {
         "compute-if-labels-format-level-execute-existing-target",
         "three-term-and-flattens-source-order",
+        "parenthesized-three-term-and-flattens-source-order",
         "nested-or-inequality-variable-operands-create",
         "old-subset-retains-v0.1-plan",
         "reject-string-expression",
