@@ -171,6 +171,9 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "reject-invalid-format": "invalid_format",
         "reject-reserved-assignment-target": "reserved_target_name",
         "reject-duplicate-value-label": "duplicate_value_label",
+        "mixed-default-and-precedence": None,
+        "mixed-parentheses-override-precedence": None,
+        "finite-number-rounding-exponent-underflow": None,
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -183,6 +186,19 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
             require(case["expected_plan_hash"] == canonical_hash(case["plan"]), f"{identifier}: golden plan hash differs.")
         else:
             require(case["expected_plan_hash"] is None, f"{identifier}: invalid plan claims a hash.")
+        if identifier == "finite-number-rounding-exponent-underflow":
+            require(
+                [
+                    operation["value"]["value"]["bits"]
+                    for operation in case["plan"]["operations"][:-1]
+                ] == [
+                    "3ff0000000000000",
+                    "3ff0000000000002",
+                    "c05f400000000000",
+                    "0000000000000000",
+                ],
+                "Finite-number conversion golden bits differ.",
+            )
     require(set(cases) == set(expected), "0.2 plan case set differs.")
     return cases
 
@@ -206,6 +222,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-string-expression": "expression_type_unsupported",
         "reject-missing-conditional-target": "conditional_target_missing",
         "reject-invalid-format": "invalid_format",
+        "reject-numeric-overflow": "spss_syntax_error",
+        "reject-leading-decimal-point": "spss_syntax_error",
+        "reject-trailing-decimal-point": "spss_syntax_error",
     }
     for case in manifest["cases"]:
         identifier = require_string(case["id"], "0.2 frontend case id")
@@ -243,6 +262,17 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                 "nested-or-inequality-variable-operands-create": (
                     "COMPUTE ", "IF (", " OR ", " AND ", ">=", "<", "<=", "EXECUTE.",
                 ),
+                "unparenthesized-mixed-default-precedence": (
+                    "IF (source_a = 1 OR source_b = 1 AND source_c = 1)", "EXECUTE.",
+                ),
+                "parenthesized-mixed-override-precedence": (
+                    "IF ((source_a = 1 OR source_b = 1) AND source_c = 1)", "EXECUTE.",
+                ),
+                "finite-number-rounding-exponent-underflow": (
+                    "1.00000000000000011102230246251565404236316680908203125",
+                    "1.00000000000000033306690738754696212708950042724609375",
+                    "-1.25e+2", "1e-4000", "EXECUTE.",
+                ),
             }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
@@ -265,6 +295,12 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-string-expression",
         "reject-missing-conditional-target",
         "reject-invalid-format",
+        "unparenthesized-mixed-default-precedence",
+        "parenthesized-mixed-override-precedence",
+        "finite-number-rounding-exponent-underflow",
+        "reject-numeric-overflow",
+        "reject-leading-decimal-point",
+        "reject-trailing-decimal-point",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
