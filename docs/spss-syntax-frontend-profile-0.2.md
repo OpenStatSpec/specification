@@ -31,8 +31,13 @@ predicate   := comparison | "(" predicate ")"
 ```
 
 Comparison binds tighter than `AND`; `AND` binds tighter than `OR`.
-Parentheses override precedence and are preserved as the equivalent nested
-plan shape. Keywords are ASCII case-insensitive. Unary operators, arithmetic,
+A maximal chain of the same boolean operator MUST lower to one n-ary boolean
+plan node whose operands remain in source order. Thus `a AND b AND c` lowers
+to one `and` node with three operands, never left- or right-nested binary
+`and` nodes. Parentheses override precedence across different operators;
+parentheses around a same-operator subexpression do not prevent this required
+flattening. Mixed operators remain nested according to precedence and explicit
+parentheses. Keywords are ASCII case-insensitive. Unary operators, arithmetic,
 functions, strings, `NOT`, `~=`, `<>`, `MISSING`, locale-dependent
 numbers, and implicit numeric/string coercion are unsupported.
 
