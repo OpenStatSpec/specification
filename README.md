@@ -37,7 +37,7 @@ permits a transformation to mutate a core import.
 That separate derived-data profile is not used by the SPSS-like in-place
 frontend below.
 
-The [Transformation Plan Profile 0.2](docs/transformation-plan-profile-0.2.md)
+The release-candidate [Transformation Plan Profile 0.2](docs/transformation-plan-profile-0.2.md)
 adds sequential bounded numeric assignment and conditional assignment to the
 unchanged 0.1 operations. The
 [SPSS Syntax Frontend Profile 0.2](docs/spss-syntax-frontend-profile-0.2.md)
