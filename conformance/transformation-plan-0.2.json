@@ -905,6 +905,66 @@
       },
       "expected_plan_hash": "0e881516aef24bbd5e3c6e2afe12a2f7f712d58f33fcba2bce2b74691bfe5a9c",
       "expected_error": null
+    },
+    {
+      "id": "reject-string-assign-value",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "assign",
+            "target": "target",
+            "target_mode": "replace",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "string",
+                "value": "R"
+              }
+            }
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-string-conditional-assign-value",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "comparison",
+              "left": {
+                "kind": "variable",
+                "variable": "source_a"
+              },
+              "operator": "=",
+              "right": {
+                "kind": "literal",
+                "value": {
+                  "type": "binary64",
+                  "bits": "3ff0000000000000"
+                }
+              }
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "string",
+                "value": "R"
+              }
+            }
+          }
+        ]
+      },
+      "expected_plan_hash": null,
+      "expected_error": "expression_type_unsupported"
     }
   ]
 }
