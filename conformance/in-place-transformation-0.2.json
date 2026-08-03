@@ -219,6 +219,41 @@
       "expected_error": null
     },
     {
+      "id": "dolt-preprovisioned-target-conditional-variable-missing-propagation",
+      "database_profile": "dolt",
+      "target_preprovisioned": true,
+      "conditional_assign": {
+        "target": "target",
+        "value_variable": "source_a",
+        "predicate": "source_b = 1"
+      },
+      "before_rows": [
+        {
+          "__case_ordinal": 1,
+          "source_a": null,
+          "source_b": 1,
+          "target": 7
+        },
+        {
+          "__case_ordinal": 2,
+          "source_a": null,
+          "source_b": 0,
+          "target": 7
+        }
+      ],
+      "after_rows": [
+        {
+          "__case_ordinal": 1,
+          "target": null
+        },
+        {
+          "__case_ordinal": 2,
+          "target": 7
+        }
+      ],
+      "expected_error": null
+    },
+    {
       "id": "dolt-empty-actor-fails-before-mutation",
       "database_profile": "dolt",
       "actor": "",
@@ -273,7 +308,8 @@
             "variable_label": null,
             "value_labels": [],
             "format": null,
-            "measurement_level": null
+            "measurement_level": null,
+            "missing_values": []
           }
         },
         "rows": [
@@ -302,7 +338,15 @@
         "row_values_changed": false,
         "audit_row_present": false
       },
-      "expected_error": null
+      "expected_error": null,
+      "actor": "conformance-runner",
+      "expected_audit": {
+        "contract_id": "openstatspec-in-place-transformation-v0.2",
+        "database_profile": "sqlite",
+        "actor": "conformance-runner",
+        "status": "succeeded",
+        "operation_count": 1
+      }
     }
   ]
 }
