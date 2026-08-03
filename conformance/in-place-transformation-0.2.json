@@ -184,6 +184,38 @@
       "target_mode": "create",
       "expected_error": "schema_change_not_atomic",
       "mutation_started": false
+    },
+    {
+      "id": "dolt-preprovisioned-target-variable-missing-propagation",
+      "database_profile": "dolt",
+      "target_preprovisioned": true,
+      "assign": {
+        "target": "target",
+        "value_variable": "source_a"
+      },
+      "before_rows": [
+        {
+          "__case_ordinal": 1,
+          "source_a": null,
+          "target": 7
+        },
+        {
+          "__case_ordinal": 2,
+          "source_a": 2,
+          "target": 7
+        }
+      ],
+      "after_rows": [
+        {
+          "__case_ordinal": 1,
+          "target": null
+        },
+        {
+          "__case_ordinal": 2,
+          "target": 2
+        }
+      ],
+      "expected_error": null
     }
   ]
 }
