@@ -726,6 +726,70 @@
       },
       "expected_source_hash": "940c30da3b6232307e976bc96a0ea64056dc9605cf717faae3580e5b4f3f0752",
       "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "minimum-nonzero-subnormal",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = 5e-324.\nEXECUTE."
+      },
+      "expected_plan_case": "minimum-nonzero-subnormal",
+      "expected_plan_hash": "fec5cad101adf699cfac0cbfbc1e0371f512f8e674345269d1de8d3a8a4538de",
+      "expected_source_hash": "d64f70960fbc1e42014c4049fdddf9c466c77e3dc896447de7a02ccaa2a8c191",
+      "expected_error": null
+    },
+    {
+      "id": "grouped-format-and-measurement-level-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "FORMATS source_a (F8.2) source_b (F10.3).\nVARIABLE LEVEL source_a source_b (ORDINAL) / source_c target (SCALE).\nEXECUTE."
+      },
+      "expected_plan_case": "grouped-format-and-measurement-level-order",
+      "expected_plan_hash": "4b5e8d6c2e8043e25c1483b455dc497910cb66835916f6cdf7afa1eba8d334b8",
+      "expected_source_hash": "c9ba1298688876632af6cb435c8f363ae9d56f2475f4adf3d8ad63862e7aae20",
+      "expected_error": null
     }
   ]
 }
