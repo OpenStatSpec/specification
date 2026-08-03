@@ -79,20 +79,23 @@ artifact is a dependency, not evidence that later adapter or service-matrix
 work has passed.
 
 1. [ ] Merge the reusable Dolt declaration validator on the current
-   specification `v0.2.0` line, then tag and publish the matching
-   `openstatspec-specification==0.2.1` artifact before any later minor-profile
-   work enters `main`.
-2. [ ] Bind and merge the Python catalog/Dolt lifecycle implementation only
-   after package `0.2.1` is available as an exact dependency and its immutable
-   specification commit has passed the complete adapter matrix.
-3. [ ] Reconcile and merge Transformation Plan and SPSS Frontend profile 0.2 as
+   specification `v0.2.0` line without tagging or publishing `v0.2.1` yet,
+   and record the exact merge commit as the release candidate.
+2. [ ] Build a candidate `openstatspec-specification==0.2.1` wheel from that
+   exact commit, bind the Python catalog/Dolt lifecycle implementation to it,
+   and pass both specification validation and the complete adapter matrix
+   before creating an immutable release.
+3. [ ] Only after those gates pass, tag that exact specification commit as
+   `v0.2.1`, publish the byte-matching package artifact, reverify installation
+   from the published package, and then merge the Python lifecycle change.
+4. [ ] Reconcile and merge Transformation Plan and SPSS Frontend profile 0.2 as
    unreleased, release-candidate work for the planned specification `v0.3.0`.
-4. [ ] Rebase Python `0.5.0` conditional transformations on the lifecycle
+5. [ ] Rebase Python `0.5.0` conditional transformations on the lifecycle
    implementation, pin the final profile commit, and pass the combined service
    and conformance gates before making an adapter claim.
-5. [ ] Migrate PHP to the canonical transformation plan and pass the same
+6. [ ] Migrate PHP to the canonical transformation plan and pass the same
    relevant conformance cases before it claims conditional profile 0.2 support.
-6. [ ] Tag specification `v0.3.0` only after the required reference-adapter
+7. [ ] Tag specification `v0.3.0` only after the required reference-adapter
    gates pass; until then claims use `release_candidate`, a null release
    identifier, and the exact tested commit.
 
