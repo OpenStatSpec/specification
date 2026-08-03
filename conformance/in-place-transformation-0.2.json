@@ -224,6 +224,85 @@
       "actor": "",
       "expected_error": "actor_required",
       "mutation_started": false
+    },
+    {
+      "id": "sqlite-create-target-atomic-success",
+      "database_profile": "sqlite",
+      "target_mode": "create",
+      "operation": {
+        "op": "assign",
+        "target": "target",
+        "value_variable": "source_a"
+      },
+      "before": {
+        "dataset_id": "22222222-2222-4222-8222-222222222222",
+        "physical_table_schema": null,
+        "physical_table_name": "data_atomic_create",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "variable_count": 2,
+        "case_count": 2,
+        "target": {
+          "physical_column_present": false,
+          "catalog_variable_present": false
+        },
+        "rows": [
+          {
+            "__case_ordinal": 1,
+            "source_a": 2
+          },
+          {
+            "__case_ordinal": 2,
+            "source_a": null
+          }
+        ]
+      },
+      "after": {
+        "dataset_id": "22222222-2222-4222-8222-222222222222",
+        "physical_table_schema": null,
+        "physical_table_name": "data_atomic_create",
+        "dataset_count": 1,
+        "persistent_data_table_count": 1,
+        "variable_count": 3,
+        "case_count": 2,
+        "target": {
+          "physical_column_present": true,
+          "catalog_variable_present": true,
+          "ordinal": 3,
+          "initial_metadata": {
+            "variable_label": null,
+            "value_labels": [],
+            "format": null,
+            "measurement_level": null
+          }
+        },
+        "rows": [
+          {
+            "__case_ordinal": 1,
+            "source_a": 2,
+            "target": 2
+          },
+          {
+            "__case_ordinal": 2,
+            "source_a": null,
+            "target": null
+          }
+        ]
+      },
+      "transaction_boundary": [
+        "physical_schema",
+        "row_values",
+        "catalog",
+        "compact_audit"
+      ],
+      "rollback_probe": {
+        "failure_point": "after_catalog_create_before_audit",
+        "physical_column_present": false,
+        "catalog_variable_present": false,
+        "row_values_changed": false,
+        "audit_row_present": false
+      },
+      "expected_error": null
     }
   ]
 }
