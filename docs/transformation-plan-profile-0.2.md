@@ -2,6 +2,8 @@
 
 ## Status and scope
 
+Status: release candidate for the planned OpenStatSpec `v0.3.0` release. This profile is not a published stable specification until a `v0.3.0` tag targets its exact commit.
+
 This optional profile is the backward-compatible successor to Transformation
 Plan 0.1. Its contract identifier is
 `openstatspec-transformation-plan-v0.2`. The key words **MUST**, **MUST NOT**,
