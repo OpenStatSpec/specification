@@ -177,6 +177,8 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "three-term-or-flattens-source-order": None,
         "strict-greater-than": None,
         "comparison-operand-permutations": None,
+        "minimum-nonzero-subnormal": None,
+        "grouped-format-and-measurement-level-order": None,
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -201,6 +203,12 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
                     "0000000000000000",
                 ],
                 "Finite-number conversion golden bits differ.",
+            )
+        elif identifier == "minimum-nonzero-subnormal":
+            require(
+                case["plan"]["operations"][0]["value"]["value"]["bits"]
+                == "0000000000000001",
+                "Minimum-subnormal conversion golden bits differ.",
             )
     require(set(cases) == set(expected), "0.2 plan case set differs.")
     return cases
@@ -235,6 +243,10 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-leading-zero": "spss_syntax_error",
         "reject-nan-token": "spss_syntax_error",
         "reject-infinity-token": "spss_syntax_error",
+        "reject-if-without-parentheses": "spss_syntax_error",
+        "reject-if-else-form": "spss_syntax_error",
+        "reject-non-f-format": "invalid_format",
+        "reject-invalid-measurement-level": "spss_syntax_error",
     }
     for case in manifest["cases"]:
         identifier = require_string(case["id"], "0.2 frontend case id")
@@ -293,6 +305,12 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                 "comparison-operand-permutations": (
                     "source_a = source_b", "1 < source_c", "1 = 1", "EXECUTE.",
                 ),
+                "minimum-nonzero-subnormal": ("5e-324", "EXECUTE."),
+                "grouped-format-and-measurement-level-order": (
+                    "FORMATS source_a (F8.2) source_b (F10.3).",
+                    "VARIABLE LEVEL source_a source_b (ORDINAL) / source_c target (SCALE).",
+                    "EXECUTE.",
+                ),
             }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
@@ -332,6 +350,12 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-leading-zero",
         "reject-nan-token",
         "reject-infinity-token",
+        "minimum-nonzero-subnormal",
+        "grouped-format-and-measurement-level-order",
+        "reject-if-without-parentheses",
+        "reject-if-else-form",
+        "reject-non-f-format",
+        "reject-invalid-measurement-level",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
