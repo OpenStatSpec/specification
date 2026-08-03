@@ -309,7 +309,14 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
             require(case["expected_error"] is None, f"{identifier}: frontend success claims an error.")
             require(set(case) == {"id", "request", "expected_plan_case", "expected_plan_hash", "expected_source_hash", "expected_error"}, f"{identifier}: frontend success fields differ.")
             require(case["expected_plan_case"] in plan_cases, f"{identifier}: plan fixture missing.")
-            require(case["expected_plan_hash"] == plan_cases[case["expected_plan_case"]]["expected_plan_hash"], f"{identifier}: plan hash link differs.")
+            plan_case = plan_cases[case["expected_plan_case"]]
+            require(
+                plan_case["expected_error"] is None
+                and isinstance(plan_case["expected_plan_hash"], str)
+                and len(plan_case["expected_plan_hash"]) == 64,
+                f"{identifier}: frontend success links an invalid plan fixture.",
+            )
+            require(case["expected_plan_hash"] == plan_case["expected_plan_hash"], f"{identifier}: plan hash link differs.")
             required_tokens = {
                 "compute-if-labels-format-level-execute-existing-target": (
                     "COMPUTE ", "IF (", " AND ", "FORMATS ", "VARIABLE LEVEL ", "EXECUTE.",
@@ -460,6 +467,7 @@ def validate_in_place() -> None:
         "dolt-preprovisioned-target-or-null-semantics",
         "dolt-preprovisioned-target-variable-missing-propagation",
         "dolt-empty-actor-fails-before-mutation",
+        "sqlite-create-target-atomic-success",
     } | {
         f"{profile}-create-target-fails-before-mutation"
         for profile in ("dolt", "mysql", "mariadb")
@@ -560,6 +568,68 @@ def validate_in_place() -> None:
         "expected_error": "actor_required",
         "mutation_started": False,
     }, "Dolt empty-actor rejection differs.")
+
+    create_case = cases["sqlite-create-target-atomic-success"]
+    require(set(create_case) == {
+        "id", "database_profile", "target_mode", "operation", "before", "after",
+        "transaction_boundary", "rollback_probe", "expected_error",
+    }, "SQLite create-target success fields differ.")
+    require(
+        create_case["database_profile"] == "sqlite"
+        and create_case["target_mode"] == "create"
+        and create_case["expected_error"] is None,
+        "SQLite create-target success identity differs.",
+    )
+    require(create_case["operation"] == {
+        "op": "assign",
+        "target": "target",
+        "value_variable": "source_a",
+    }, "SQLite create-target operation differs.")
+    create_before, create_after = create_case["before"], create_case["after"]
+    for field in (
+        "dataset_id", "physical_table_schema", "physical_table_name",
+        "dataset_count", "persistent_data_table_count", "case_count",
+    ):
+        require(create_before[field] == create_after[field], f"SQLite create-target changes {field}.")
+    require(
+        create_before["dataset_count"] == create_after["dataset_count"] == 1
+        and create_before["persistent_data_table_count"] == create_after["persistent_data_table_count"] == 1,
+        "SQLite create-target creates a dataset or persistent data table.",
+    )
+    require(create_before["variable_count"] == 2 and create_after["variable_count"] == 3, "SQLite create-target variable count differs.")
+    require(create_before["target"] == {
+        "physical_column_present": False,
+        "catalog_variable_present": False,
+    }, "SQLite create-target precondition differs.")
+    require(create_after["target"] == {
+        "physical_column_present": True,
+        "catalog_variable_present": True,
+        "ordinal": 3,
+        "initial_metadata": {
+            "variable_label": None,
+            "value_labels": [],
+            "format": None,
+            "measurement_level": None,
+        },
+    }, "SQLite create-target column/catalog result differs.")
+    require(create_before["rows"] == [
+        {"__case_ordinal": 1, "source_a": 2},
+        {"__case_ordinal": 2, "source_a": None},
+    ], "SQLite create-target inputs differ.")
+    require(create_after["rows"] == [
+        {"__case_ordinal": 1, "source_a": 2, "target": 2},
+        {"__case_ordinal": 2, "source_a": None, "target": None},
+    ], "SQLite create-target values or case order differ.")
+    require(create_case["transaction_boundary"] == [
+        "physical_schema", "row_values", "catalog", "compact_audit",
+    ], "SQLite create-target transaction boundary differs.")
+    require(create_case["rollback_probe"] == {
+        "failure_point": "after_catalog_create_before_audit",
+        "physical_column_present": False,
+        "catalog_variable_present": False,
+        "row_values_changed": False,
+        "audit_row_present": False,
+    }, "SQLite create-target rollback proof differs.")
 
     for profile in ("dolt", "mysql", "mariadb"):
         case = cases[f"{profile}-create-target-fails-before-mutation"]
