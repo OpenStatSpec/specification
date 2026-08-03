@@ -174,6 +174,8 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "mixed-default-and-precedence": None,
         "mixed-parentheses-override-precedence": None,
         "finite-number-rounding-exponent-underflow": None,
+        "three-term-or-flattens-source-order": None,
+        "strict-greater-than": None,
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -273,6 +275,13 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                     "1.00000000000000033306690738754696212708950042724609375",
                     "-1.25e+2", "1e-4000", "EXECUTE.",
                 ),
+                "three-term-or-flattens-source-order": (
+                    "source_a = 1 OR source_b = 1 OR source_c = 1", "EXECUTE.",
+                ),
+                "parenthesized-three-term-or-flattens-source-order": (
+                    "((source_a = 1 OR source_b = 1) OR source_c = 1)", "EXECUTE.",
+                ),
+                "strict-greater-than": ("source_a > 1", "EXECUTE."),
             }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
@@ -301,6 +310,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-numeric-overflow",
         "reject-leading-decimal-point",
         "reject-trailing-decimal-point",
+        "three-term-or-flattens-source-order",
+        "parenthesized-three-term-or-flattens-source-order",
+        "strict-greater-than",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
