@@ -898,6 +898,72 @@
       "expected_plan_hash": "0e881516aef24bbd5e3c6e2afe12a2f7f712d58f33fcba2bce2b74691bfe5a9c",
       "expected_source_hash": "3bce3721dc895b4f58cf180cc72792494936cbaf4e1995b8c09a5ab50fee98a5",
       "expected_error": null
+    },
+    {
+      "id": "reject-string-target-compute",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "color",
+              "storage_kind": "string"
+            }
+          ]
+        },
+        "source_text": "COMPUTE color = 1."
+      },
+      "expected_source_hash": "9e4d4b5f23e024b0d1dd70e03465a964f38aa17879e9701fe537c553645dda89",
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-string-target-conditional",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "color",
+              "storage_kind": "string"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = 1) color = 1."
+      },
+      "expected_source_hash": "a0c3d748f308793c5c529e5b7b67743979bd1a9ae5e2c0235a66951202930eb1",
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-string-target-format",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "color",
+              "storage_kind": "string"
+            }
+          ]
+        },
+        "source_text": "FORMATS color (F8.2)."
+      },
+      "expected_source_hash": "84514670d918d0bb42619c32c75aa85225ad9e4f24ac2a0df1cd584f1deb7d97",
+      "expected_error": "expression_type_unsupported"
     }
   ]
 }
