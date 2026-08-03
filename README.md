@@ -59,6 +59,13 @@ to be provisioned separately before an in-place transformation apply.
 - `docs/spss-profile.md` — SPSS source-faithful mapping rules.
 - [Python / pinned pyspssio implementation profile](docs/implementation-profiles/python-pyspssio-0.5.1.md) — Python adapter pyspssio capability boundary; it does not relax the normative SAV/ZSAV profile.
 - `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, MySQL/MariaDB and Dolt physical profiles.
+- `sql/dolt-adapter-declaration-schema.json` — machine-readable contract for
+  concrete Dolt adapter declarations.
+- `sql/dolt-adapter-declarations/` — declaration and evidence resources; the
+  checked-in baseline remains a symbolic template until a concrete adapter
+  declaration is published.
+- `openstatspec-specification` — installable companion distribution exposing
+  the shared Dolt declaration validator and authoritative SQL resources.
 - `sql/` — dialect-neutral schema outline and profile notes.
 - `sql/transformation-workflow-profile-schema.sql` - optional derived-data
   catalog outline, separate from the immutable core catalog.

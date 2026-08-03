@@ -43,3 +43,13 @@ In particular, a MySQL URL or driver does not authorize a
 `mysql_mariadb_innodb` or `dolt` engine claim. Each profile's positive
 identity requirements decide the product. Ambiguity fails closed before any
 catalog or dataset mutation and leaves zero database mutation.
+
+## Dolt declaration package
+
+The checked-in Dolt baseline is a symbolic template and is not an
+import-capable adapter declaration. Concrete adapters publish a separate
+full-profile JSON declaration under `sql/dolt-adapter-declarations/`, governed
+by `sql/dolt-adapter-declaration-schema.json`. The
+`openstatspec-specification` package exposes the same fail-closed validator and
+authoritative SQL resources to adapter repositories, including from an
+installed wheel.

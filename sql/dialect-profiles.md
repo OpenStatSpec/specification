@@ -109,78 +109,149 @@ or incompatible storage configuration rather than claiming atomic import.
 
 ## Dolt profile
 
-Dolt is an independent SQL profile. Its MySQL-compatible wire protocol and
-driver family describe transport only; they do not select or imply the
-`mysql_mariadb_innodb` profile. A conforming adapter MUST publish
-`profile=dolt`, `engine=dolt`, the MySQL-compatible transport and driver, the
-raw and normalized server versions, the identity-probe results, the claimed
-version range, the exact CI-tested versions, and the immutable specification
-identity required by [Dialect Profile Capabilities](profile-capabilities.md).
+Dolt is an independent profile. Its MySQL wire compatibility is a transport and
+SQL-syntax property only; it MUST NOT cause an adapter to select the
+MySQL/MariaDB/InnoDB profile or inherit an InnoDB column, row, LOB, DDL, or
+cleanup rule.
 
-Identity resolution is fail-closed. The adapter MUST obtain non-empty
-`@@version` and `@@version_comment` values. After trimming and case-folding,
-`@@version_comment` MUST equal `dolt`; only then may the adapter call
-`DOLT_VERSION()`, which MUST also return a non-empty version consistent with
-the Dolt claim. A MySQL URL, MySQL-compatible driver, or a single ambiguous
-signal is insufficient. Missing, conflicting, unknown or unclaimed identity
-MUST fail before catalog creation, migration or audit writes and before any
-dataset mutation. A non-Dolt product MUST NOT be probed with
-`DOLT_VERSION()`. Identity failure always leaves zero database mutation.
-
-The claimed Dolt version range is `>=2.2.2,<2.3.0`, the conservative supported
-portion of the 2.2.x family, and the exact CI-tested version list is independently
-`[2.2.2, 2.2.3]`. An adapter MUST reject an active version outside its
-published claim before any catalog or dataset mutation. Capabilities MUST name
-the immutable specification commit and MAY report release `v0.1.0` only when
-that published tag targets the declared commit.
+The repository baseline is a `symbolic_template` with conformance status
+`pending`. Its `claimed_product_versions` and `tested_product_versions` arrays
+are empty because no live Dolt conformance run is represented here. The
+template MUST NOT be used to import data. A concrete adapter declaration is a
+separate full-profile artifact under
+[`dolt-adapter-declarations/`](dolt-adapter-declarations/) conforming to
+[`dolt-adapter-declaration-schema.json`](dolt-adapter-declaration-schema.json).
+It replaces symbols with evidenced values and changes status to `tested`;
+partial overrides are not declarations.
 
 | Property | Requirement |
 | --- | --- |
-| Quoting and folding | Backtick-quote every generated identifier and double embedded backticks. Do not depend on unquoted-name folding. |
-| Identifier limit | Observed Dolt 2.2.2 boundary: a 64-byte ASCII identifier succeeds and a 65-byte identifier is rejected. Generated physical identifiers use the ASCII-safe 64-byte envelope. |
-| Catalog binding | One dedicated Dolt database is the exclusive OpenStatSpec namespace. Resolve all catalog and data relations through that database and verify its singleton `catalog_identity` before use or migration. |
-| Maximum columns | Proposed conservative adapter envelope: 306 physical columns including `__case_ordinal`, hence 305 source variables. Live Dolt 2.2.2 accepted both 306 and 307 physical columns, so 306 is not a claimed native maximum. |
-| Numeric | `DOUBLE`; the maximum finite binary64 value round-tripped exactly on Dolt 2.2.2. Binary64 preservation is required over the claimed envelope, and non-finite constraints MUST be published. |
-| Text | `LONGTEXT NOT NULL`; 65,504 UTF-8 bytes round-tripped exactly on Dolt 2.2.2. The adapter MUST preserve every accepted non-null string losslessly and publish its active value boundary. |
+| Wire protocol | MySQL. Wire compatibility alone is not product identity. |
+| Positive product identity | On the same connection, trim and case-fold `@@version_comment` and require it to equal `Dolt`; require a non-empty `DOLT_VERSION()`; then require that exact string to be a member of `tested_product_versions` with resolving product-identity evidence applicable to that version. A claimed-but-untested version rejects before mutation. |
+| Supported versions | A concrete declaration publishes unique exact `claimed_product_versions` and unique exact `tested_product_versions`; tested versions are a non-empty subset of claimed versions. Versions MUST match the published canonical exact-version syntax, be trim-identical, and contain no ranges, wildcards, placeholders, or raw wire versions. |
+| Quoting | Backtick-quote identifiers; escape an embedded backtick by doubling it. Every identifier limit requires exact-version evidence. |
+| Catalog binding | Dedicated Dolt database on one explicitly selected branch and working set. Qualify names or fix the connection to that database for the entire operation, and verify `catalog_identity` before import. |
+| Numeric | `DOUBLE`. Finite supported values preserve their binary64 bit patterns. NaN and positive/negative infinity use the declared per-class policy. |
+| Text | `LONGTEXT NOT NULL` for SPSS strings. No InnoDB inline-row or LOB assumption applies. |
 | Primary key | `__case_ordinal BIGINT NOT NULL PRIMARY KEY`. |
-| Row/value boundary | Proposed conservative row preflight ceiling: 65,504 bytes, supported by an observed exact round trip of one UTF-8 `LONGTEXT` value of that size. This is not an observed Dolt row-size boundary or claimed native maximum. Active value and per-statement ceilings MUST be derived from and published with the active `@@max_allowed_packet` or a stricter measured deployment boundary. Batching below a statement ceiling is permitted and MUST NOT become a false whole-dataset rejection. |
-| Atomicity | Dolt DDL is treated as non-atomic. Complete every identity and source preflight before target DDL, then remove every profile-owned object created by a failed operation. |
+| DDL atomicity | A machine-readable `ddl_atomicity` case records `atomic` or `non_atomic` behavior with exact-product-version evidence. The symbolic template remains pending and has no result. A Dolt repository commit is not an SQL transaction or cleanup boundary. |
+| Version-control actions | Import MUST NOT branch, merge, commit, reset, checkout, or otherwise mutate Dolt version-control state. Any such workflow is a separate namespaced extension. |
 
-Every published Dolt limit MUST distinguish its value, unit, source and basis:
-theoretical engine limit, exact-version observation, proposed adapter envelope,
-or active effective limit. The 306-column and 305-variable values are proposed
-conservative adapter envelopes; the identifier limit is an observed 64-byte
-success/65-byte rejection boundary; and the proposed 65,504-byte row preflight
-ceiling is supported only by an observed exact `LONGTEXT` value round trip,
-not a measured row-size boundary. None is claimed as an absolute Dolt maximum.
-Adapters MUST also publish theoretical and active effective limits for physical
-columns, source variables, identifiers, values, row size and statements, and
-MUST preflight source width, generated names, values and row size before target
-DDL.
+Catalog installation and migration are separate explicit operations. Import may
+start only after positive product identity, active-version membership, database
+binding, and `catalog_identity` ownership have all been verified. Before that
+boundary, an absent, foreign, or ambiguous catalog permits zero database or
+Dolt-working-set mutations; diagnostics are out of band.
 
-Only after supported Dolt identity has been established and the singleton
-`catalog_identity` has been verified MAY a source capability preflight
-rejection append exactly one failed operation and one
-`target_capability_exceeded` fidelity event with `dataset_id` NULL. It MUST
-leave no dataset row, partial wide table or other partial dataset
-representation. Unknown or unclaimed identity never reaches this audit path
-and leaves zero mutation. Fault handling MUST prove transaction rollback where
-available or complete compensating cleanup. An occupied database that does not
-carry the expected singleton `catalog_identity` is foreign and MUST fail
-without modification.
+After verification, a capability preflight failure MUST persist the failed
+`operation` row and its `target_capability_exceeded` `fidelity_event` whose
+`dataset_id` is NULL. It creates no dataset row or physical data table. Other
+failures restore the verified catalog and working set to the captured
+pre-operation state, except for core audit rows explicitly permitted here.
 
-In an otherwise empty dedicated database, after supported Dolt identity has
-been established, an adapter MAY initialize the normative catalog. It MUST
-immediately verify the new singleton `catalog_identity` and only then record
-the one permitted source-capability failure audit described above. Before
-creating any normative or mirror relation, the adapter MUST first prove the
-selected namespace is empty or already owned by the expected OpenStatSpec
-contract. A namespace that is neither empty nor owned MUST fail without modification.
+### Dolt versioned declaration and limits
 
-Dolt staging, commits and commit hashes are outside core conformance. An
-adapter extension MAY record such provenance only in its own namespaced
-extension. The optional SQL Transformation Workflow Profile is unsupported for
-Dolt until it is claimed and tested separately.
+The symbolic template defines the required shape without claiming live facts.
+Its layer values use only `N_plus_1`, `N`, `L`, `V`, `R`, and `S`; template
+`exact_versions` arrays are empty. Placeholder product versions are forbidden.
+
+A concrete adapter declaration MUST bind a unique canonical
+`declaration_id`, stable `adapter_implementation_id`, exact canonical
+`adapter_version`, exact lowercase 40-hex `specification_commit`, and unique
+canonical `conformance_run_id`. Before any mutation, the adapter MUST find
+exactly one concrete declaration matching the active `DOLT_VERSION()` and
+those adapter/specification bindings; zero or multiple matches reject.
+
+A concrete adapter declaration MUST:
+
+1. publish non-empty unique canonical exact claimed and tested product-version arrays,
+   with `tested_product_versions` a subset of `claimed_product_versions`, and
+   bind the active product version to resolving applicable evidence;
+2. bind every applicable limit layer and every conformance case to non-empty
+   exact-version evidence that is a subset of `tested_product_versions`;
+3. use positive integer values for every non-structural limit and calculate
+   `effective` as the numeric minimum of applicable non-effective layers;
+4. for every basis, declare physical columns as source variables plus one; and
+5. represent a structural-row limit as a positive integer or select the single
+   discriminated `not_applicable_proof` variant with reason, inspected
+   structures, evidence ID, and exact versions.
+
+The limit map is keyed by `physical_columns`, `source_variables`, `identifier`,
+`value`, `structural_row`, and `emitted_statement`. Each value is an array with
+one record for each basis: `theoretical_engine`, `live_observed_server`,
+`active_configuration`, `adapter_policy`, `adapter_envelope`, and `effective`.
+Every record has `value`, `unit`, `scope`, `basis`, `evidence`,
+`exact_versions`, and `applicable`. A concrete declaration uses only canonical
+units, contains no template evidence identifiers, and resolves every evidence
+ID through its top-level `evidence_records`. Each applicable limit value is
+machine-linked to a `limit` evidence record. The concrete `identifier_limit`
+value and unit MUST equal the effective identifier limit `L`. Concrete L, V, and
+numeric-R boundary-case units MUST be the matching effective units, never the
+symbolic `declared_*_unit` markers. Every exact version claimed for an
+applicable layer is covered by evidence for that same measurement and value.
+Evidence artifact paths are canonical repository-relative paths under
+`sql/dolt-adapter-declarations/evidence/`; a lowercase SHA-256 is verified
+against the existing file, with absolute paths, `..`, and symlink escapes
+rejected.
+
+`physical_columns` includes `__case_ordinal`; `source_variables` does not. A
+concrete adapter accepts `N` source variables as `N + 1` physical columns and
+rejects `N + 1` source variables as `N + 2` physical columns.
+`emitted_statement` limits one encoded SQL statement or batch, not total
+dataset bytes. Larger datasets conform when split into atomic batches within
+the statement limit. No symbolic value is a Dolt server maximum.
+
+### Dolt boundary and fault conformance
+
+Every case record declares a unique ID, measurement, measured value, unit,
+expected result, observed result, evidence ID, and exact product versions. The
+pending template uses NULL evidence IDs and empty version arrays. A concrete
+tested declaration uses non-empty evidence IDs and version arrays drawn only
+from `tested_product_versions`; every ID resolves to a typed evidence object
+whose measurement, observed value, and exact versions cover the case.
+Measured values are machine-checked against effective `L`, `N`, `V`, `S`, and
+the selected numeric `R`, including each minus-one/at/plus-one boundary and the
+fixed 65,535/65,536-byte probes.
+
+The matrix requires:
+
+1. `L - 1` and `L` identifier acceptance and round trip; `L + 1` rejection
+   before mutation; declared-unit proof with multibyte input; escaped embedded
+   backticks; quoted reserved words; safe handling of the reserved `__` prefix;
+   and distinct round-tripping physical names after truncation, case-fold, and
+   active-collation collisions;
+2. acceptance at source `N` and physical `N + 1`, and rejection before mutation
+   at source `N + 1` and physical `N + 2`;
+3. introspected `LONGTEXT NOT NULL`; empty and UTF-8 byte-exact round trips;
+   rejected SQL NULL; successful encoded 65,535- and 65,536-byte probes;
+   acceptance at `V - 1` and `V`, and rejection before mutation at `V + 1`;
+4. bit-exact round trips for signed zero, subnormal boundaries, the minimum
+   normal, maximum finite, and representative ordinary finite values; semantic
+   SPSS system-missing round trip through SQL NULL; and an explicit policy for
+   each of NaN, positive infinity, and negative infinity. This template selects
+   rejection before mutation for all three exceptional classes, so they cannot
+   collide with the SQL-NULL system-missing representation;
+5. exactly one structural-row variant in a concrete declaration: numeric
+   `R - 1`/`R` acceptance with `R + 1` rejection, or the structured
+   version-specific not-applicable proof;
+6. statement acceptance at `S - 1` and `S`; reject or split before emitting
+   `S + 1`; and accept a multi-batch dataset only when each batch is at most
+   `S`; and
+7. a machine-readable, uniquely identified fault-injection inventory covering
+   every catalog/data DDL/DML mutation and compensating cleanup, with each
+   fault case linked to the covered inventory IDs, expected operation status,
+   residual state, diagnostic code, and complete post-failure inventory.
+
+After cleanup failure, the adapter MUST reverify catalog identity before any
+audit write. Core `operation.status` remains `failed`; `cleanup_failed` is a
+stable diagnostic code, not an operation status. Only when reverification still
+proves the catalog verified does the adapter write an error `fidelity_event`
+whose machine-readable details contain `original_cause`, `cleanup_fault`,
+`residual_object_inventory`, and `deterministic_recovery_evidence`. If
+reverification is unverified or ambiguous, the same code and details are
+emitted out of band and no further mutation is permitted. Cleanup failure can
+never be reported as success. Verification covers catalog relations, the
+physical table, residual objects, Dolt status/diff, branch, and commit head.
 
 ## Required indexes
 
