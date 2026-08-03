@@ -492,6 +492,240 @@
       "expected_plan_hash": "9fd5d95f078924be3ce0809c985f47ffedb1c5fbbecadc739591d37df6297625",
       "expected_source_hash": "f8e21c1e96b872c65395a7319dcfb4c93b60798a3e1c578fb7ba63825391afcf",
       "expected_error": null
+    },
+    {
+      "id": "comparison-operand-permutations",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = source_b AND 1 < source_c AND 1 = 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "comparison-operand-permutations",
+      "expected_plan_hash": "cd8e04360419bc5b5d6db9a8800f4c58e267d2a29f0c2926cfba8d266892f021",
+      "expected_source_hash": "7d2a5903474103a5c317e0bf2e9eb4a1710bb5ca504b8083be6249bb8df323c6",
+      "expected_error": null
+    },
+    {
+      "id": "reject-string-predicate",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "color",
+              "storage_kind": "string"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (color = 'R') target = 1."
+      },
+      "expected_source_hash": "97dfc44da12bff2666ecc2c0d91cffa8142e3789e6f11bfe47c00c537f116920",
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-arithmetic-expression",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = source_a + 1."
+      },
+      "expected_source_hash": "eeeb5f24bc311284afb72a350b58a2787f2634465b9d6f453bd2c8817784484a",
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-unsupported-command",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "SORT CASES BY source_a."
+      },
+      "expected_source_hash": "d0aedc01794f58e2233d2ae6207490b62edc4af7f80ff53cd41845d6a38925f5",
+      "expected_error": "unsupported_spss_command"
+    },
+    {
+      "id": "reject-leading-plus",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = +1."
+      },
+      "expected_source_hash": "7c54709d7262ef4a751c1b8b2b4909ae7b803f4f9e50d5b269d17deff572a9ba",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-leading-zero",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = 01."
+      },
+      "expected_source_hash": "f2513185d45ff2051dc6b1184df1a7d61abdd12aee2772975b0d0a94e00f76f2",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-nan-token",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = NaN."
+      },
+      "expected_source_hash": "73519477685fa98ea68625926a28d7dd4cde76587a755bb754bd8983ccd09ad2",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-infinity-token",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = Infinity."
+      },
+      "expected_source_hash": "940c30da3b6232307e976bc96a0ea64056dc9605cf717faae3580e5b4f3f0752",
+      "expected_error": "spss_syntax_error"
     }
   ]
 }
