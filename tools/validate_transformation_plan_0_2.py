@@ -346,21 +346,31 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
         else:
-            require(
-                identifier in {
-                    "old-subset-retains-v0.1-plan",
-                    "metadata-only-value-labels-retains-v0.1-plan",
-                },
-                f"Unexpected 0.2 frontend case: {identifier}",
-            )
-            require(set(case) == {"id", "request", "expected_plan_contract", "expected_plan_case_0_1", "expected_plan_hash", "expected_source_hash", "expected_error"}, f"{identifier}: 0.1 compatibility fields differ.")
-            legacy_case = legacy_cases.get(case["expected_plan_case_0_1"])
-            require(legacy_case is not None and "expected_plan" in legacy_case, f"{identifier}: immutable 0.1 plan fixture missing.")
-            legacy_plan = legacy_case["expected_plan"]
-            require(validate_plan_0_1(legacy_plan, identifier + ".0.1_plan") is None, f"{identifier}: immutable 0.1 plan is invalid.")
-            require(case["expected_plan_contract"] == legacy_plan["contract"], f"{identifier}: 0.1 contract differs.")
-            require(case["expected_plan_hash"] == legacy_case["expected_plan_hash"], f"{identifier}: 0.1 fixture hash differs.")
-            require(case["expected_plan_hash"] == canonical_hash(legacy_plan), f"{identifier}: 0.1 canonical hash differs.")
+            if identifier == "metadata-only-variable-labels-retains-v0.1-plan":
+                require(set(case) == {
+                    "id", "request", "expected_plan_contract", "expected_plan_0_1",
+                    "expected_plan_hash", "expected_source_hash", "expected_error",
+                }, f"{identifier}: embedded 0.1 compatibility fields differ.")
+                legacy_plan = case["expected_plan_0_1"]
+                require(validate_plan_0_1(legacy_plan, identifier + ".0.1_plan") is None, f"{identifier}: embedded 0.1 plan is invalid.")
+                require(case["expected_plan_contract"] == legacy_plan["contract"], f"{identifier}: 0.1 contract differs.")
+                require(case["expected_plan_hash"] == canonical_hash(legacy_plan), f"{identifier}: 0.1 canonical hash differs.")
+            else:
+                require(
+                    identifier in {
+                        "old-subset-retains-v0.1-plan",
+                        "metadata-only-value-labels-retains-v0.1-plan",
+                    },
+                    f"Unexpected 0.2 frontend case: {identifier}",
+                )
+                require(set(case) == {"id", "request", "expected_plan_contract", "expected_plan_case_0_1", "expected_plan_hash", "expected_source_hash", "expected_error"}, f"{identifier}: 0.1 compatibility fields differ.")
+                legacy_case = legacy_cases.get(case["expected_plan_case_0_1"])
+                require(legacy_case is not None and "expected_plan" in legacy_case, f"{identifier}: immutable 0.1 plan fixture missing.")
+                legacy_plan = legacy_case["expected_plan"]
+                require(validate_plan_0_1(legacy_plan, identifier + ".0.1_plan") is None, f"{identifier}: immutable 0.1 plan is invalid.")
+                require(case["expected_plan_contract"] == legacy_plan["contract"], f"{identifier}: 0.1 contract differs.")
+                require(case["expected_plan_hash"] == legacy_case["expected_plan_hash"], f"{identifier}: 0.1 fixture hash differs.")
+                require(case["expected_plan_hash"] == canonical_hash(legacy_plan), f"{identifier}: 0.1 canonical hash differs.")
     require(identifiers == {
         "compute-if-labels-format-level-execute-existing-target",
         "three-term-and-flattens-source-order",
@@ -398,6 +408,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-string-target-conditional",
         "reject-string-target-format",
         "metadata-only-value-labels-retains-v0.1-plan",
+        "metadata-only-variable-labels-retains-v0.1-plan",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
@@ -556,6 +567,8 @@ def validate_links() -> None:
             legacy_plan_validator.validate(case["expected_plan"])
     for case in frontend_manifest["cases"]:
         frontend_validator.validate(case["request"])
+        if "expected_plan_0_1" in case:
+            legacy_plan_validator.validate(case["expected_plan_0_1"])
     require(plan_schema["$id"].endswith("transformation-plan-0.2.schema.json"), "0.2 plan schema ID differs.")
     require(frontend_schema["$id"].endswith("spss-syntax-frontend-0.2.schema.json"), "0.2 frontend schema ID differs.")
     binding = (ROOT / "docs/transformation-plan-sql-binding-0.2.md").read_text(encoding="utf-8")
