@@ -116,6 +116,82 @@
       "expected_error": null
     },
     {
+      "id": "three-term-and-flattens-source-order",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "and",
+              "operands": [
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_a"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_b"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_c"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_plan_hash": "d6f94edd5de261552e79157cd29ff7668e824476827fae7f0fe9f56ba45704ea",
+      "expected_error": null
+    },
+    {
       "id": "reject-string-predicate",
       "plan": {
         "contract": "openstatspec-transformation-plan-v0.2",
