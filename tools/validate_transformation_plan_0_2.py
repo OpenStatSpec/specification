@@ -160,7 +160,14 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
     manifest = json.loads(PLAN.read_text(encoding="utf-8"))
     require(set(manifest) == {"manifest_version", "profile", "contract", "schema", "canonicalization", "cases"}, "0.2 plan manifest fields differ.")
     require(manifest["manifest_version"] == "0.2", "0.2 plan manifest version differs.")
+    require(manifest["profile"] == "OpenStatSpec Transformation Plan 0.2", "0.2 plan profile differs.")
     require(manifest["contract"] == "openstatspec-transformation-plan-v0.2", "0.2 plan contract differs.")
+    require(manifest["schema"] == "../transformation/plan-0.2.schema.json", "0.2 plan schema link differs.")
+    plan_schema_path = (PLAN.parent / manifest["schema"]).resolve()
+    require(
+        plan_schema_path == PLAN_SCHEMA.resolve() and plan_schema_path.is_file(),
+        "0.2 plan schema is missing or mismatched.",
+    )
     require(manifest["canonicalization"] == "restricted-rfc8785-utf8-sha256", "0.2 canonicalization differs.")
     cases = {}
     expected = {
@@ -180,6 +187,8 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "minimum-nonzero-subnormal": None,
         "grouped-format-and-measurement-level-order": None,
         "negative-zero-canonical-positive-zero": None,
+        "reject-string-assign-value": "expression_type_unsupported",
+        "reject-string-conditional-assign-value": "expression_type_unsupported",
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
