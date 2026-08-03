@@ -74,16 +74,21 @@ def predicate(value: object, context: str) -> bool:
     require(value["operator"] in {"and", "or"}, f"{context}: boolean operator differs.")
     children = value["operands"]
     require(isinstance(children, list) and len(children) >= 2, f"{context}: boolean operands differ.")
-    for index, child in enumerate(children):
-        require(
-            not (
-                isinstance(child, dict)
-                and child.get("expression") == "boolean"
-                and child.get("operator") == value["operator"]
-            ),
-            f"{context}.operands[{index}]: same-operator boolean chain must be flattened.",
-        )
     return any(predicate(child, f"{context}.operands[{index}]") for index, child in enumerate(children))
+
+
+def has_nested_same_operator(value: object) -> bool:
+    if not isinstance(value, dict) or value.get("expression") != "boolean":
+        return False
+    operator = value.get("operator")
+    children = value.get("operands", [])
+    return any(
+        isinstance(child, dict)
+        and child.get("expression") == "boolean"
+        and child.get("operator") == operator
+        or has_nested_same_operator(child)
+        for child in children
+    )
 
 
 def validate_plan(plan: object, context: str) -> str | None:
@@ -113,6 +118,8 @@ def validate_plan(plan: object, context: str) -> str | None:
             require(set(operation) == {"op", "condition", "target", "value"}, f"{op_context}: conditional fields differ.")
             target = require_string(operation["target"], op_context + ".target")
             string_predicate = predicate(operation["condition"], op_context + ".condition")
+            if has_nested_same_operator(operation["condition"]):
+                semantic_error = semantic_error or "noncanonical_boolean_shape"
             if target.startswith("__"):
                 semantic_error = semantic_error or "reserved_target_name"
             string_value = operand(operation["value"], op_context + ".value") == "string"
@@ -190,6 +197,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "reject-string-assign-value": "expression_type_unsupported",
         "reject-string-conditional-assign-value": "expression_type_unsupported",
         "string-measurement-level-target": None,
+        "reject-nested-same-operator-boolean": "noncanonical_boolean_shape",
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -451,6 +459,7 @@ def validate_in_place() -> None:
         "dolt-preprovisioned-target-sequential-null-semantics",
         "dolt-preprovisioned-target-or-null-semantics",
         "dolt-preprovisioned-target-variable-missing-propagation",
+        "dolt-empty-actor-fails-before-mutation",
     } | {
         f"{profile}-create-target-fails-before-mutation"
         for profile in ("dolt", "mysql", "mariadb")
@@ -484,6 +493,7 @@ def validate_in_place() -> None:
     require(after["dolt_commit_performed"] is False, "Apply performs DOLT_COMMIT.")
     require(success["expected_audit"] == {
         "contract_id": manifest["contract"],
+        "actor": "conformance-runner",
         "operation_count": 7,
         "dolt_branch": before["dolt_branch"],
         "dolt_head_before": before["dolt_head"],
@@ -541,6 +551,15 @@ def validate_in_place() -> None:
         {"__case_ordinal": 2, "target": 2},
     ], "Dolt variable assignment does not preserve missing.")
     require(missing_case["expected_error"] is None, "Dolt missing-propagation case unexpectedly fails.")
+
+    actor_case = cases["dolt-empty-actor-fails-before-mutation"]
+    require(actor_case == {
+        "id": "dolt-empty-actor-fails-before-mutation",
+        "database_profile": "dolt",
+        "actor": "",
+        "expected_error": "actor_required",
+        "mutation_started": False,
+    }, "Dolt empty-actor rejection differs.")
 
     for profile in ("dolt", "mysql", "mariadb"):
         case = cases[f"{profile}-create-target-fails-before-mutation"]
