@@ -150,7 +150,18 @@ def validate_dolt_declaration(declaration: object, *, authoritative_profile: Map
         _require(CANONICAL_ID.fullmatch(evidence_id) is not None and evidence_id not in seen, "Evidence ID is invalid or duplicated.")
         seen.add(evidence_id)
         versions = record["exact_versions"]
-        _require(isinstance(versions, list) and bool(versions) and len(versions) == len(set(versions)) and all(isinstance(item, str) and EXACT_VERSION.fullmatch(item) for item in versions), "Evidence versions are not unique exact versions.")
+        versions_are_exact = (
+            isinstance(versions, list)
+            and bool(versions)
+            and all(
+                isinstance(item, str) and EXACT_VERSION.fullmatch(item)
+                for item in versions
+            )
+        )
+        _require(
+            versions_are_exact and len(versions) == len(set(versions)),
+            "Evidence versions are not unique exact versions.",
+        )
         _require(set(versions) <= set(tested), "Evidence includes an untested Dolt version.")
         covered = covered or active_version in versions
         verify_evidence_artifact(source, artifact_ref=_string(record["artifact_ref"], "Invalid evidence path."), artifact_sha256=_string(record["artifact_sha256"], "Invalid evidence hash."))
@@ -174,16 +185,23 @@ def load_validated_dolt_declarations(source: DoltDeclarationSource | None = None
     }
     _require(source.read_json("sql/dolt-adapter-declaration-schema.json") == expected_schema, "Dolt adapter declaration schema is incomplete.")
     declarations: list[Mapping[str, Any]] = []
-    ids: set[tuple[object, object]] = set()
+    declaration_ids: set[object] = set()
+    conformance_run_ids: set[object] = set()
     for resource in source.declaration_resources():
         try:
             item = json.loads(resource.read_bytes().decode("utf-8"))
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
             raise DoltDeclarationError("Dolt declaration is unreadable.") from error
         item = validate_dolt_declaration(item, authoritative_profile=profile, source=source)
-        identity = (item["declaration_id"], item["conformance_run_id"])
-        _require(identity not in ids, "Duplicate declaration or conformance run ID.")
-        ids.add(identity)
+        declaration_id = item["declaration_id"]
+        conformance_run_id = item["conformance_run_id"]
+        _require(
+            declaration_id not in declaration_ids
+            and conformance_run_id not in conformance_run_ids,
+            "Duplicate declaration or conformance run ID.",
+        )
+        declaration_ids.add(declaration_id)
+        conformance_run_ids.add(conformance_run_id)
         declarations.append(item)
     return tuple(declarations)
 
