@@ -63,8 +63,9 @@ underflowed zero, is canonicalized to positive-zero bits
 NaN and infinity can never be emitted.
 
 A numeric variable is resolved at the point its command is lowered, including
-variables created by preceding commands. All referenced variables and assigned
-values in this subset MUST be numeric.
+variables created by preceding commands. All variables used as expression operands, assignment targets, or `FORMATS`
+targets MUST be numeric. `VARIABLE LEVEL` targets MAY be numeric or string
+variables; measurement level is metadata and does not coerce stored values.
 
 ## Added commands
 
