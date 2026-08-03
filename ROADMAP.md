@@ -97,10 +97,12 @@ work has passed.
    and conformance gates before making an adapter claim.
 6. [ ] Migrate PHP to the canonical transformation plan and pass the same
    relevant conformance cases before it claims conditional profile 0.2 support.
-7. [ ] Create a signed or protected specification `v0.3.0` tag only
-   after the required reference-adapter gates pass and release-tag signing or
-   protection is configured; until then claims use `release_candidate`, a
-   null release identifier, and the exact tested commit.
+7. [ ] Select the exact intended `v0.3.0` commit and require that
+   same commit to pass repository validation and all required reference-adapter
+   gates. Only after those gates pass and release-tag signing or protection is
+   configured, create a signed or protected `v0.3.0` tag on that commit.
+   Until then claims use `release_candidate`, a null release identifier, and
+   the exact tested commit.
 
 The pending in-place service matrix and adapter conformance work in sections 6
 and 7 remains required; package publication or a specification pin does not
