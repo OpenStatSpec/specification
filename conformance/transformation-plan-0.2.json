@@ -613,6 +613,122 @@
       },
       "expected_error": null,
       "expected_plan_hash": "5abd09242071c929f3fe7e597ad605c9e2cf06a6e2c72fe2b62584dd4ccccb05"
+    },
+    {
+      "id": "three-term-or-flattens-source-order",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "boolean",
+              "operator": "or",
+              "operands": [
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_a"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_b"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                },
+                {
+                  "expression": "comparison",
+                  "left": {
+                    "kind": "variable",
+                    "variable": "source_c"
+                  },
+                  "operator": "=",
+                  "right": {
+                    "kind": "literal",
+                    "value": {
+                      "type": "binary64",
+                      "bits": "3ff0000000000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "e61850fd0e65726dbb13af184091b726ed70ead948300ae1d6163df2c23663f9"
+    },
+    {
+      "id": "strict-greater-than",
+      "plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {
+            "op": "conditional_assign",
+            "condition": {
+              "expression": "comparison",
+              "left": {
+                "kind": "variable",
+                "variable": "source_a"
+              },
+              "operator": ">",
+              "right": {
+                "kind": "literal",
+                "value": {
+                  "type": "binary64",
+                  "bits": "3ff0000000000000"
+                }
+              }
+            },
+            "target": "target",
+            "value": {
+              "kind": "literal",
+              "value": {
+                "type": "binary64",
+                "bits": "3ff0000000000000"
+              }
+            }
+          },
+          {
+            "op": "execute"
+          }
+        ]
+      },
+      "expected_error": null,
+      "expected_plan_hash": "9fd5d95f078924be3ce0809c985f47ffedb1c5fbbecadc739591d37df6297625"
     }
   ]
 }
