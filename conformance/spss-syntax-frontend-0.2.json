@@ -210,6 +210,192 @@
       },
       "expected_source_hash": "307aee8e2ca8a03939d4d487a3c9303d78abfc82f55f6434cab92e710defe8d5",
       "expected_error": "invalid_format"
+    },
+    {
+      "id": "unparenthesized-mixed-default-precedence",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = 1 OR source_b = 1 AND source_c = 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "mixed-default-and-precedence",
+      "expected_plan_hash": "5fc4c6e5c41661f6b0f7806d3e4b5054e8282d0f4f3f4ae9da60eae68b7f9d43",
+      "expected_source_hash": "5dff61244ba2461bc64b1cbef374ebcbb751e03792cf92efcca439ad693f8943",
+      "expected_error": null
+    },
+    {
+      "id": "parenthesized-mixed-override-precedence",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF ((source_a = 1 OR source_b = 1) AND source_c = 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "mixed-parentheses-override-precedence",
+      "expected_plan_hash": "dd283eacad64052470bc44b6fb69817db94a95aa6391b34b93f522dcbc63a279",
+      "expected_source_hash": "e655fe1d0aa6829dde510bdb1e3253110c723e1fdf23c539cd20bee4b3e07660",
+      "expected_error": null
+    },
+    {
+      "id": "finite-number-rounding-exponent-underflow",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = 1.00000000000000011102230246251565404236316680908203125.\nCOMPUTE target = 1.00000000000000033306690738754696212708950042724609375.\nCOMPUTE target = -1.25e+2.\nCOMPUTE target = 1e-4000.\nEXECUTE."
+      },
+      "expected_plan_case": "finite-number-rounding-exponent-underflow",
+      "expected_plan_hash": "5abd09242071c929f3fe7e597ad605c9e2cf06a6e2c72fe2b62584dd4ccccb05",
+      "expected_source_hash": "bf1cbb16ed58a0fb37ac437aee7008d336d8efd024a35c654d31698cabaca21d",
+      "expected_error": null
+    },
+    {
+      "id": "reject-numeric-overflow",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = 1e4000."
+      },
+      "expected_source_hash": "9cd7389c9841eb18f95a2a377cc05e1f31a8d9212ed9afa92cce6d9da6b7c0f1",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-leading-decimal-point",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = .5."
+      },
+      "expected_source_hash": "b89b9a5cbdd4ff8c6e4a00926788b5b9fc79d0124d7a5bdf913e6382933bbee0",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-trailing-decimal-point",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "COMPUTE target = 1.."
+      },
+      "expected_source_hash": "a2d5ced231ee88930405e9e36f8f68ab86f57ba720fd02579e28616d9d71f1cf",
+      "expected_error": "spss_syntax_error"
     }
   ]
 }
