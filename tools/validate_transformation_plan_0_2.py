@@ -466,6 +466,7 @@ def validate_in_place() -> None:
         "dolt-preprovisioned-target-sequential-null-semantics",
         "dolt-preprovisioned-target-or-null-semantics",
         "dolt-preprovisioned-target-variable-missing-propagation",
+        "dolt-preprovisioned-target-conditional-variable-missing-propagation",
         "dolt-empty-actor-fails-before-mutation",
         "sqlite-create-target-atomic-success",
     } | {
@@ -560,6 +561,31 @@ def validate_in_place() -> None:
     ], "Dolt variable assignment does not preserve missing.")
     require(missing_case["expected_error"] is None, "Dolt missing-propagation case unexpectedly fails.")
 
+    conditional_missing_case = cases["dolt-preprovisioned-target-conditional-variable-missing-propagation"]
+    require(set(conditional_missing_case) == {
+        "id", "database_profile", "target_preprovisioned", "conditional_assign",
+        "before_rows", "after_rows", "expected_error",
+    }, "Dolt conditional missing-propagation fields differ.")
+    require(
+        conditional_missing_case["database_profile"] == "dolt"
+        and conditional_missing_case["target_preprovisioned"] is True,
+        "Dolt conditional missing-propagation identity differs.",
+    )
+    require(conditional_missing_case["conditional_assign"] == {
+        "target": "target",
+        "value_variable": "source_a",
+        "predicate": "source_b = 1",
+    }, "Dolt conditional missing-propagation operation differs.")
+    require(conditional_missing_case["before_rows"] == [
+        {"__case_ordinal": 1, "source_a": None, "source_b": 1, "target": 7},
+        {"__case_ordinal": 2, "source_a": None, "source_b": 0, "target": 7},
+    ], "Dolt conditional missing-propagation inputs differ.")
+    require(conditional_missing_case["after_rows"] == [
+        {"__case_ordinal": 1, "target": None},
+        {"__case_ordinal": 2, "target": 7},
+    ], "Dolt conditional assignment does not preserve a missing RHS.")
+    require(conditional_missing_case["expected_error"] is None, "Dolt conditional missing-propagation case unexpectedly fails.")
+
     actor_case = cases["dolt-empty-actor-fails-before-mutation"]
     require(actor_case == {
         "id": "dolt-empty-actor-fails-before-mutation",
@@ -571,12 +597,13 @@ def validate_in_place() -> None:
 
     create_case = cases["sqlite-create-target-atomic-success"]
     require(set(create_case) == {
-        "id", "database_profile", "target_mode", "operation", "before", "after",
-        "transaction_boundary", "rollback_probe", "expected_error",
+        "id", "database_profile", "target_mode", "actor", "operation", "before", "after",
+        "transaction_boundary", "rollback_probe", "expected_audit", "expected_error",
     }, "SQLite create-target success fields differ.")
     require(
         create_case["database_profile"] == "sqlite"
         and create_case["target_mode"] == "create"
+        and create_case["actor"] == "conformance-runner"
         and create_case["expected_error"] is None,
         "SQLite create-target success identity differs.",
     )
@@ -608,6 +635,7 @@ def validate_in_place() -> None:
         "initial_metadata": {
             "variable_label": None,
             "value_labels": [],
+            "missing_values": [],
             "format": None,
             "measurement_level": None,
         },
@@ -623,6 +651,13 @@ def validate_in_place() -> None:
     require(create_case["transaction_boundary"] == [
         "physical_schema", "row_values", "catalog", "compact_audit",
     ], "SQLite create-target transaction boundary differs.")
+    require(create_case["expected_audit"] == {
+        "contract_id": manifest["contract"],
+        "database_profile": "sqlite",
+        "actor": create_case["actor"],
+        "status": "succeeded",
+        "operation_count": 1,
+    }, "SQLite create-target audit expectation differs.")
     require(create_case["rollback_probe"] == {
         "failure_point": "after_catalog_create_before_audit",
         "physical_column_present": False,
