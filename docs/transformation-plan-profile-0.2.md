@@ -60,9 +60,12 @@ collation or coercion semantics.
 A comparison node has `expression=comparison`, two operands, and one of
 `=`, `<`, `<=`, `>`, or `>=`. A boolean node has
 `expression=boolean`, `operator=and|or`, and at least two ordered predicate
-operands. Nested boolean nodes preserve parentheses and associativity from the
-frontend. Implementations MUST NOT simplify, reorder, deduplicate, distribute,
-or constant-fold nodes before canonical hashing.
+operands. A maximal same-operator chain MUST be represented by one n-ary node
+whose operands remain in source order; a boolean node MUST NOT have a direct
+boolean child with the same operator. Parentheses preserve grouping across
+different operators, but same-operator parentheses do not prevent the required
+flattening. Implementations MUST NOT otherwise simplify, reorder, deduplicate,
+distribute, or constant-fold nodes before canonical hashing.
 
 Predicates use SQL three-valued truth semantics. A comparison with numeric
 system missing (SQL `NULL`) is UNKNOWN. `AND` and `OR` use their standard
