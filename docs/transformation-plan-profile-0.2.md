@@ -113,8 +113,10 @@ metadata component explicitly replaced by a later operation.
 Structural validation, name resolution, type checking, target-state checking,
 predicate validation, and backend capability checks all precede mutation.
 Stable 0.2 diagnostics add `expression_type_unsupported`,
-`conditional_target_missing`, `invalid_format`, and retain the 0.1
-diagnostics.
+`conditional_target_missing`, `invalid_format`, and
+`noncanonical_boolean_shape`, and retain the 0.1 diagnostics. A canonical
+boolean expression MUST NOT nest the same `and` or `or` operator; it is
+flattened in source order instead.
 
 The in-place SQL binding is
 [`transformation-plan-sql-binding-0.2.md`](transformation-plan-sql-binding-0.2.md).

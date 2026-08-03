@@ -267,6 +267,8 @@
     {
       "id": "sqlite-create-target-atomic-success",
       "database_profile": "sqlite",
+      "applied_plan_case": "sequential-conditional-binary-existing-target",
+      "applied_frontend_case": "compute-if-labels-format-level-execute-existing-target",
       "target_mode": "create",
       "operation": {
         "op": "assign",
@@ -349,7 +351,9 @@
         "database_profile": "sqlite",
         "actor": "conformance-runner",
         "status": "succeeded",
-        "operation_count": 1
+        "operation_count": 1,
+        "plan_hash": "8e9f72759f6ed53aa6957dc288bdc49894ca2e08a8313ca957da6b4dfd11acbd",
+        "source_hash": "02bede796f1f0c8dcc22eb616d4afa48540ea8f09f637179842368af8a576481"
       }
     }
   ]

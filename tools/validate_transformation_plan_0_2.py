@@ -603,7 +603,7 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
 
     create_case = cases["sqlite-create-target-atomic-success"]
     require(set(create_case) == {
-        "id", "database_profile", "target_mode", "actor", "operation", "before", "after",
+        "id", "database_profile", "applied_plan_case", "applied_frontend_case", "target_mode", "actor", "operation", "before", "after",
         "transaction_boundary", "rollback_probe", "expected_audit", "expected_error",
     }, "SQLite create-target success fields differ.")
     require(
@@ -613,6 +613,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         and create_case["expected_error"] is None,
         "SQLite create-target success identity differs.",
     )
+    require(create_case["applied_plan_case"] in plan_cases, "SQLite applied plan fixture missing.")
+    require(create_case["applied_frontend_case"] in frontend_cases, "SQLite applied frontend fixture missing.")
     require(create_case["operation"] == {
         "op": "assign",
         "target": "target",
@@ -663,6 +665,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         "actor": create_case["actor"],
         "status": "succeeded",
         "operation_count": 1,
+        "plan_hash": plan_cases[create_case["applied_plan_case"]]["expected_plan_hash"],
+        "source_hash": frontend_cases[create_case["applied_frontend_case"]]["expected_source_hash"],
     }, "SQLite create-target audit expectation differs.")
     require(create_case["rollback_probe"] == {
         "failure_point": "after_catalog_create_before_audit",
