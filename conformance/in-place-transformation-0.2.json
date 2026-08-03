@@ -2,6 +2,7 @@
   "manifest_version": "0.2",
   "profile": "OpenStatSpec In-Place Transformation Binding 0.2",
   "contract": "openstatspec-in-place-transformation-v0.2",
+  "audit_schema": "../sql/transformation-plan-profile-schema.sql",
   "cases": [
     {
       "id": "dolt-preprovisioned-target-sequential-null-semantics",
