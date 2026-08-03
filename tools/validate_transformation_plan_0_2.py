@@ -176,6 +176,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "finite-number-rounding-exponent-underflow": None,
         "three-term-or-flattens-source-order": None,
         "strict-greater-than": None,
+        "comparison-operand-permutations": None,
     }
     for case in manifest["cases"]:
         require(set(case) == {"id", "plan", "expected_plan_hash", "expected_error"}, "0.2 plan case fields differ.")
@@ -227,6 +228,13 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "reject-numeric-overflow": "spss_syntax_error",
         "reject-leading-decimal-point": "spss_syntax_error",
         "reject-trailing-decimal-point": "spss_syntax_error",
+        "reject-string-predicate": "expression_type_unsupported",
+        "reject-arithmetic-expression": "expression_type_unsupported",
+        "reject-unsupported-command": "unsupported_spss_command",
+        "reject-leading-plus": "spss_syntax_error",
+        "reject-leading-zero": "spss_syntax_error",
+        "reject-nan-token": "spss_syntax_error",
+        "reject-infinity-token": "spss_syntax_error",
     }
     for case in manifest["cases"]:
         identifier = require_string(case["id"], "0.2 frontend case id")
@@ -282,6 +290,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                     "((source_a = 1 OR source_b = 1) OR source_c = 1)", "EXECUTE.",
                 ),
                 "strict-greater-than": ("source_a > 1", "EXECUTE."),
+                "comparison-operand-permutations": (
+                    "source_a = source_b", "1 < source_c", "1 = 1", "EXECUTE.",
+                ),
             }[identifier]
             for token in required_tokens:
                 require(token in source, f"{identifier}: bounded command coverage missing: {token}")
@@ -313,6 +324,14 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "three-term-or-flattens-source-order",
         "parenthesized-three-term-or-flattens-source-order",
         "strict-greater-than",
+        "comparison-operand-permutations",
+        "reject-string-predicate",
+        "reject-arithmetic-expression",
+        "reject-unsupported-command",
+        "reject-leading-plus",
+        "reject-leading-zero",
+        "reject-nan-token",
+        "reject-infinity-token",
     }, "0.2 frontend case set differs.")
     return len(identifiers)
 
