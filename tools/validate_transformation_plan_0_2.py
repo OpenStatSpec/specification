@@ -182,6 +182,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "three-term-and-flattens-source-order": None,
         "reject-string-predicate": "expression_type_unsupported",
         "nested-or-inequalities-variable-operands-create": None,
+        "sqlite-create-target-source-copy": None,
         "reject-invalid-format": "invalid_format",
         "reject-reserved-assignment-target": "reserved_target_name",
         "reject-duplicate-value-label": "duplicate_value_label",
@@ -330,6 +331,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                 "nested-or-inequality-variable-operands-create": (
                     "COMPUTE ", "IF (", " OR ", " AND ", ">=", "<", "<=", "EXECUTE.",
                 ),
+                "sqlite-create-target-source-copy": ("COMPUTE target = source_a.",),
                 "unparenthesized-mixed-default-precedence": (
                     "IF (source_a = 1 OR source_b = 1 AND source_c = 1)", "EXECUTE.",
                 ),
@@ -395,6 +397,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "three-term-and-flattens-source-order",
         "parenthesized-three-term-and-flattens-source-order",
         "nested-or-inequality-variable-operands-create",
+        "sqlite-create-target-source-copy",
         "old-subset-retains-v0.1-plan",
         "reject-string-expression",
         "reject-missing-conditional-target",
@@ -506,6 +509,7 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     require(after["dolt_commit_performed"] is False, "Apply performs DOLT_COMMIT.")
     require(success["expected_audit"] == {
         "contract_id": manifest["contract"],
+        "status": "succeeded",
         "actor": "conformance-runner",
         "operation_count": 7,
         "plan_hash": plan_cases[success["applied_plan_case"]]["expected_plan_hash"],

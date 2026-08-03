@@ -154,6 +154,14 @@
       "expected_error": null
     },
     {
+      "id": "sqlite-create-target-source-copy",
+      "request": {"contract": "openstatspec-spss-syntax-frontend-v0.2", "input_alias": "parent", "input_schema": {"variables": [{"name": "source_a", "storage_kind": "numeric"}]}, "source_text": "COMPUTE target = source_a."},
+      "expected_plan_case": "sqlite-create-target-source-copy",
+      "expected_plan_hash": "25b815bb706bd8692667d251f819c731176c5728205c98b51aa2ae509f39a2c2",
+      "expected_source_hash": "febe1c066647e5e50aa6c115a7ef33ade99592c4929a2d8a7411a7dec0ff4c15",
+      "expected_error": null
+    },
+    {
       "id": "reject-string-expression",
       "request": {
         "contract": "openstatspec-spss-syntax-frontend-v0.2",

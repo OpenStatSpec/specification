@@ -49,7 +49,8 @@ for either action.
 
 ## Controlled Dolt context
 
-Every apply requires a non-empty actor. Dolt additionally requires
+Every apply requires a non-empty actor. An absent or empty actor MUST fail
+before mutation with the stable actor_required diagnostic. Dolt additionally requires
 `expected_branch`, `expected_head`, and a clean working set. Branch, HEAD,
 and cleanliness are checked before mutation. Branch and HEAD are checked again
 before successful completion. Stable diagnostics are

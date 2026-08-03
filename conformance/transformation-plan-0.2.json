@@ -317,6 +317,12 @@
       "expected_error": null
     },
     {
+      "id": "sqlite-create-target-source-copy",
+      "plan": {"contract": "openstatspec-transformation-plan-v0.2", "input_alias": "parent", "operations": [{"op": "assign", "target": "target", "target_mode": "create", "value": {"kind": "variable", "variable": "source_a"}}]},
+      "expected_plan_hash": "25b815bb706bd8692667d251f819c731176c5728205c98b51aa2ae509f39a2c2",
+      "expected_error": null
+    },
+    {
       "id": "reject-invalid-format",
       "plan": {
         "contract": "openstatspec-transformation-plan-v0.2",
