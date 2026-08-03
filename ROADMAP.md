@@ -85,9 +85,11 @@ work has passed.
    exact commit, bind the Python catalog/Dolt lifecycle implementation to it,
    and pass both specification validation and the complete adapter matrix
    before creating an immutable release.
-3. [ ] Only after those gates pass, tag that exact specification commit as
-   `v0.2.1`, publish the byte-matching package artifact, reverify installation
-   from the published package, and then merge the Python lifecycle change.
+3. [ ] Only after those gates pass and release-tag signing or protection
+   is configured, create a signed or protected `v0.2.1` tag on that exact
+   specification commit, publish the byte-matching package artifact, reverify
+   installation from the published package, and then merge the Python lifecycle
+   change.
 4. [ ] Reconcile and merge Transformation Plan and SPSS Frontend profile 0.2 as
    unreleased, release-candidate work for the planned specification `v0.3.0`.
 5. [ ] Rebase Python `0.5.0` conditional transformations on the lifecycle
@@ -95,9 +97,10 @@ work has passed.
    and conformance gates before making an adapter claim.
 6. [ ] Migrate PHP to the canonical transformation plan and pass the same
    relevant conformance cases before it claims conditional profile 0.2 support.
-7. [ ] Tag specification `v0.3.0` only after the required reference-adapter
-   gates pass; until then claims use `release_candidate`, a null release
-   identifier, and the exact tested commit.
+7. [ ] Create a signed or protected specification `v0.3.0` tag only
+   after the required reference-adapter gates pass and release-tag signing or
+   protection is configured; until then claims use `release_candidate`, a
+   null release identifier, and the exact tested commit.
 
 The pending in-place service matrix and adapter conformance work in sections 6
 and 7 remains required; package publication or a specification pin does not
