@@ -302,6 +302,7 @@
       "id": "dolt-context-changed-after-mutation-rolls-back",
       "database_profile": "dolt",
       "target_preprovisioned": true,
+      "actor": "conformance-runner",
       "expected_context": {"branch": "feature/recode", "head": "provisioning-commit"},
       "completion_context": {"branch": "feature/recode", "head": "concurrent-commit"},
       "failure_point": "after_data_and_metadata_before_audit",
@@ -343,11 +344,13 @@
         "rows": [
           {
             "__case_ordinal": 1,
-            "source_a": 2
+            "source_a": 2,
+            "source_b": 11
           },
           {
             "__case_ordinal": 2,
-            "source_a": null
+            "source_a": null,
+            "source_b": 22
           }
         ]
       },
@@ -375,11 +378,13 @@
           {
             "__case_ordinal": 1,
             "source_a": 2,
+            "source_b": 11,
             "target": 2
           },
           {
             "__case_ordinal": 2,
             "source_a": null,
+            "source_b": 22,
             "target": null
           }
         ]

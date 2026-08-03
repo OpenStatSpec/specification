@@ -633,8 +633,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     ], "Strict and non-strict inequality results differ.")
     require(inequality_case["expected_error"] is None, "Inequality-boundary apply unexpectedly fails.")
     context_case = cases["dolt-context-changed-after-mutation-rolls-back"]
-    require(set(context_case) == {"id", "database_profile", "target_preprovisioned", "expected_context", "completion_context", "failure_point", "before", "after_failure", "mutation_started", "expected_error"}, "Dolt context-change fields differ.")
-    require(context_case["database_profile"] == "dolt" and context_case["target_preprovisioned"] is True, "Dolt context-change identity differs.")
+    require(set(context_case) == {"id", "database_profile", "target_preprovisioned", "actor", "expected_context", "completion_context", "failure_point", "before", "after_failure", "mutation_started", "expected_error"}, "Dolt context-change fields differ.")
+    require(context_case["database_profile"] == "dolt" and context_case["target_preprovisioned"] is True and context_case["actor"] == "conformance-runner", "Dolt context-change identity or actor differs.")
     require(context_case["expected_context"] == {"branch": "feature/recode", "head": "provisioning-commit"}, "Dolt expected context differs.")
     require(context_case["completion_context"] == {"branch": "feature/recode", "head": "concurrent-commit"}, "Dolt changed context differs.")
     require(context_case["failure_point"] == "after_data_and_metadata_before_audit" and context_case["mutation_started"] is True and context_case["expected_error"] == "dolt_context_changed", "Dolt post-mutation context-change diagnostic differs.")
@@ -703,13 +703,14 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         },
     }, "SQLite create-target column/catalog result differs.")
     require(create_before["rows"] == [
-        {"__case_ordinal": 1, "source_a": 2},
-        {"__case_ordinal": 2, "source_a": None},
+        {"__case_ordinal": 1, "source_a": 2, "source_b": 11},
+        {"__case_ordinal": 2, "source_a": None, "source_b": 22},
     ], "SQLite create-target inputs differ.")
     require(create_after["rows"] == [
-        {"__case_ordinal": 1, "source_a": 2, "target": 2},
-        {"__case_ordinal": 2, "source_a": None, "target": None},
+        {"__case_ordinal": 1, "source_a": 2, "source_b": 11, "target": 2},
+        {"__case_ordinal": 2, "source_a": None, "source_b": 22, "target": None},
     ], "SQLite create-target values or case order differ.")
+    require([row["source_b"] for row in create_before["rows"]] == [row["source_b"] for row in create_after["rows"]] == [11, 22], "SQLite create-target rebuild changes source_b.")
     require(create_case["transaction_boundary"] == [
         "physical_schema", "row_values", "catalog", "compact_audit",
     ], "SQLite create-target transaction boundary differs.")
