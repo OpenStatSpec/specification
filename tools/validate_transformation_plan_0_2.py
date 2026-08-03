@@ -666,6 +666,9 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     require(create_case["expected_audit"] == {
         "contract_id": manifest["contract"],
         "database_profile": "sqlite",
+        "dataset_id": create_before["dataset_id"],
+        "physical_table_schema": create_before["physical_table_schema"],
+        "physical_table_name": create_before["physical_table_name"],
         "actor": create_case["actor"],
         "status": "succeeded",
         "operation_count": 1,

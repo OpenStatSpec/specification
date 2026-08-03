@@ -350,6 +350,9 @@
       "expected_audit": {
         "contract_id": "openstatspec-in-place-transformation-v0.2",
         "database_profile": "sqlite",
+        "dataset_id": "22222222-2222-4222-8222-222222222222",
+        "physical_table_schema": null,
+        "physical_table_name": "data_atomic_create",
         "actor": "conformance-runner",
         "status": "succeeded",
         "operation_count": 1,
