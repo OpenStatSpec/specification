@@ -506,9 +506,16 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     }, "Dolt physical/catalog provisioning is not coupled to HEAD.")
     require(before["working_set_clean"] is True and after["working_set_clean"] is False, "Dolt working-set state differs.")
     require([row["target"] for row in after["rows"]] == [1, 0, 0, 0], "Three-valued IF result differs.")
+    require(
+        [[row["source_a"], row["source_b"]] for row in after["rows"]]
+        == [[row["source_a"], row["source_b"]] for row in before["rows"]],
+        "Dolt success changes source values.")
     require(after["dolt_commit_performed"] is False, "Apply performs DOLT_COMMIT.")
     require(success["expected_audit"] == {
         "contract_id": manifest["contract"],
+        "dataset_id": before["dataset_id"],
+        "physical_table_schema": before["physical_table_schema"],
+        "physical_table_name": before["physical_table_name"],
         "status": "succeeded",
         "actor": "conformance-runner",
         "operation_count": 7,
@@ -619,6 +626,11 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     )
     require(create_case["applied_plan_case"] in plan_cases, "SQLite applied plan fixture missing.")
     require(create_case["applied_frontend_case"] in frontend_cases, "SQLite applied frontend fixture missing.")
+    create_frontend = frontend_cases[create_case["applied_frontend_case"]]
+    require(create_frontend["request"]["input_schema"]["variables"] == [
+        {"name": "source_a", "storage_kind": "numeric"},
+        {"name": "source_b", "storage_kind": "numeric"},
+    ], "SQLite create-target frontend schema differs.")
     require(create_case["operation"] == {
         "op": "assign",
         "target": "target",

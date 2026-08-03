@@ -65,18 +65,26 @@
         "rows": [
           {
             "__case_ordinal": 1,
+            "source_a": 1,
+            "source_b": 1,
             "target": 1
           },
           {
             "__case_ordinal": 2,
+            "source_a": 1,
+            "source_b": null,
             "target": 0
           },
           {
             "__case_ordinal": 3,
+            "source_a": null,
+            "source_b": 1,
             "target": 0
           },
           {
             "__case_ordinal": 4,
+            "source_a": 0,
+            "source_b": 1,
             "target": 0
           }
         ],
@@ -99,6 +107,9 @@
       "expected_audit": {
         "contract_id": "openstatspec-in-place-transformation-v0.2",
         "status": "succeeded",
+        "dataset_id": "11111111-1111-4111-8111-111111111111",
+        "physical_table_schema": null,
+        "physical_table_name": "data_synthetic",
         "plan_hash": "8e9f72759f6ed53aa6957dc288bdc49894ca2e08a8313ca957da6b4dfd11acbd",
         "source_hash": "02bede796f1f0c8dcc22eb616d4afa48540ea8f09f637179842368af8a576481",
         "operation_count": 7,
