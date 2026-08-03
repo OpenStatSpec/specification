@@ -617,8 +617,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     ], "Dolt conditional assignment does not preserve a missing RHS.")
     require(conditional_missing_case["expected_error"] is None, "Dolt conditional missing-propagation case unexpectedly fails.")
     inequality_case = cases["sqlite-inequality-boundary-semantics"]
-    require(set(inequality_case) == {"id", "database_profile", "target_preprovisioned", "boundary", "before_rows", "operations", "after_rows", "expected_error"}, "Inequality-boundary fields differ.")
-    require(inequality_case["database_profile"] == "sqlite" and inequality_case["target_preprovisioned"] is True and inequality_case["boundary"] == 1, "Inequality-boundary identity differs.")
+    require(set(inequality_case) == {"id", "database_profile", "target_preprovisioned", "actor", "boundary", "before_rows", "operations", "after_rows", "expected_error"}, "Inequality-boundary fields differ.")
+    require(inequality_case["database_profile"] == "sqlite" and inequality_case["target_preprovisioned"] is True and inequality_case["actor"] == "conformance-runner" and inequality_case["boundary"] == 1, "Inequality-boundary identity or actor differs.")
     require(inequality_case["before_rows"] == [{"__case_ordinal": 1, "source": 0, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}, {"__case_ordinal": 2, "source": 1, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}, {"__case_ordinal": 3, "source": 2, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}], "Inequality-boundary inputs differ.")
     require(inequality_case["operations"] == [
         {"op": "conditional_assign", "condition": "source < 1", "target": "target_lt", "value": 1},

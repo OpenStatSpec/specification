@@ -291,6 +291,7 @@
     {
       "id": "sqlite-inequality-boundary-semantics",
       "database_profile": "sqlite",
+      "actor": "conformance-runner",
       "target_preprovisioned": true,
       "boundary": 1,
       "before_rows": [{"__case_ordinal": 1, "source": 0, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}, {"__case_ordinal": 2, "source": 1, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}, {"__case_ordinal": 3, "source": 2, "target_lt": 0, "target_le": 0, "target_gt": 0, "target_ge": 0}],
