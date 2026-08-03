@@ -41,6 +41,38 @@
       "expected_error": null
     },
     {
+      "id": "three-term-and-flattens-source-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.2",
+        "input_alias": "parent",
+        "input_schema": {
+          "variables": [
+            {
+              "name": "source_a",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_b",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "source_c",
+              "storage_kind": "numeric"
+            },
+            {
+              "name": "target",
+              "storage_kind": "numeric"
+            }
+          ]
+        },
+        "source_text": "IF (source_a = 1 AND source_b = 1 AND source_c = 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_case": "three-term-and-flattens-source-order",
+      "expected_plan_hash": "d6f94edd5de261552e79157cd29ff7668e824476827fae7f0fe9f56ba45704ea",
+      "expected_source_hash": "518cb0fa9537e7dff65f43c7a8de2d7e51c1e15b8c856c57e1875d2cfeb5646e",
+      "expected_error": null
+    },
+    {
       "id": "old-subset-retains-v0.1-plan",
       "request": {
         "contract": "openstatspec-spss-syntax-frontend-v0.2",
