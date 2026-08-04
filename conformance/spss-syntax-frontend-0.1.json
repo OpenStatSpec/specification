@@ -20,6 +20,7 @@
         "source_text": "RECODE q1 (1,2 = 0) (3 THRU 5 = 1) (ELSE = SYSMIS) INTO q1_binary.\nVARIABLE LABELS q1_binary 'Positive response'.\nVALUE LABELS q1_binary 0 'No' 1 'Yes'."
       },
       "expected_plan_case": "numeric-recode-and-declared-labels",
+      "expected_plan_hash": "075571b4f84b0f60f289aebb6ec990ad61d34a96b46655802ea8f8bc07a1a405",
       "expected_source_hash": "f1fecad0279dd633564b36fbdffe6f6960290d220a0ae3ebb6b532615a4b5b45",
       "expected_error": null
     },
@@ -64,6 +65,7 @@
         "source_text": "VALUE LABELS color 'R' 'Punane' 'B' 'Sinine'."
       },
       "expected_plan_case": "string-value-label-replacement",
+      "expected_plan_hash": "dae504208847790e782b2b730a2cc258a5c4c89be470a30f17272187c3aeb101",
       "expected_source_hash": "6bf99a32ed5365a10625f9a88b7d2c3b88d072ce12ecdc8e3459c1b4b5e1eb6a",
       "expected_error": null
     },
