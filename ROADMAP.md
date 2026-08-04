@@ -110,4 +110,9 @@ These are maintainer actions, not implementation tasks for the specification rep
   still needs release-process verification.
 - [x] Define the specification release tag convention and maintainer checklist in
   [RELEASING.md](RELEASING.md); the repository release maintainer with repository-admin responsibility owns release-process controls.
-- [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow; `main` is currently unprotected.
+- [x] Protect the default branch and release tags. main requires pull requests,
+  successful specification CI, and resolved conversations; force pushes and
+  deletion are disabled, and these controls apply to administrators. The active
+  v* tag ruleset permits bypass only to repository administrators. GitHub
+  Actions use full-SHA, GitHub-owned actions, and merged head branches are
+  automatically deleted.
