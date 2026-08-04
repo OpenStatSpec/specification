@@ -30,11 +30,21 @@ def validate_transformation_integrity() -> None:
         "frontend_0_1": ROOT / "conformance/spss-syntax-frontend-0.1.json",
         "binding_0_1": ROOT / "conformance/in-place-transformation-0.1.json",
     }
+    expected_metadata = {
+        "plan": {"manifest_version": "0.2", "profile": "OpenStatSpec Transformation Plan 0.2", "contract": "openstatspec-transformation-plan-v0.2", "canonicalization": "restricted-rfc8785-utf8-sha256"},
+        "frontend": {"manifest_version": "0.2", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.2", "contract": "openstatspec-spss-syntax-frontend-v0.2"},
+        "binding": {"manifest_version": "0.2", "profile": "OpenStatSpec In-Place Transformation Binding 0.2", "contract": "openstatspec-in-place-transformation-v0.2"},
+        "plan_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec Transformation Plan 0.1", "contract": "openstatspec-transformation-plan-v0.1"},
+        "frontend_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.1", "contract": "openstatspec-spss-syntax-frontend-v0.1"},
+        "binding_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec In-Place Transformation Binding 0.1", "contract": "openstatspec-in-place-transformation-v0.1"},
+    }
     manifests: dict[str, dict[str, object]] = {}
     for name, path in manifest_paths.items():
         document = json.loads(path.read_text(encoding="utf-8"))
         require(isinstance(document, dict), f"{path.name}: manifest must be an object.")
         require(isinstance(document.get("cases"), list), f"{path.name}: cases must be an array.")
+        for field, expected in expected_metadata[name].items():
+            require(document.get(field) == expected, f"{path.name}: {field} declaration differs.")
         identifiers: set[str] = set()
         for case in document["cases"]:
             require(isinstance(case, dict), f"{path.name}: case must be an object.")
@@ -71,6 +81,14 @@ def validate_transformation_integrity() -> None:
         encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
 
+    def normalized_source_hash(source: str) -> str:
+        normalized = source.replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+    frontend_plan_fields = {
+        "expected_plan_case", "expected_plan_case_0_1", "expected_plan",
+        "expected_plan_0_1", "expected_plan_contract",
+    }
     plan_hashes: dict[str, str] = {}
     for case in manifests["plan"]["cases"]:
         require(isinstance(case, dict), "0.2 plan case must be an object.")
@@ -101,8 +119,10 @@ def validate_transformation_integrity() -> None:
         require(legacy_request_validator.is_valid(request), f"{identifier}: 0.1 request violates its declared schema.")
         source = request.get("source_text")
         if isinstance(source, str):
-            require(case.get("expected_source_hash") == hashlib.sha256(source.encode("utf-8")).hexdigest(), f"{identifier}: 0.1 source hash differs.")
+            require(case.get("expected_source_hash") == normalized_source_hash(source), f"{identifier}: 0.1 source hash differs.")
         if case.get("expected_error") is not None:
+            require(frontend_plan_fields.isdisjoint(case), f"{identifier}: failed frontend case contains plan output fields.")
+            require(case.get("expected_plan_hash") is None, f"{identifier}: failed frontend plan hash must be absent or null.")
             continue
         if "expected_plan_case" in case:
             reference = case["expected_plan_case"]
@@ -127,7 +147,7 @@ def validate_transformation_integrity() -> None:
         require(case.get("expected_source_hash") == source_hash, f"{case.get('id')}: applied 0.1 source hashes differ.")
         source = case.get("source_text")
         require(isinstance(source, str), f"{case.get('id')}: linked binding source must be a string.")
-        require(hashlib.sha256(source.encode("utf-8")).hexdigest() == source_hash, f"{case.get('id')}: binding source hash differs.")
+        require(normalized_source_hash(source) == source_hash, f"{case.get('id')}: binding source hash differs.")
     frontend_hashes: dict[str, tuple[str, str]] = {}
     for case in manifests["frontend"]["cases"]:
         require(isinstance(case, dict), "0.2 frontend case must be an object.")
@@ -136,8 +156,10 @@ def validate_transformation_integrity() -> None:
         require(request_validator.is_valid(request), f"{identifier}: request violates its declared schema.")
         source = request.get("source_text")
         if isinstance(source, str):
-            require(case.get("expected_source_hash") == hashlib.sha256(source.encode("utf-8")).hexdigest(), f"{identifier}: source hash differs.")
+            require(case.get("expected_source_hash") == normalized_source_hash(source), f"{identifier}: source hash differs.")
         if case.get("expected_error") is not None:
+            require(frontend_plan_fields.isdisjoint(case), f"{identifier}: failed frontend case contains plan output fields.")
+            require(case.get("expected_plan_hash") is None, f"{identifier}: failed frontend plan hash must be absent or null.")
             continue
         if "expected_plan_case" in case:
             reference = case["expected_plan_case"]
