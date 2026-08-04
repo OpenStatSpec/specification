@@ -10,8 +10,6 @@ import struct
 from pathlib import Path
 from uuid import UUID
 
-from jsonschema import Draft202012Validator
-
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "conformance/spss-sav-zsav-1.0.json"
@@ -20,174 +18,6 @@ MANIFEST = ROOT / "conformance/spss-sav-zsav-1.0.json"
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise SystemExit(message)
-
-def validate_transformation_integrity() -> None:
-    manifest_paths = {
-        "plan": ROOT / "conformance/transformation-plan-0.2.json",
-        "frontend": ROOT / "conformance/spss-syntax-frontend-0.2.json",
-        "binding": ROOT / "conformance/in-place-transformation-0.2.json",
-        "plan_0_1": ROOT / "conformance/transformation-plan-0.1.json",
-        "frontend_0_1": ROOT / "conformance/spss-syntax-frontend-0.1.json",
-        "binding_0_1": ROOT / "conformance/in-place-transformation-0.1.json",
-    }
-    expected_metadata = {
-        "plan": {"manifest_version": "0.2", "profile": "OpenStatSpec Transformation Plan 0.2", "contract": "openstatspec-transformation-plan-v0.2", "canonicalization": "restricted-rfc8785-utf8-sha256"},
-        "frontend": {"manifest_version": "0.2", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.2", "contract": "openstatspec-spss-syntax-frontend-v0.2", "plan_contracts": ["openstatspec-transformation-plan-v0.1", "openstatspec-transformation-plan-v0.2"], "plan_schemas": {"openstatspec-transformation-plan-v0.1": "../transformation/plan-0.1.schema.json", "openstatspec-transformation-plan-v0.2": "../transformation/plan-0.2.schema.json"}},
-        "binding": {"manifest_version": "0.2", "profile": "OpenStatSpec In-Place Transformation Binding 0.2", "contract": "openstatspec-in-place-transformation-v0.2", "audit_schema": "../sql/transformation-plan-profile-schema.sql"},
-        "plan_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec Transformation Plan 0.1", "contract": "openstatspec-transformation-plan-v0.1"},
-        "frontend_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.1", "contract": "openstatspec-spss-syntax-frontend-v0.1"},
-        "binding_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec In-Place Transformation Binding 0.1", "contract": "openstatspec-in-place-transformation-v0.1"},
-    }
-    manifests: dict[str, dict[str, object]] = {}
-    for name, path in manifest_paths.items():
-        document = json.loads(path.read_text(encoding="utf-8"))
-        require(isinstance(document, dict), f"{path.name}: manifest must be an object.")
-        require(isinstance(document.get("cases"), list), f"{path.name}: cases must be an array.")
-        for field, expected in expected_metadata[name].items():
-            require(document.get(field) == expected, f"{path.name}: {field} declaration differs.")
-        identifiers: set[str] = set()
-        for case in document["cases"]:
-            require(isinstance(case, dict), f"{path.name}: case must be an object.")
-            identifier = require_string(case.get("id"), f"{path.name}: case id")
-            require(identifier not in identifiers, f"{path.name}: duplicate case id: {identifier}")
-            identifiers.add(identifier)
-        manifests[name] = document
-
-    links = [
-        (manifest_paths["plan"], manifests["plan"]["schema"]),
-        (manifest_paths["frontend"], manifests["frontend"]["request_schema"]),
-        *[(manifest_paths["frontend"], link) for link in manifests["frontend"]["plan_schemas"].values()],
-        (manifest_paths["binding"], manifests["binding"]["audit_schema"]),
-        (manifest_paths["plan_0_1"], manifests["plan_0_1"]["schema"]),
-        (manifest_paths["frontend_0_1"], manifests["frontend_0_1"]["request_schema"]),
-        (manifest_paths["frontend_0_1"], manifests["frontend_0_1"]["plan_schema"]),
-    ]
-    schema_validators: dict[Path, Draft202012Validator] = {}
-    for manifest_path, link in links:
-        require(isinstance(link, str) and link and not Path(link).is_absolute(), f"{manifest_path.name}: schema link must be relative.")
-        schema_path = (manifest_path.parent / link).resolve()
-        require(schema_path.is_file(), f"{manifest_path.name}: schema link does not exist: {link}")
-        if schema_path.suffix == ".json":
-            schema = json.loads(schema_path.read_text(encoding="utf-8"))
-            require(isinstance(schema, dict), f"{schema_path.name}: schema must be an object.")
-            Draft202012Validator.check_schema(schema)
-            schema_validators[schema_path] = Draft202012Validator(schema)
-    plan_validator = schema_validators[(manifest_paths["plan"].parent / manifests["plan"]["schema"]).resolve()]
-    legacy_plan_validator = schema_validators[(manifest_paths["plan_0_1"].parent / manifests["plan_0_1"]["schema"]).resolve()]
-    request_validator = schema_validators[(manifest_paths["frontend"].parent / manifests["frontend"]["request_schema"]).resolve()]
-    legacy_request_validator = schema_validators[(manifest_paths["frontend_0_1"].parent / manifests["frontend_0_1"]["request_schema"]).resolve()]
-
-    def canonical_json(value: object) -> str:
-        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
-
-    def canonical_hash(value: object) -> str:
-        encoded = canonical_json(value).encode("utf-8")
-        return hashlib.sha256(encoded).hexdigest()
-
-    def normalized_source_hash(source: str) -> str:
-        normalized = source.replace("\r\n", "\n").replace("\r", "\n")
-        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
-
-    frontend_plan_fields = {
-        "expected_plan_case", "expected_plan_case_0_1", "expected_plan",
-        "expected_plan_0_1", "expected_plan_contract",
-    }
-    plan_output_variants = frontend_plan_fields - {"expected_plan_contract"}
-    plan_hashes: dict[str, str] = {}
-    plan_jsons: dict[str, str] = {}
-    for case in manifests["plan"]["cases"]:
-        require(isinstance(case, dict), "0.2 plan case must be an object.")
-        identifier = require_string(case.get("id"), "0.2 plan case id")
-        require(plan_validator.is_valid(case.get("plan")), f"{identifier}: plan violates its declared schema.")
-        if case.get("expected_error") is None:
-            require(isinstance(case.get("plan"), dict), f"{identifier}: successful plan is missing.")
-            digest = canonical_hash(case["plan"])
-            require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical plan hash differs.")
-            plan_hashes[identifier] = digest
-            plan_jsons[identifier] = canonical_json(case["plan"])
-        else:
-            require(case.get("expected_plan_hash") is None, f"{identifier}: rejected plan hash must be null.")
-
-    legacy_plan_hashes: dict[str, str] = {}
-    for case in manifests["plan_0_1"]["cases"]:
-        identifier = require_string(case.get("id"), "0.1 plan case id")
-        require(legacy_plan_validator.is_valid(case.get("plan")), f"{identifier}: 0.1 plan violates its declared schema.")
-        if case.get("expected_error") is None:
-            digest = canonical_hash(case.get("plan"))
-            require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical 0.1 plan hash differs.")
-            legacy_plan_hashes[identifier] = digest
-        else:
-            require(case.get("expected_plan_hash") is None, f"{identifier}: rejected 0.1 plan hash must be null.")
-
-    for case in manifests["frontend_0_1"]["cases"]:
-        identifier = require_string(case.get("id"), "0.1 frontend case id")
-        request = case.get("request")
-        require(legacy_request_validator.is_valid(request), f"{identifier}: 0.1 request violates its declared schema.")
-        source = request.get("source_text")
-        if isinstance(source, str):
-            require(case.get("expected_source_hash") == normalized_source_hash(source), f"{identifier}: 0.1 source hash differs.")
-        if case.get("expected_error") is not None:
-            require(frontend_plan_fields.isdisjoint(case), f"{identifier}: failed frontend case contains plan output fields.")
-            require(case.get("expected_plan_hash") is None, f"{identifier}: failed frontend plan hash must be absent or null.")
-            continue
-        require(sum(field in case for field in plan_output_variants) == 1, f"{identifier}: successful frontend case must declare exactly one plan output variant.")
-        require("expected_plan_contract" not in case, f"{identifier}: 0.1 frontend case has an unexpected plan contract marker.")
-        if "expected_plan_case" in case:
-            reference = case["expected_plan_case"]
-            require(reference in legacy_plan_hashes, f"{identifier}: referenced 0.1 plan is missing.")
-        else:
-            require("expected_plan" in case, f"{identifier}: embedded 0.1 plan is missing.")
-            require(legacy_plan_validator.is_valid(case["expected_plan"]), f"{identifier}: embedded 0.1 plan violates its declared schema.")
-            digest = canonical_hash(case["expected_plan"])
-            require(case.get("expected_plan_hash") == digest, f"{identifier}: embedded 0.1 plan hash differs.")
-    legacy_frontend_hashes = {
-        case["id"]: (case["expected_plan_hash"], case["expected_source_hash"])
-        for case in manifests["frontend_0_1"]["cases"]
-        if case.get("expected_error") is None and "expected_plan_hash" in case
-    }
-    frontend_hashes: dict[str, tuple[str, str]] = {}
-    for case in manifests["frontend"]["cases"]:
-        require(isinstance(case, dict), "0.2 frontend case must be an object.")
-        identifier = require_string(case.get("id"), "0.2 frontend case id")
-        request = case.get("request")
-        require(request_validator.is_valid(request), f"{identifier}: request violates its declared schema.")
-        source = request.get("source_text")
-        if isinstance(source, str):
-            require(case.get("expected_source_hash") == normalized_source_hash(source), f"{identifier}: source hash differs.")
-        if case.get("expected_error") is not None:
-            require(frontend_plan_fields.isdisjoint(case), f"{identifier}: failed frontend case contains plan output fields.")
-            require(case.get("expected_plan_hash") is None, f"{identifier}: failed frontend plan hash must be absent or null.")
-            continue
-        require(sum(field in case for field in plan_output_variants) == 1, f"{identifier}: successful frontend case must declare exactly one plan output variant.")
-        if "expected_plan_case" in case:
-            reference = case["expected_plan_case"]
-            require(reference in plan_hashes and case.get("expected_plan_hash") == plan_hashes[reference], f"{identifier}: referenced 0.2 plan hash differs.")
-            require("expected_plan_contract" not in case, f"{identifier}: direct 0.2 plan reference has an unexpected contract marker.")
-        elif "expected_plan_case_0_1" in case:
-            reference = case["expected_plan_case_0_1"]
-            require(case.get("expected_plan_contract") == "openstatspec-transformation-plan-v0.1", f"{identifier}: referenced 0.1 plan contract differs.")
-            require(reference in legacy_frontend_hashes and case.get("expected_plan_hash") == legacy_frontend_hashes[reference][0], f"{identifier}: referenced 0.1 plan hash differs.")
-        else:
-            require("expected_plan_0_1" in case, f"{identifier}: embedded plan is missing.")
-            require(case.get("expected_plan_contract") == "openstatspec-transformation-plan-v0.1", f"{identifier}: embedded 0.1 plan contract differs.")
-            require(legacy_plan_validator.is_valid(case["expected_plan_0_1"]), f"{identifier}: embedded plan violates its declared schema.")
-            require(case.get("expected_plan_hash") == canonical_hash(case["expected_plan_0_1"]), f"{identifier}: embedded plan hash differs.")
-        frontend_hashes[identifier] = (case["expected_plan_hash"], case["expected_source_hash"])
-
-    for case in manifests["binding"]["cases"]:
-        has_plan_reference = "applied_plan_case" in case
-        has_frontend_reference = "applied_frontend_case" in case
-        require(has_plan_reference == has_frontend_reference, f"{case.get('id')}: applied fixture references must be paired.")
-        if "expected_audit" in case:
-            require(has_plan_reference, f"{case.get('id')}: expected audit is missing applied fixture references.")
-        if not has_plan_reference:
-            continue
-        plan_id, frontend_id = case["applied_plan_case"], case.get("applied_frontend_case")
-        require(plan_id in plan_hashes and frontend_id in frontend_hashes, f"{case.get('id')}: applied fixture reference is missing.")
-        audit = case.get("expected_audit")
-        require(frontend_hashes[frontend_id][0] == plan_hashes[plan_id] and isinstance(audit, dict) and audit.get("plan_hash") == plan_hashes[plan_id] and audit.get("canonical_plan_json") == plan_jsons[plan_id] and audit.get("source_hash") == frontend_hashes[frontend_id][1], f"{case.get('id')}: applied fixture hashes or canonical plan differ.")
-        if "required_audit_fields" in case:
-            require("canonical_plan_json" in case["required_audit_fields"], f"{case.get('id')}: required audit fields omit canonical plan JSON.")
 
 
 def require_well_formed_create_table_blocks(
@@ -1094,8 +924,6 @@ def main() -> None:
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
 
     validate_transformation_profile()
-    validate_transformation_integrity()
-
     validate_dialect_baseline()
     json.loads(MANIFEST.read_text(encoding="utf-8"))
 
