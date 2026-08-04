@@ -38,6 +38,5 @@
     "transformation_workflow",
     "transport"
   ],
-  "schema_version": 1,
-  "validator_entrypoint": "openstatspec_specification.dolt::validate_dolt_declaration"
+  "schema_version": 1
 }

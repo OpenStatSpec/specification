@@ -78,7 +78,7 @@ The next release work must proceed in this order. Completion of an earlier
 artifact is a dependency, not evidence that later adapter or service-matrix
 work has passed.
 
-1. [ ] Reconcile and merge Transformation Plan and SPSS Frontend profile 0.2 as
+1. [x] Merged Transformation Plan and SPSS Frontend profile 0.2 as
    unreleased, release-candidate work for the planned specification `v0.3.0`.
 2. [ ] Rebase Python `0.5.0` conditional transformations on the lifecycle
    implementation, pin the final profile commit, and pass the combined service
