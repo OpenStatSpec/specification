@@ -109,5 +109,5 @@ These are maintainer actions, not implementation tasks for the specification rep
   public package establishes the registry setup; repository update ownership
   still needs release-process verification.
 - [x] Define the specification release tag convention and maintainer checklist in
-  [RELEASING.md](RELEASING.md); release ownership remains an operational control.
+  [RELEASING.md](RELEASING.md); the repository release maintainer with repository-admin responsibility owns release-process controls.
 - [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow; `main` is currently unprotected.

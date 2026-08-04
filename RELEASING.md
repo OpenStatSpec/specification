@@ -3,6 +3,8 @@
 This checklist governs releases of this specification repository. It does not
 publish an implementation package and does not substitute for implementation
 or adapter conformance evidence.
+The repository release maintainer with repository-admin authority is responsible
+for completing this checklist and preserving the release controls it requires.
 
 ## Before preparing a release
 
@@ -30,14 +32,14 @@ or adapter conformance evidence.
   published tag.
 - Create the GitHub release as a draft from that exact tag and verify the tag
   target, title, notes, links, and any release assets before publication.
-- Publish the release only when its GitHub release is immutable. If immutable
+- Before publishing, verify the repository immutable-releases setting is enabled.
+- Publish the release only after that setting is confirmed; if immutable
   releases or protected tags are unavailable, stop and restore those controls
   before publishing.
 
 ## After publication
 
-- Verify the published release resolves to the intended full commit ID and
-  that the tag and release are immutable or protected as intended.
+- Verify GitHub reports immutable true for the published release and its tag as the intended full commit ID.
 - Verify the tag-triggered CI run is successful and that the release notes are
   visible from the repository release page.
 - Record any remaining future-release gates in the roadmap. Publishing a
