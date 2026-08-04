@@ -4,7 +4,7 @@ OpenStatSpec uses semantic versioning for tagged specification releases.
 
 - A major release may change normative relational semantics, required catalogue fields, conformance expectations, or the meaning of an existing requirement.
 - A minor release may add backward-compatible optional metadata, a new independent source or SQL profile, or new fixtures that do not invalidate an implementation's existing declared conformance scope.
-- A patch release may clarify wording, correct examples, or fix fixture and schema defects without changing normative meaning.
+- A patch release may clarify wording, correct examples, or fix fixture and schema defects without changing normative meaning. A schema-defect correction may be backported to a published release series only when it restores the already-stated normative contract; it must not introduce new required behavior, broaden the accepted contract, or silently revise canonical artifacts.
 
 Optional workflow profiles are versioned and claimed independently from the
 core source profile. Adding or revising an optional profile does not authorize

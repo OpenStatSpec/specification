@@ -4,7 +4,7 @@
   "title": "OpenStatSpec SPSS-like Syntax Frontend Request 0.1",
   "type": "object",
   "additionalProperties": false,
-  "": {
+  "$defs": {
     "typed_value": {
       "oneOf": [
         {
@@ -55,7 +55,7 @@
                   "additionalProperties": false,
                   "required": ["value", "label"],
                   "properties": {
-                    "value": {"": "#//typed_value"},
+                    "value": {"$ref": "#/$defs/typed_value"},
                     "label": {"type": "string"}
                   }
                 }
