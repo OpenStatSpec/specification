@@ -28,7 +28,8 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
 
 - [x] Add continuous checks for specification links, schema examples, fixtures, and adapter conformance once the relevant repositories exist.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [ ] Publish release notes and tagged specification releases.
+- [x] Publish release notes and tagged specification releases; `v0.2.0` is the
+  current public specification release.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
 ## 5. Future adapters
@@ -71,11 +72,53 @@ scope without creating a capability claim.
 - [ ] Publish an independent dialect profile only after both reference adapters pass the evidence gate.
 - [ ] Evaluate Azure SQL identities separately; do not inherit a SQL Server claim implicitly.
 
+## 9. Next release dependency order
+
+The next release work must proceed in this order. Completion of an earlier
+artifact is a dependency, not evidence that later adapter or service-matrix
+work has passed.
+
+1. [ ] Merge the reusable Dolt declaration validator on the current
+   specification `v0.2.0` line without tagging or publishing `v0.2.1` yet,
+   and record the exact merge commit as the release candidate.
+2. [ ] Build a candidate `openstatspec-specification==0.2.1` wheel from that
+   exact commit, bind the Python catalog/Dolt lifecycle implementation to it,
+   and pass both specification validation and the complete adapter matrix
+   before creating an immutable release.
+3. [ ] Only after those gates pass and release-tag signing or protection
+   is configured, create a signed or protected `v0.2.1` tag on that exact
+   specification commit, publish the byte-matching package artifact, reverify
+   installation from the published package, and then merge the Python lifecycle
+   change.
+4. [ ] Reconcile and merge Transformation Plan and SPSS Frontend profile 0.2 as
+   unreleased, release-candidate work for the planned specification `v0.3.0`.
+5. [ ] Rebase Python `0.5.0` conditional transformations on the lifecycle
+   implementation, pin the final profile commit, and pass the combined service
+   and conformance gates before making an adapter claim.
+6. [ ] Migrate PHP to the canonical transformation plan and pass the same
+   relevant conformance cases before it claims conditional profile 0.2 support.
+7. [ ] Select the exact intended `v0.3.0` commit and require that
+   same commit to pass repository validation and all required reference-adapter
+   gates. Only after those gates pass and release-tag signing or protection is
+   configured, create a signed or protected `v0.3.0` tag on that commit.
+   Until then claims use `release_candidate`, a null release identifier, and
+   the exact tested commit.
+
+The pending in-place service matrix and adapter conformance work in sections 6
+and 7 remains required; package publication or a specification pin does not
+complete either evidence gate.
+
 ## Maintainer setup
 
 These are maintainer actions, not implementation tasks for the specification repository itself.
 
-- [ ] For the Python repository: create and secure PyPI and TestPyPI project ownership, then configure PyPI Trusted Publishing for the repository's release workflow before the first package release.
-- [ ] For the PHP repository: register the package with Packagist and configure repository-based automatic updates before the first public release.
+- [x] Publish the OpenStatSpec Python distribution and establish its public PyPI
+  project. Published package releases establish the public project; they do not
+  by themselves re-verify owner security or the Trusted Publishing workflow.
+- [ ] Re-verify secure PyPI/TestPyPI ownership and Trusted Publishing before the
+  next Python release workflow is relied on.
+- [x] Register and publish the OpenStatSpec PHP package through Packagist. The
+  public package establishes the registry setup; repository update ownership
+  still needs release-process verification.
 - [ ] Decide the release owner(s), tag naming convention, and release checklist for every repository.
-- [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow.
+- [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow; `main` is currently unprotected.
