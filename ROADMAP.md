@@ -28,8 +28,8 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
 
 - [x] Add continuous checks for specification links, schema examples, fixtures, and adapter conformance once the relevant repositories exist.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [x] Publish release notes and tagged specification releases; `v0.2.0` is the
-  current public specification release.
+- [x] Publish release notes and tagged specification releases; `v0.2.1` is the
+  current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
 ## 5. Future adapters
@@ -108,5 +108,6 @@ These are maintainer actions, not implementation tasks for the specification rep
 - [x] Register and publish the OpenStatSpec PHP package through Packagist. The
   public package establishes the registry setup; repository update ownership
   still needs release-process verification.
-- [ ] Decide the release owner(s), tag naming convention, and release checklist for every repository.
+- [x] Define the specification release tag convention and maintainer checklist in
+  [RELEASING.md](RELEASING.md); release ownership remains an operational control.
 - [ ] Protect the default branches and ensure release tags are created only by the agreed release workflow; `main` is currently unprotected.

@@ -25,7 +25,7 @@ remains an explicitly unsupported [future dialect](docs/mssql-dialect-roadmap.md
 
 OpenStatSpec does not define long-form cells, EAV storage, table splitting, reshaping, automatic harmonization, or questionnaire/study entities. It does not infer respondent keys or combine datasets. All conformant database-object identifiers are generic; the double-underscore prefix is reserved for standard technical identifiers.
 
-[Versioning](VERSIONING.md) defines compatibility and release rules. [Roadmap](ROADMAP.md) tracks remaining project work and maintainer setup.
+[Versioning](VERSIONING.md) defines compatibility and release rules. [Releasing](RELEASING.md) defines the maintainer release checklist. [Roadmap](ROADMAP.md) tracks remaining project work and maintainer setup.
 
 ## Optional SQL transformation workflow
 
