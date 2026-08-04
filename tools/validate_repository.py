@@ -33,7 +33,7 @@ def validate_transformation_integrity() -> None:
     expected_metadata = {
         "plan": {"manifest_version": "0.2", "profile": "OpenStatSpec Transformation Plan 0.2", "contract": "openstatspec-transformation-plan-v0.2", "canonicalization": "restricted-rfc8785-utf8-sha256"},
         "frontend": {"manifest_version": "0.2", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.2", "contract": "openstatspec-spss-syntax-frontend-v0.2", "plan_contracts": ["openstatspec-transformation-plan-v0.1", "openstatspec-transformation-plan-v0.2"], "plan_schemas": {"openstatspec-transformation-plan-v0.1": "../transformation/plan-0.1.schema.json", "openstatspec-transformation-plan-v0.2": "../transformation/plan-0.2.schema.json"}},
-        "binding": {"manifest_version": "0.2", "profile": "OpenStatSpec In-Place Transformation Binding 0.2", "contract": "openstatspec-in-place-transformation-v0.2"},
+        "binding": {"manifest_version": "0.2", "profile": "OpenStatSpec In-Place Transformation Binding 0.2", "contract": "openstatspec-in-place-transformation-v0.2", "audit_schema": "../sql/transformation-plan-profile-schema.sql"},
         "plan_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec Transformation Plan 0.1", "contract": "openstatspec-transformation-plan-v0.1"},
         "frontend_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.1", "contract": "openstatspec-spss-syntax-frontend-v0.1"},
         "binding_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec In-Place Transformation Binding 0.1", "contract": "openstatspec-in-place-transformation-v0.1"},
@@ -92,6 +92,7 @@ def validate_transformation_integrity() -> None:
         "expected_plan_case", "expected_plan_case_0_1", "expected_plan",
         "expected_plan_0_1", "expected_plan_contract",
     }
+    plan_output_variants = frontend_plan_fields - {"expected_plan_contract"}
     plan_hashes: dict[str, str] = {}
     plan_jsons: dict[str, str] = {}
     for case in manifests["plan"]["cases"]:
@@ -129,6 +130,8 @@ def validate_transformation_integrity() -> None:
             require(frontend_plan_fields.isdisjoint(case), f"{identifier}: failed frontend case contains plan output fields.")
             require(case.get("expected_plan_hash") is None, f"{identifier}: failed frontend plan hash must be absent or null.")
             continue
+        require(sum(field in case for field in plan_output_variants) == 1, f"{identifier}: successful frontend case must declare exactly one plan output variant.")
+        require("expected_plan_contract" not in case, f"{identifier}: 0.1 frontend case has an unexpected plan contract marker.")
         if "expected_plan_case" in case:
             reference = case["expected_plan_case"]
             require(reference in legacy_plan_hashes, f"{identifier}: referenced 0.1 plan is missing.")
@@ -155,9 +158,11 @@ def validate_transformation_integrity() -> None:
             require(frontend_plan_fields.isdisjoint(case), f"{identifier}: failed frontend case contains plan output fields.")
             require(case.get("expected_plan_hash") is None, f"{identifier}: failed frontend plan hash must be absent or null.")
             continue
+        require(sum(field in case for field in plan_output_variants) == 1, f"{identifier}: successful frontend case must declare exactly one plan output variant.")
         if "expected_plan_case" in case:
             reference = case["expected_plan_case"]
             require(reference in plan_hashes and case.get("expected_plan_hash") == plan_hashes[reference], f"{identifier}: referenced 0.2 plan hash differs.")
+            require("expected_plan_contract" not in case, f"{identifier}: direct 0.2 plan reference has an unexpected contract marker.")
         elif "expected_plan_case_0_1" in case:
             reference = case["expected_plan_case_0_1"]
             require(case.get("expected_plan_contract") == "openstatspec-transformation-plan-v0.1", f"{identifier}: referenced 0.1 plan contract differs.")
@@ -170,7 +175,12 @@ def validate_transformation_integrity() -> None:
         frontend_hashes[identifier] = (case["expected_plan_hash"], case["expected_source_hash"])
 
     for case in manifests["binding"]["cases"]:
-        if not isinstance(case, dict) or "applied_plan_case" not in case:
+        has_plan_reference = "applied_plan_case" in case
+        has_frontend_reference = "applied_frontend_case" in case
+        require(has_plan_reference == has_frontend_reference, f"{case.get('id')}: applied fixture references must be paired.")
+        if "expected_audit" in case:
+            require(has_plan_reference, f"{case.get('id')}: expected audit is missing applied fixture references.")
+        if not has_plan_reference:
             continue
         plan_id, frontend_id = case["applied_plan_case"], case.get("applied_frontend_case")
         require(plan_id in plan_hashes and frontend_id in frontend_hashes, f"{case.get('id')}: applied fixture reference is missing.")
