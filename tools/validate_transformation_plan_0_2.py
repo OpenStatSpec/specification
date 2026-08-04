@@ -183,6 +183,7 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
         "reject-string-predicate": "expression_type_unsupported",
         "nested-or-inequalities-variable-operands-create": None,
         "sqlite-create-target-source-copy": None,
+        "mixed-recode-and-compute-promotes-v0.2": None,
         "reject-invalid-format": "invalid_format",
         "reject-reserved-assignment-target": "reserved_target_name",
         "reject-duplicate-value-label": "duplicate_value_label",
@@ -236,6 +237,10 @@ def validate_plan_manifest() -> dict[str, dict[str, object]]:
                 == "0000000000000000",
                 "Negative-zero canonical conversion bits differ.",
             )
+        elif identifier == "mixed-recode-and-compute-promotes-v0.2":
+            require(
+                [operation["op"] for operation in case["plan"]["operations"]] == ["recode", "assign"],
+                "Mixed legacy/0.2 plan operation coverage differs.")
     require(set(cases) == set(expected), "0.2 plan case set differs.")
     return cases
 
@@ -332,6 +337,9 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
                     "COMPUTE ", "IF (", " OR ", " AND ", ">=", "<", "<=", "EXECUTE.",
                 ),
                 "sqlite-create-target-source-copy": ("COMPUTE target = source_a.",),
+                "mixed-recode-and-compute-promotes-v0.2": (
+                    "RECODE q1 (1 = 0).", "COMPUTE target = q1.",
+                ),
                 "unparenthesized-mixed-default-precedence": (
                     "IF (source_a = 1 OR source_b = 1 AND source_c = 1)", "EXECUTE.",
                 ),
@@ -397,6 +405,7 @@ def validate_frontend(plan_cases: dict[str, dict[str, object]]) -> int:
         "three-term-and-flattens-source-order",
         "parenthesized-three-term-and-flattens-source-order",
         "nested-or-inequality-variable-operands-create",
+        "mixed-recode-and-compute-promotes-v0.2",
         "sqlite-create-target-source-copy",
         "old-subset-retains-v0.1-plan",
         "reject-string-expression",
@@ -566,8 +575,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         {"__case_ordinal": 2, "source_a": None, "source_b": 0, "target": 0},
     ], "Dolt OR-null inputs differ.")
     require(or_case["after_rows"] == [
-        {"__case_ordinal": 1, "target": 1},
-        {"__case_ordinal": 2, "target": 0},
+        {"__case_ordinal": 1, "source_a": None, "source_b": 1, "target": 1},
+        {"__case_ordinal": 2, "source_a": None, "source_b": 0, "target": 0},
     ], "Dolt OR three-valued outputs differ.")
     require(or_case["expected_error"] is None, "Dolt OR-null case unexpectedly fails.")
 
@@ -594,8 +603,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         {"__case_ordinal": 2, "source_a": 2, "target": 7},
     ], "Dolt missing-propagation inputs differ.")
     require(missing_case["after_rows"] == [
-        {"__case_ordinal": 1, "target": None},
-        {"__case_ordinal": 2, "target": 2},
+        {"__case_ordinal": 1, "source_a": None, "target": None},
+        {"__case_ordinal": 2, "source_a": 2, "target": 2},
     ], "Dolt variable assignment does not preserve missing.")
     require(missing_case["expected_error"] is None, "Dolt missing-propagation case unexpectedly fails.")
 
@@ -623,8 +632,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
         {"__case_ordinal": 2, "source_a": None, "source_b": 0, "target": 7},
     ], "Dolt conditional missing-propagation inputs differ.")
     require(conditional_missing_case["after_rows"] == [
-        {"__case_ordinal": 1, "target": None},
-        {"__case_ordinal": 2, "target": 7},
+        {"__case_ordinal": 1, "source_a": None, "source_b": 1, "target": None},
+        {"__case_ordinal": 2, "source_a": None, "source_b": 0, "target": 7},
     ], "Dolt conditional assignment does not preserve a missing RHS.")
     require(conditional_missing_case["expected_error"] is None, "Dolt conditional missing-propagation case unexpectedly fails.")
     inequality_case = cases["sqlite-inequality-boundary-semantics"]

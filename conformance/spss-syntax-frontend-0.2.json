@@ -162,6 +162,14 @@
       "expected_error": null
     },
     {
+      "id": "mixed-recode-and-compute-promotes-v0.2",
+      "request": {"contract": "openstatspec-spss-syntax-frontend-v0.2", "input_alias": "parent", "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]}, "source_text": "RECODE q1 (1 = 0).\nCOMPUTE target = q1."},
+      "expected_plan_case": "mixed-recode-and-compute-promotes-v0.2",
+      "expected_plan_hash": "c90b19239ea7c816e19575a16e4ea14186a2c73762d6d447c369a4b9d2f1e35f",
+      "expected_source_hash": "80e14ec0c4dd0e5013099ed12e47a2dd4d6b0ab0e93f3f611168744699a7e688",
+      "expected_error": null
+    },
+    {
       "id": "reject-string-expression",
       "request": {
         "contract": "openstatspec-spss-syntax-frontend-v0.2",

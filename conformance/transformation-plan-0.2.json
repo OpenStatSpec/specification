@@ -323,6 +323,12 @@
       "expected_error": null
     },
     {
+      "id": "mixed-recode-and-compute-promotes-v0.2",
+      "plan": {"contract": "openstatspec-transformation-plan-v0.2", "input_alias": "parent", "operations": [{"op": "recode", "source": "q1", "target": "q1", "target_mode": "replace", "rules": [{"match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}}, {"op": "assign", "target": "target", "target_mode": "create", "value": {"kind": "variable", "variable": "q1"}}]},
+      "expected_plan_hash": "c90b19239ea7c816e19575a16e4ea14186a2c73762d6d447c369a4b9d2f1e35f",
+      "expected_error": null
+    },
+    {
       "id": "reject-invalid-format",
       "plan": {
         "contract": "openstatspec-transformation-plan-v0.2",

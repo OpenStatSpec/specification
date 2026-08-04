@@ -199,10 +199,14 @@
       "after_rows": [
         {
           "__case_ordinal": 1,
+          "source_a": null,
+          "source_b": 1,
           "target": 1
         },
         {
           "__case_ordinal": 2,
+          "source_a": null,
+          "source_b": 0,
           "target": 0
         }
       ],
@@ -262,10 +266,12 @@
       "after_rows": [
         {
           "__case_ordinal": 1,
+          "source_a": null,
           "target": null
         },
         {
           "__case_ordinal": 2,
+          "source_a": 2,
           "target": 2
         }
       ],
@@ -301,10 +307,14 @@
       "after_rows": [
         {
           "__case_ordinal": 1,
+          "source_a": null,
+          "source_b": 1,
           "target": null
         },
         {
           "__case_ordinal": 2,
+          "source_a": null,
+          "source_b": 0,
           "target": 7
         }
       ],
