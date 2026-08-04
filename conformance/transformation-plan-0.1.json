@@ -86,6 +86,7 @@
       "expected_plan_hash": "dae504208847790e782b2b730a2cc258a5c4c89be470a30f17272187c3aeb101",
       "expected_error": null
     },
+    {"id": "binding-recode-and-labels-existing-target", "plan": {"contract": "openstatspec-transformation-plan-v0.1", "input_alias": "parent", "operations": [{"op": "recode", "source": "score", "target": "score", "target_mode": "replace", "rules": [{"match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}, {"type": "binary64", "bits": "4000000000000000"}]}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}, {"match": {"kind": "values", "values": [{"type": "binary64", "bits": "4008000000000000"}]}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}], "unmatched": {"kind": "copy"}}, {"op": "set_variable_label", "variable": "score", "label": "Score band"}, {"op": "replace_value_labels", "variable": "score", "labels": [{"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "Lower"}, {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Upper"}]}]}, "expected_plan_hash": "9a34e76e97040da4c36b14d57516000d1a803de77140facc56836c344c9dcbd2", "expected_error": null},
     {
       "id": "reject-descending-range",
       "plan": {

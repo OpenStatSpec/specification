@@ -69,6 +69,7 @@
       "expected_source_hash": "6bf99a32ed5365a10625f9a88b7d2c3b88d072ce12ecdc8e3459c1b4b5e1eb6a",
       "expected_error": null
     },
+    {"id": "binding-recode-and-labels-existing-target", "request": {"contract": "openstatspec-spss-syntax-frontend-v0.1", "input_alias": "parent", "input_schema": {"variables": [{"name": "score", "storage_kind": "numeric"}]}, "source_text": "RECODE score (1,2 = 0) (3 = 1).\nVARIABLE LABELS score 'Score band'.\nVALUE LABELS score 0 'Lower' 1 'Upper'."}, "expected_plan_case": "binding-recode-and-labels-existing-target", "expected_plan_hash": "9a34e76e97040da4c36b14d57516000d1a803de77140facc56836c344c9dcbd2", "expected_source_hash": "d9408f01082c1e160ad69ed710286ee56da757846a2132ca95b38764293267c6", "expected_error": null},
     {
       "id": "recode-varlists-positionally",
       "request": {
