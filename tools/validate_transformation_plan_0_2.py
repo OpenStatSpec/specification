@@ -485,12 +485,15 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     success = cases["dolt-preprovisioned-target-sequential-null-semantics"]
     require(set(success) == {
         "id", "database_profile", "applied_plan_case", "applied_frontend_case", "before", "after",
-        "expected_audit", "forbidden_artifacts", "required_audit_fields", "expected_error",
+        "actor", "expected_branch", "expected_head", "working_set_clean", "expected_audit", "forbidden_artifacts", "required_audit_fields", "expected_error",
     }, "0.2 binding success fields differ.")
-    require(success["database_profile"] == "dolt" and success["expected_error"] is None, "Dolt success identity differs.")
+    require(success["database_profile"] == "dolt" and success["actor"] == "conformance-runner" and success["expected_error"] is None, "Dolt success identity or actor differs.")
     require(success["applied_plan_case"] in plan_cases, "Dolt applied plan fixture missing.")
     require(success["applied_frontend_case"] in frontend_cases, "Dolt applied frontend fixture missing.")
     before, after = success["before"], success["after"]
+    success_frontend = frontend_cases[success["applied_frontend_case"]]
+    require(success_frontend.get("expected_error") is None and success_frontend.get("expected_plan_case") == success["applied_plan_case"], "Dolt frontend does not link the applied successful plan.")
+    require(success["expected_branch"] == before["dolt_branch"] and success["expected_head"] == before["dolt_head"] and success["working_set_clean"] is before["working_set_clean"] is True, "Dolt success apply context inputs differ.")
     for field in (
         "dataset_id", "physical_table_schema", "physical_table_name",
         "dataset_count", "persistent_data_table_count", "case_count",
@@ -553,10 +556,10 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
 
     or_case = cases["dolt-preprovisioned-target-or-null-semantics"]
     require(set(or_case) == {
-        "id", "database_profile", "target_preprovisioned", "condition",
-        "before_rows", "after_rows", "expected_error",
+        "id", "database_profile", "target_preprovisioned", "actor", "expected_branch", "expected_head",
+        "working_set_clean", "condition", "before_rows", "after_rows", "expected_error",
     }, "Dolt OR-null case fields differ.")
-    require(or_case["database_profile"] == "dolt" and or_case["target_preprovisioned"] is True, "Dolt OR-null identity differs.")
+    require(or_case["database_profile"] == "dolt" and or_case["target_preprovisioned"] is True and or_case["actor"] == "conformance-runner" and or_case["expected_branch"] == "feature/recode" and or_case["expected_head"] == "provisioning-commit" and or_case["working_set_clean"] is True, "Dolt OR-null identity or apply context differs.")
     require(or_case["condition"] == "source_a = 1 OR source_b = 1", "Dolt OR-null condition differs.")
     require(or_case["before_rows"] == [
         {"__case_ordinal": 1, "source_a": None, "source_b": 1, "target": 0},
@@ -570,12 +573,16 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
 
     missing_case = cases["dolt-preprovisioned-target-variable-missing-propagation"]
     require(set(missing_case) == {
-        "id", "database_profile", "target_preprovisioned", "assign",
-        "before_rows", "after_rows", "expected_error",
+        "id", "database_profile", "target_preprovisioned", "actor", "expected_branch", "expected_head",
+        "working_set_clean", "assign", "before_rows", "after_rows", "expected_error",
     }, "Dolt missing-propagation case fields differ.")
     require(
         missing_case["database_profile"] == "dolt"
-        and missing_case["target_preprovisioned"] is True,
+        and missing_case["actor"] == "conformance-runner"
+        and missing_case["target_preprovisioned"] is True
+        and missing_case["expected_branch"] == "feature/recode"
+        and missing_case["expected_head"] == "provisioning-commit"
+        and missing_case["working_set_clean"] is True,
         "Dolt missing-propagation identity differs.",
     )
     require(
@@ -594,12 +601,16 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
 
     conditional_missing_case = cases["dolt-preprovisioned-target-conditional-variable-missing-propagation"]
     require(set(conditional_missing_case) == {
-        "id", "database_profile", "target_preprovisioned", "conditional_assign",
-        "before_rows", "after_rows", "expected_error",
+        "id", "database_profile", "target_preprovisioned", "actor", "expected_branch", "expected_head",
+        "working_set_clean", "conditional_assign", "before_rows", "after_rows", "expected_error",
     }, "Dolt conditional missing-propagation fields differ.")
     require(
         conditional_missing_case["database_profile"] == "dolt"
-        and conditional_missing_case["target_preprovisioned"] is True,
+        and conditional_missing_case["actor"] == "conformance-runner"
+        and conditional_missing_case["target_preprovisioned"] is True
+        and conditional_missing_case["expected_branch"] == "feature/recode"
+        and conditional_missing_case["expected_head"] == "provisioning-commit"
+        and conditional_missing_case["working_set_clean"] is True,
         "Dolt conditional missing-propagation identity differs.",
     )
     require(conditional_missing_case["conditional_assign"] == {
@@ -665,6 +676,7 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
     require(create_case["applied_plan_case"] in plan_cases, "SQLite applied plan fixture missing.")
     require(create_case["applied_frontend_case"] in frontend_cases, "SQLite applied frontend fixture missing.")
     create_frontend = frontend_cases[create_case["applied_frontend_case"]]
+    require(create_frontend.get("expected_error") is None and create_frontend.get("expected_plan_case") == create_case["applied_plan_case"], "SQLite frontend does not link the applied successful plan.")
     require(create_frontend["request"]["input_schema"]["variables"] == [
         {"name": "source_a", "storage_kind": "numeric"},
         {"name": "source_b", "storage_kind": "numeric"},
@@ -736,8 +748,8 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
 
     for profile in ("dolt", "mysql", "mariadb"):
         case = cases[f"{profile}-create-target-fails-before-mutation"]
-        require(set(case) == {"id", "database_profile", "target_mode", "expected_error", "mutation_started"}, f"{profile}: failure fields differ.")
-        require(case["database_profile"] == profile and case["target_mode"] == "create", f"{profile}: failure identity differs.")
+        require(set(case) == {"id", "database_profile", "actor", "target_mode", "expected_error", "mutation_started"}, f"{profile}: failure fields differ.")
+        require(case["database_profile"] == profile and case["actor"] == "conformance-runner" and case["target_mode"] == "create", f"{profile}: failure identity or actor differs.")
         require(case["expected_error"] == "schema_change_not_atomic" and case["mutation_started"] is False, f"{profile}: create-target gate differs.")
 
 

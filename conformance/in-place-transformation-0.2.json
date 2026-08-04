@@ -7,6 +7,10 @@
     {
       "id": "dolt-preprovisioned-target-sequential-null-semantics",
       "database_profile": "dolt",
+      "actor": "conformance-runner",
+      "expected_branch": "feature/recode",
+      "expected_head": "provisioning-commit",
+      "working_set_clean": true,
       "applied_plan_case": "sequential-conditional-binary-existing-target",
       "applied_frontend_case": "compute-if-labels-format-level-execute-existing-target",
       "before": {
@@ -172,6 +176,10 @@
     {
       "id": "dolt-preprovisioned-target-or-null-semantics",
       "database_profile": "dolt",
+      "actor": "conformance-runner",
+      "expected_branch": "feature/recode",
+      "expected_head": "provisioning-commit",
+      "working_set_clean": true,
       "target_preprovisioned": true,
       "condition": "source_a = 1 OR source_b = 1",
       "before_rows": [
@@ -203,6 +211,7 @@
     {
       "id": "dolt-create-target-fails-before-mutation",
       "database_profile": "dolt",
+      "actor": "conformance-runner",
       "target_mode": "create",
       "expected_error": "schema_change_not_atomic",
       "mutation_started": false
@@ -210,6 +219,7 @@
     {
       "id": "mysql-create-target-fails-before-mutation",
       "database_profile": "mysql",
+      "actor": "conformance-runner",
       "target_mode": "create",
       "expected_error": "schema_change_not_atomic",
       "mutation_started": false
@@ -217,6 +227,7 @@
     {
       "id": "mariadb-create-target-fails-before-mutation",
       "database_profile": "mariadb",
+      "actor": "conformance-runner",
       "target_mode": "create",
       "expected_error": "schema_change_not_atomic",
       "mutation_started": false
@@ -224,6 +235,10 @@
     {
       "id": "dolt-preprovisioned-target-variable-missing-propagation",
       "database_profile": "dolt",
+      "actor": "conformance-runner",
+      "expected_branch": "feature/recode",
+      "expected_head": "provisioning-commit",
+      "working_set_clean": true,
       "target_preprovisioned": true,
       "assign": {
         "target": "target",
@@ -256,6 +271,10 @@
     {
       "id": "dolt-preprovisioned-target-conditional-variable-missing-propagation",
       "database_profile": "dolt",
+      "actor": "conformance-runner",
+      "expected_branch": "feature/recode",
+      "expected_head": "provisioning-commit",
+      "working_set_clean": true,
       "target_preprovisioned": true,
       "conditional_assign": {
         "target": "target",
