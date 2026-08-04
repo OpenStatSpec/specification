@@ -17,9 +17,13 @@ Until a protected or signed `v0.3.0` tag targets this work, implementations MUST
   action followed by an existing-target apply with no automatic Dolt commit.
 - Added independent synthetic golden fixtures, hashes, examples, and repository
   validation gates for the new contracts.
-- Corrected the SPSS Syntax Frontend 0.1 schema's `$defs` and `$ref` keywords
-  so typed value-label values are constrained as the existing contract states;
-  this is eligible for a patch-series backport under the schema-defect policy.
+
+## v0.2.1 - 2026-08-04
+
+- Corrected the SPSS Syntax Frontend 0.1 schema's `$defs` and `$ref`
+  keywords so typed value-label values are constrained as the existing
+  contract states. This maintenance release contains no Transformation Plan or
+  SPSS Syntax Frontend 0.2 work.
 
 ## v0.2.0 - 2026-07-31
 
