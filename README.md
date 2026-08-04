@@ -37,15 +37,18 @@ permits a transformation to mutate a core import.
 That separate derived-data profile is not used by the SPSS-like in-place
 frontend below.
 
-The [Transformation Plan Profile 0.1](docs/transformation-plan-profile-0.1.md)
-adds a canonical, language-neutral operation plan. The
-[SPSS Syntax Frontend Profile 0.1](docs/spss-syntax-frontend-profile-0.1.md)
-lowers a deliberately small `RECODE`, `VARIABLE LABELS`, and `VALUE LABELS`
-subset into that plan. The
-[in-place binding](docs/transformation-plan-sql-binding-0.1.md) applies the plan
+The release-candidate [Transformation Plan Profile 0.2](docs/transformation-plan-profile-0.2.md)
+adds sequential bounded numeric assignment and conditional assignment to the
+unchanged 0.1 operations. The
+[SPSS Syntax Frontend Profile 0.2](docs/spss-syntax-frontend-profile-0.2.md)
+lowers `COMPUTE`, `IF`, `FORMATS`, `VARIABLE LEVEL`, and `EXECUTE`
+alongside the 0.1 `RECODE`, `VARIABLE LABELS`, and `VALUE LABELS` subset.
+Programs using only the 0.1 subset retain exact 0.1 plan identity and hash. The
+[in-place binding](docs/transformation-plan-sql-binding-0.2.md) applies the plan
 to the same dataset and same physical wide table on supported SQL profiles. It
 creates no derived dataset, data copy, or OpenStatSpec undo layer; Dolt-specific
-history and commits remain Dolt's.
+history and commits remain Dolt's. MySQL, MariaDB, and Dolt require a new target
+to be provisioned separately before an in-place transformation apply.
 
 ## Repository layout
 
@@ -62,16 +65,18 @@ history and commits remain Dolt's.
 - `transformation/plan-0.1.schema.json` — canonical transformation-plan schema.
 - `sql/transformation-plan-profile-schema.sql` — compact in-place apply audit;
   it is not a dataset-version catalog.
-- `conformance/transformation-plan-0.1.json` and
-  `conformance/spss-syntax-frontend-0.1.json` — plan and frontend conformance
-  cases with canonical hashes; `conformance/in-place-transformation-0.1.json`
+- `conformance/transformation-plan-0.2.json` and
+  `conformance/spss-syntax-frontend-0.2.json` — additive plan and frontend
+  conformance cases with independent golden hashes; `conformance/in-place-transformation-0.2.json`
   fixes the same-dataset/same-table execution invariants and the additional
-  controlled Dolt context.
+  controlled Dolt context. The 0.1 schemas and fixtures remain unchanged.
 - `examples/` — small illustrative mapping fixtures.
 
 ## Conformance principle
 
 Implementations must preflight target capabilities before import. If the target cannot faithfully create one wide table because of column, identifier, string, or row limits, import must fail atomically with a machine-readable capability diagnostic. It must never silently truncate, drop, split, transpose, pivot, or transform source data.
+
+This specification repository publishes only normative Transformation Plan and SPSS syntax frontend schemas, documentation, and declarative fixtures. Executable validation or behavioral conformance code, including parser, SQL-engine, transaction, and adapter behavior, belongs in each implementation or adapter repository.
 
 ## Who it is for
 

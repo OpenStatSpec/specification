@@ -1,4 +1,4 @@
--- OpenStatSpec In-Place Transformation Binding 0.1 compact operation audit.
+-- OpenStatSpec In-Place Transformation Bindings 0.1 and 0.2 compact operation audit.
 -- This table is not a dataset-version catalog and stores no row data or copies.
 
 CREATE TABLE transformation_apply (
@@ -19,7 +19,10 @@ CREATE TABLE transformation_apply (
   operation_count             INTEGER NOT NULL,
   started_at                  TIMESTAMP NOT NULL,
   completed_at                TIMESTAMP NOT NULL,
-  CHECK (contract_id = 'openstatspec-in-place-transformation-v0.1'),
+  CHECK (contract_id IN (
+    'openstatspec-in-place-transformation-v0.1',
+    'openstatspec-in-place-transformation-v0.2'
+  )),
   CHECK (database_profile IN ('sqlite', 'postgresql', 'mysql', 'mariadb', 'dolt')),
   CHECK (status IN ('succeeded', 'failed')),
   CHECK (operation_count > 0),

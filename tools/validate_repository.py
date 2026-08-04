@@ -924,9 +924,6 @@ def main() -> None:
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
 
     validate_transformation_profile()
-    from validate_transformation_plan import validate_all as validate_transformation_plan
-
-    validate_transformation_plan()
     validate_dialect_baseline()
     json.loads(MANIFEST.read_text(encoding="utf-8"))
 
