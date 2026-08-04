@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+Target patch release: `v0.2.1` (not published).
+
+- Corrected the SPSS Syntax Frontend 0.1 schema's `$defs` and `$ref` keywords
+  so typed value-label values are constrained as the existing contract states;
+  this restores the published contract without adding new normative behavior.
+
 ## v0.2.0 - 2026-07-31
 
 - Added canonical Transformation Plan and SPSS Syntax Frontend profiles for a
