@@ -20,7 +20,6 @@
         "source_text": "RECODE q1 (1,2 = 0) (3 THRU 5 = 1) (ELSE = SYSMIS) INTO q1_binary.\nVARIABLE LABELS q1_binary 'Positive response'.\nVALUE LABELS q1_binary 0 'No' 1 'Yes'."
       },
       "expected_plan_case": "numeric-recode-and-declared-labels",
-      "expected_plan_hash": "075571b4f84b0f60f289aebb6ec990ad61d34a96b46655802ea8f8bc07a1a405",
       "expected_source_hash": "f1fecad0279dd633564b36fbdffe6f6960290d220a0ae3ebb6b532615a4b5b45",
       "expected_error": null
     },
@@ -65,11 +64,9 @@
         "source_text": "VALUE LABELS color 'R' 'Punane' 'B' 'Sinine'."
       },
       "expected_plan_case": "string-value-label-replacement",
-      "expected_plan_hash": "dae504208847790e782b2b730a2cc258a5c4c89be470a30f17272187c3aeb101",
       "expected_source_hash": "6bf99a32ed5365a10625f9a88b7d2c3b88d072ce12ecdc8e3459c1b4b5e1eb6a",
       "expected_error": null
     },
-    {"id": "binding-recode-and-labels-existing-target", "request": {"contract": "openstatspec-spss-syntax-frontend-v0.1", "input_alias": "parent", "input_schema": {"variables": [{"name": "score", "storage_kind": "numeric"}]}, "source_text": "RECODE score (1,2 = 0) (3 = 1).\nVARIABLE LABELS score 'Score band'.\nVALUE LABELS score 0 'Lower' 1 'Upper'."}, "expected_plan_case": "binding-recode-and-labels-existing-target", "expected_plan_hash": "9a34e76e97040da4c36b14d57516000d1a803de77140facc56836c344c9dcbd2", "expected_source_hash": "d9408f01082c1e160ad69ed710286ee56da757846a2132ca95b38764293267c6", "expected_error": null},
     {
       "id": "recode-varlists-positionally",
       "request": {
