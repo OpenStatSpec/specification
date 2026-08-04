@@ -81,6 +81,8 @@ def validate_transformation_integrity() -> None:
             digest = canonical_hash(case["plan"])
             require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical plan hash differs.")
             plan_hashes[identifier] = digest
+        else:
+            require(case.get("expected_plan_hash") is None, f"{identifier}: rejected plan hash must be null.")
 
     legacy_plan_hashes: dict[str, str] = {}
     for case in manifests["plan_0_1"]["cases"]:
@@ -90,6 +92,8 @@ def validate_transformation_integrity() -> None:
             digest = canonical_hash(case.get("plan"))
             require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical 0.1 plan hash differs.")
             legacy_plan_hashes[identifier] = digest
+        else:
+            require(case.get("expected_plan_hash") is None, f"{identifier}: rejected 0.1 plan hash must be null.")
 
     for case in manifests["frontend_0_1"]["cases"]:
         identifier = require_string(case.get("id"), "0.1 frontend case id")
@@ -122,8 +126,8 @@ def validate_transformation_integrity() -> None:
         require(case.get("expected_plan_hash") == legacy_plan_hashes[plan_id] == frontend_plan_hash, f"{case.get('id')}: applied 0.1 plan hashes differ.")
         require(case.get("expected_source_hash") == source_hash, f"{case.get('id')}: applied 0.1 source hashes differ.")
         source = case.get("source_text")
-        if isinstance(source, str):
-            require(hashlib.sha256(source.encode("utf-8")).hexdigest() == source_hash, f"{case.get('id')}: binding source hash differs.")
+        require(isinstance(source, str), f"{case.get('id')}: linked binding source must be a string.")
+        require(hashlib.sha256(source.encode("utf-8")).hexdigest() == source_hash, f"{case.get('id')}: binding source hash differs.")
     frontend_hashes: dict[str, tuple[str, str]] = {}
     for case in manifests["frontend"]["cases"]:
         require(isinstance(case, dict), "0.2 frontend case must be an object.")
