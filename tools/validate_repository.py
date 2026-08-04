@@ -32,7 +32,7 @@ def validate_transformation_integrity() -> None:
     }
     expected_metadata = {
         "plan": {"manifest_version": "0.2", "profile": "OpenStatSpec Transformation Plan 0.2", "contract": "openstatspec-transformation-plan-v0.2", "canonicalization": "restricted-rfc8785-utf8-sha256"},
-        "frontend": {"manifest_version": "0.2", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.2", "contract": "openstatspec-spss-syntax-frontend-v0.2"},
+        "frontend": {"manifest_version": "0.2", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.2", "contract": "openstatspec-spss-syntax-frontend-v0.2", "plan_contracts": ["openstatspec-transformation-plan-v0.1", "openstatspec-transformation-plan-v0.2"], "plan_schemas": {"openstatspec-transformation-plan-v0.1": "../transformation/plan-0.1.schema.json", "openstatspec-transformation-plan-v0.2": "../transformation/plan-0.2.schema.json"}},
         "binding": {"manifest_version": "0.2", "profile": "OpenStatSpec In-Place Transformation Binding 0.2", "contract": "openstatspec-in-place-transformation-v0.2"},
         "plan_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec Transformation Plan 0.1", "contract": "openstatspec-transformation-plan-v0.1"},
         "frontend_0_1": {"manifest_version": "0.1", "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.1", "contract": "openstatspec-spss-syntax-frontend-v0.1"},
@@ -77,8 +77,11 @@ def validate_transformation_integrity() -> None:
     request_validator = schema_validators[(manifest_paths["frontend"].parent / manifests["frontend"]["request_schema"]).resolve()]
     legacy_request_validator = schema_validators[(manifest_paths["frontend_0_1"].parent / manifests["frontend_0_1"]["request_schema"]).resolve()]
 
+    def canonical_json(value: object) -> str:
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
     def canonical_hash(value: object) -> str:
-        encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+        encoded = canonical_json(value).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
 
     def normalized_source_hash(source: str) -> str:
@@ -90,6 +93,7 @@ def validate_transformation_integrity() -> None:
         "expected_plan_0_1", "expected_plan_contract",
     }
     plan_hashes: dict[str, str] = {}
+    plan_jsons: dict[str, str] = {}
     for case in manifests["plan"]["cases"]:
         require(isinstance(case, dict), "0.2 plan case must be an object.")
         identifier = require_string(case.get("id"), "0.2 plan case id")
@@ -99,6 +103,7 @@ def validate_transformation_integrity() -> None:
             digest = canonical_hash(case["plan"])
             require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical plan hash differs.")
             plan_hashes[identifier] = digest
+            plan_jsons[identifier] = canonical_json(case["plan"])
         else:
             require(case.get("expected_plan_hash") is None, f"{identifier}: rejected plan hash must be null.")
 
@@ -155,9 +160,11 @@ def validate_transformation_integrity() -> None:
             require(reference in plan_hashes and case.get("expected_plan_hash") == plan_hashes[reference], f"{identifier}: referenced 0.2 plan hash differs.")
         elif "expected_plan_case_0_1" in case:
             reference = case["expected_plan_case_0_1"]
+            require(case.get("expected_plan_contract") == "openstatspec-transformation-plan-v0.1", f"{identifier}: referenced 0.1 plan contract differs.")
             require(reference in legacy_frontend_hashes and case.get("expected_plan_hash") == legacy_frontend_hashes[reference][0], f"{identifier}: referenced 0.1 plan hash differs.")
         else:
             require("expected_plan_0_1" in case, f"{identifier}: embedded plan is missing.")
+            require(case.get("expected_plan_contract") == "openstatspec-transformation-plan-v0.1", f"{identifier}: embedded 0.1 plan contract differs.")
             require(legacy_plan_validator.is_valid(case["expected_plan_0_1"]), f"{identifier}: embedded plan violates its declared schema.")
             require(case.get("expected_plan_hash") == canonical_hash(case["expected_plan_0_1"]), f"{identifier}: embedded plan hash differs.")
         frontend_hashes[identifier] = (case["expected_plan_hash"], case["expected_source_hash"])
@@ -168,7 +175,9 @@ def validate_transformation_integrity() -> None:
         plan_id, frontend_id = case["applied_plan_case"], case.get("applied_frontend_case")
         require(plan_id in plan_hashes and frontend_id in frontend_hashes, f"{case.get('id')}: applied fixture reference is missing.")
         audit = case.get("expected_audit")
-        require(frontend_hashes[frontend_id][0] == plan_hashes[plan_id] and isinstance(audit, dict) and audit.get("plan_hash") == plan_hashes[plan_id] and audit.get("source_hash") == frontend_hashes[frontend_id][1], f"{case.get('id')}: applied fixture hashes differ.")
+        require(frontend_hashes[frontend_id][0] == plan_hashes[plan_id] and isinstance(audit, dict) and audit.get("plan_hash") == plan_hashes[plan_id] and audit.get("canonical_plan_json") == plan_jsons[plan_id] and audit.get("source_hash") == frontend_hashes[frontend_id][1], f"{case.get('id')}: applied fixture hashes or canonical plan differ.")
+        if "required_audit_fields" in case:
+            require("canonical_plan_json" in case["required_audit_fields"], f"{case.get('id')}: required audit fields omit canonical plan JSON.")
 
 
 def require_well_formed_create_table_blocks(
