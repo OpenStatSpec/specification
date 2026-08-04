@@ -748,8 +748,13 @@ def validate_in_place(plan_cases: dict[str, dict[str, object]]) -> None:
 
     for profile in ("dolt", "mysql", "mariadb"):
         case = cases[f"{profile}-create-target-fails-before-mutation"]
-        require(set(case) == {"id", "database_profile", "actor", "target_mode", "expected_error", "mutation_started"}, f"{profile}: failure fields differ.")
+        expected_fields = {"id", "database_profile", "actor", "target_mode", "expected_error", "mutation_started"}
+        if profile == "dolt":
+            expected_fields |= {"expected_branch", "expected_head", "working_set_clean"}
+        require(set(case) == expected_fields, f"{profile}: failure fields differ.")
         require(case["database_profile"] == profile and case["actor"] == "conformance-runner" and case["target_mode"] == "create", f"{profile}: failure identity or actor differs.")
+        if profile == "dolt":
+            require(case["expected_branch"] == "feature/recode" and case["expected_head"] == "provisioning-commit" and case["working_set_clean"] is True, "dolt: create-target context inputs differ.")
         require(case["expected_error"] == "schema_change_not_atomic" and case["mutation_started"] is False, f"{profile}: create-target gate differs.")
 
 

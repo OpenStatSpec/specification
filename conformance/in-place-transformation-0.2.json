@@ -212,6 +212,9 @@
       "id": "dolt-create-target-fails-before-mutation",
       "database_profile": "dolt",
       "actor": "conformance-runner",
+      "expected_branch": "feature/recode",
+      "expected_head": "provisioning-commit",
+      "working_set_clean": true,
       "target_mode": "create",
       "expected_error": "schema_change_not_atomic",
       "mutation_started": false
