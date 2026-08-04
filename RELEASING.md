@@ -3,6 +3,7 @@
 This checklist governs releases of this specification repository. It does not
 publish an implementation package and does not substitute for implementation
 or adapter conformance evidence.
+
 The repository release maintainer with repository-admin authority is responsible
 for completing this checklist and preserving the release controls it requires.
 
@@ -26,20 +27,24 @@ for completing this checklist and preserving the release controls it requires.
 
 ## Tag and release
 
-- Create `vX.Y.Z` only after the exact release commit has passed CI. Use a
-  signed annotated tag where signing is available, or create the tag through a
-  protected tag rule restricted to release maintainers. Do not move or reuse a
-  published tag.
+- Create and push `vX.Y.Z` only after the exact release commit has passed
+  CI. Use the selected signed annotated-tag path where signing is available,
+  or the selected protected-tag path restricted to release maintainers. Do not
+  move or reuse a published tag.
+- Wait for the CI run in that exact tag context to succeed before creating or
+  publishing the immutable GitHub release; a branch-commit CI result is not a
+  substitute for the tag-context result.
 - Create the GitHub release as a draft from that exact tag and verify the tag
   target, title, notes, links, and any release assets before publication.
-- Before publishing, verify the repository immutable-releases setting is enabled.
-- Publish the release only after that setting is confirmed; if immutable
-  releases or protected tags are unavailable, stop and restore those controls
-  before publishing.
+- Before publishing, verify the repository immutable-releases setting is
+  enabled. If that setting or the selected signed-or-protected tag path is
+  unavailable, stop and restore the missing selected control before publishing.
+- Publish the release only after those checks are confirmed.
 
 ## After publication
 
-- Verify GitHub reports immutable true for the published release and its tag as the intended full commit ID.
+- Verify GitHub reports immutable true for the published release and its tag as
+  the intended full commit ID.
 - Verify the tag-triggered CI run is successful and that the release notes are
   visible from the repository release page.
 - Record any remaining future-release gates in the roadmap. Publishing a
