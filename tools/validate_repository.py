@@ -19,6 +19,107 @@ def require(condition: bool, message: str) -> None:
     if not condition:
         raise SystemExit(message)
 
+def validate_transformation_integrity() -> None:
+    manifest_paths = {
+        "plan": ROOT / "conformance/transformation-plan-0.2.json",
+        "frontend": ROOT / "conformance/spss-syntax-frontend-0.2.json",
+        "binding": ROOT / "conformance/in-place-transformation-0.2.json",
+        "plan_0_1": ROOT / "conformance/transformation-plan-0.1.json",
+        "frontend_0_1": ROOT / "conformance/spss-syntax-frontend-0.1.json",
+        "binding_0_1": ROOT / "conformance/in-place-transformation-0.1.json",
+    }
+    manifests: dict[str, dict[str, object]] = {}
+    for name, path in manifest_paths.items():
+        document = json.loads(path.read_text(encoding="utf-8"))
+        require(isinstance(document, dict), f"{path.name}: manifest must be an object.")
+        require(isinstance(document.get("cases"), list), f"{path.name}: cases must be an array.")
+        manifests[name] = document
+
+    links = [
+        (manifest_paths["plan"], manifests["plan"]["schema"]),
+        (manifest_paths["frontend"], manifests["frontend"]["request_schema"]),
+        *[(manifest_paths["frontend"], link) for link in manifests["frontend"]["plan_schemas"].values()],
+        (manifest_paths["binding"], manifests["binding"]["audit_schema"]),
+        (manifest_paths["plan_0_1"], manifests["plan_0_1"]["schema"]),
+        (manifest_paths["frontend_0_1"], manifests["frontend_0_1"]["request_schema"]),
+        (manifest_paths["frontend_0_1"], manifests["frontend_0_1"]["plan_schema"]),
+    ]
+    for manifest_path, link in links:
+        require(isinstance(link, str) and link and not Path(link).is_absolute(), f"{manifest_path.name}: schema link must be relative.")
+        schema_path = (manifest_path.parent / link).resolve()
+        require(schema_path.is_file(), f"{manifest_path.name}: schema link does not exist: {link}")
+        if schema_path.suffix == ".json":
+            require(isinstance(json.loads(schema_path.read_text(encoding="utf-8")), dict), f"{schema_path.name}: schema must be an object.")
+
+    def canonical_hash(value: object) -> str:
+        encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+
+    plan_hashes: dict[str, str] = {}
+    for case in manifests["plan"]["cases"]:
+        require(isinstance(case, dict), "0.2 plan case must be an object.")
+        identifier = require_string(case.get("id"), "0.2 plan case id")
+        require(identifier not in plan_hashes, f"Duplicate successful 0.2 plan case: {identifier}")
+        if case.get("expected_error") is None:
+            require(isinstance(case.get("plan"), dict), f"{identifier}: successful plan is missing.")
+            digest = canonical_hash(case["plan"])
+            require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical plan hash differs.")
+            plan_hashes[identifier] = digest
+
+    legacy_plan_hashes: dict[str, str] = {}
+    for case in manifests["plan_0_1"]["cases"]:
+        if case.get("expected_error") is None:
+            identifier = require_string(case.get("id"), "0.1 plan case id")
+            digest = canonical_hash(case.get("plan"))
+            require(case.get("expected_plan_hash") == digest, f"{identifier}: canonical 0.1 plan hash differs.")
+            legacy_plan_hashes[identifier] = digest
+
+    for case in manifests["frontend_0_1"]["cases"]:
+        if case.get("expected_error") is not None:
+            continue
+        identifier = require_string(case.get("id"), "0.1 frontend case id")
+        source = case.get("request", {}).get("source_text")
+        require(isinstance(source, str) and case.get("expected_source_hash") == hashlib.sha256(source.encode("utf-8")).hexdigest(), f"{identifier}: 0.1 source hash differs.")
+        if "expected_plan_case" in case:
+            reference = case["expected_plan_case"]
+            require(reference in legacy_plan_hashes, f"{identifier}: referenced 0.1 plan is missing.")
+        else:
+            require("expected_plan" in case, f"{identifier}: embedded 0.1 plan is missing.")
+            digest = canonical_hash(case["expected_plan"])
+            require(case.get("expected_plan_hash") == digest, f"{identifier}: embedded 0.1 plan hash differs.")
+    legacy_hashes = {
+        case["id"]: case["expected_plan_hash"]
+        for case in manifests["frontend_0_1"]["cases"]
+        if case.get("expected_error") is None and "expected_plan_hash" in case
+    }
+    frontend_hashes: dict[str, tuple[str, str]] = {}
+    for case in manifests["frontend"]["cases"]:
+        require(isinstance(case, dict), "0.2 frontend case must be an object.")
+        if case.get("expected_error") is not None:
+            continue
+        identifier = require_string(case.get("id"), "0.2 frontend case id")
+        source = case.get("request", {}).get("source_text")
+        require(isinstance(source, str), f"{identifier}: successful frontend source is missing.")
+        source_hash = hashlib.sha256(source.encode("utf-8")).hexdigest()
+        require(case.get("expected_source_hash") == source_hash, f"{identifier}: source hash differs.")
+        if "expected_plan_case" in case:
+            reference = case["expected_plan_case"]
+            require(reference in plan_hashes and case.get("expected_plan_hash") == plan_hashes[reference], f"{identifier}: referenced 0.2 plan hash differs.")
+        elif "expected_plan_case_0_1" in case:
+            reference = case["expected_plan_case_0_1"]
+            require(reference in legacy_hashes and case.get("expected_plan_hash") == legacy_hashes[reference], f"{identifier}: referenced 0.1 plan hash differs.")
+        else:
+            require("expected_plan_0_1" in case and case.get("expected_plan_hash") == canonical_hash(case["expected_plan_0_1"]), f"{identifier}: embedded plan hash differs.")
+        frontend_hashes[identifier] = (case["expected_plan_hash"], source_hash)
+
+    for case in manifests["binding"]["cases"]:
+        if not isinstance(case, dict) or "applied_plan_case" not in case:
+            continue
+        plan_id, frontend_id = case["applied_plan_case"], case.get("applied_frontend_case")
+        require(plan_id in plan_hashes and frontend_id in frontend_hashes, f"{case.get('id')}: applied fixture reference is missing.")
+        audit = case.get("expected_audit")
+        require(isinstance(audit, dict) and audit.get("plan_hash") == plan_hashes[plan_id] and audit.get("source_hash") == frontend_hashes[frontend_id][1], f"{case.get('id')}: applied fixture audit hashes differ.")
+
 
 def require_well_formed_create_table_blocks(
     schema: str,
@@ -924,9 +1025,8 @@ def main() -> None:
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
 
     validate_transformation_profile()
-    from validate_transformation_plan import validate_all as validate_transformation_plan
+    validate_transformation_integrity()
 
-    validate_transformation_plan()
     validate_dialect_baseline()
     json.loads(MANIFEST.read_text(encoding="utf-8"))
 

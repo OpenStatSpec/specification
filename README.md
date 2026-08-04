@@ -76,6 +76,8 @@ to be provisioned separately before an in-place transformation apply.
 
 Implementations must preflight target capabilities before import. If the target cannot faithfully create one wide table because of column, identifier, string, or row limits, import must fail atomically with a machine-readable capability diagnostic. It must never silently truncate, drop, split, transpose, pivot, or transform source data.
 
+Validation of Transformation Plan and SPSS syntax frontend artifacts in this specification repository is limited to structural and integrity checks of normative schemas and declarative fixtures. Their executable behavioral conformance, including parser, SQL-engine, transaction, and adapter behavior, belongs in each implementation or adapter repository.
+
 ## Who it is for
 
 OpenStatSpec is for people and projects that need to move statistical datasets between SPSS and relational databases without turning the data into a different model. It is especially relevant to:

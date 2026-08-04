@@ -329,6 +329,30 @@
       "expected_error": null
     },
     {
+      "id": "binding-or-null-existing-target",
+      "plan": {"contract": "openstatspec-transformation-plan-v0.2", "input_alias": "parent", "operations": [{"op": "conditional_assign", "condition": {"expression": "boolean", "operator": "or", "operands": [{"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "=", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"expression": "comparison", "left": {"kind": "variable", "variable": "source_b"}, "operator": "=", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}]}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}]},
+      "expected_plan_hash": "7fa8a017ed2476606c20f7b6bc9df09b7bbff208891e03335dfa393c7c260742",
+      "expected_error": null
+    },
+    {
+      "id": "binding-variable-missing-existing-target",
+      "plan": {"contract": "openstatspec-transformation-plan-v0.2", "input_alias": "parent", "operations": [{"op": "assign", "target": "target", "target_mode": "replace", "value": {"kind": "variable", "variable": "source_a"}}]},
+      "expected_plan_hash": "2b52cbd2989c99aac69dbd10e0f3de225ca84f3902193e05931bc3bf9c3e8649",
+      "expected_error": null
+    },
+    {
+      "id": "binding-conditional-missing-existing-target",
+      "plan": {"contract": "openstatspec-transformation-plan-v0.2", "input_alias": "parent", "operations": [{"op": "conditional_assign", "condition": {"expression": "comparison", "left": {"kind": "variable", "variable": "source_b"}, "operator": "=", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, "target": "target", "value": {"kind": "variable", "variable": "source_a"}}]},
+      "expected_plan_hash": "aa42695ecf8d84d487fe1cdc1b11dd9d9e5d048df670877ed562e9b9fbd23053",
+      "expected_error": null
+    },
+    {
+      "id": "binding-inequality-boundaries-existing-targets",
+      "plan": {"contract": "openstatspec-transformation-plan-v0.2", "input_alias": "parent", "operations": [{"op": "conditional_assign", "condition": {"expression": "comparison", "left": {"kind": "variable", "variable": "source"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, "target": "target_lt", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "conditional_assign", "condition": {"expression": "comparison", "left": {"kind": "variable", "variable": "source"}, "operator": "<=", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, "target": "target_le", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "conditional_assign", "condition": {"expression": "comparison", "left": {"kind": "variable", "variable": "source"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, "target": "target_gt", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "conditional_assign", "condition": {"expression": "comparison", "left": {"kind": "variable", "variable": "source"}, "operator": ">=", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, "target": "target_ge", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}]},
+      "expected_plan_hash": "cc0bde9b2adbbe76614c51a6122a5c9c17c9e610a63241eb1769956c2e543690",
+      "expected_error": null
+    },
+    {
       "id": "reject-invalid-format",
       "plan": {
         "contract": "openstatspec-transformation-plan-v0.2",
