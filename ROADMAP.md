@@ -26,7 +26,9 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
 
 ## 4. CI, releases, and documentation
 
-- [x] Add continuous checks for specification links, schema examples, fixtures, and adapter conformance once the relevant repositories exist.
+- [x] Add continuous specification-repository checks for links, schema examples,
+  and fixtures.
+- [x] Define adapter conformance guidance; each adapter repository owns its runtime CI and evidence.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
 - [x] Publish release notes and tagged specification releases; `v0.2.1` is the
   current public specification release and is immutable.
@@ -45,7 +47,10 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
 - [x] Define parameter binding, lineage, hashes, audit, metadata and weight
   propagation, dialect boundaries, and atomic publication.
 - [x] Add machine-readable positive and failure conformance cases.
-- [ ] Run all cases in reference adapters before publishing profile 1.0.
+- [ ] Publish profile 1.0 after its normative contract, declarative cases, and
+  specification-repository checks are complete.
+- [ ] Require each implementation to pass the relevant cases before claiming
+  profile 1.0 conformance.
 
 ## 7. Canonical transformation plans and syntax frontends
 
@@ -55,8 +60,9 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
   machine-readable conformance cases.
 - [x] Define the in-place binding that preserves dataset/table identity on
   supported SQL profiles and never creates an OpenStatSpec undo/copy layer.
-- [ ] Run the in-place apply service matrix against every claimed SQL profile
-  before publishing execution claims.
+- [ ] Require each implementation to run the in-place apply service matrix
+  against every claimed SQL profile before publishing its execution claims;
+  this does not block specification publication.
 - [ ] Evaluate additional language frontends as separate adapters that lower to
   the same canonical plan.
 
@@ -69,32 +75,42 @@ scope without creating a capability claim.
 - [ ] Select and pin Python and PHP driver stacks after fidelity and security evaluation.
 - [ ] Define T-SQL types, quoting, catalog binding, identity probes and effective-limit preflight.
 - [ ] Add exact cumulative-update CI services and complete conformance/fault-injection evidence.
-- [ ] Publish an independent dialect profile only after both reference adapters pass the evidence gate.
+- [ ] Publish an independent dialect profile after its normative T-SQL contract,
+  declarative cases, and specification-repository checks are complete.
+- [ ] Require each reference adapter to pass the relevant evidence gate before
+  claiming Microsoft SQL Server support.
 - [ ] Evaluate Azure SQL identities separately; do not inherit a SQL Server claim implicitly.
 
 ## 9. Next release dependency order
 
-The next release work must proceed in this order. Completion of an earlier
-artifact is a dependency, not evidence that later adapter or service-matrix
-work has passed.
+The specification release and implementation claims have separate gates. The
+specification defines and publishes the contract first; implementation evidence
+follows and does not block specification publication.
 
 1. [x] Merged Transformation Plan and SPSS Frontend profile 0.2 as
    unreleased, release-candidate work for the planned specification `v0.3.0`.
-2. [ ] Rebase Python `0.5.0` conditional transformations on the lifecycle
-   implementation, pin the final profile commit, and pass the combined service
-   and conformance gates before making an adapter claim.
-3. [ ] Migrate PHP to the canonical transformation plan and pass the same
-   relevant conformance cases before it claims conditional profile 0.2 support.
-4. [ ] Select the exact intended `v0.3.0` commit and require that
-   same commit to pass repository validation and all required reference-adapter
-   gates. Only after those gates pass and release-tag signing or protection is
-   configured, create a signed or protected `v0.3.0` tag on that commit.
+2. [ ] Complete and review the normative `v0.3.0` documents, schemas,
+   declarative fixtures, and hashes; select the exact release commit and pass
+   this repository's validation and CI on that commit.
+3. [ ] After confirming release-tag signing or protection, create a signed or
+   protected `v0.3.0` tag on that commit, require its exact tag-context CI run
+   to pass, and follow the [release checklist](RELEASING.md) draft and control
+   verification before publishing the immutable release.
    Until then claims use `release_candidate`, a null release identifier, and
    the exact tested commit.
+4. [ ] Have Python pin the exact specification commit and, once published,
+   record its `v0.3.0` release identifier; rebase conditional transformations
+   on the lifecycle implementation and pass the combined service and
+   conformance gates before making an adapter claim or package release.
+5. [ ] Have PHP pin the exact specification commit and, once published, record
+   its `v0.3.0` release identifier; migrate to the canonical transformation plan
+   and pass the relevant conformance cases before making an adapter claim or
+   package release.
 
 The pending in-place service matrix and adapter conformance work in sections 6
-and 7 remains required; implementation package publication does not complete
-either evidence gate.
+and 7 are downstream implementation gates. They do not block the `v0.3.0`
+specification release, and publishing the specification does not complete those
+implementation evidence gates.
 
 ## Maintainer setup
 
