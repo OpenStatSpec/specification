@@ -28,7 +28,7 @@ The immutable commit is mandatory for both release candidates and stable release
 - for a published tagged release candidate, `specification_status` remains `release_candidate` and `specification_release` is the exact prerelease identifier whose target is the declared commit; and
 - for a published stable release, `specification_status` is `released` and `specification_release` is the exact release identifier whose target is the declared commit.
 
-Development work on `main` is not a released standard. Release candidates may be used for interoperability testing but must be identified as such. A stable release is created only by a signed or protected tag after the repository validation and reference-adapter conformance gates pass.
+Development work on `main` is not a released standard. Release candidates may be used for interoperability testing but must be identified as such. A stable specification release is created only by a signed or protected tag after this repository's normative-artifact, review, versioning, validation, and exact-commit CI gates pass. Reference-adapter conformance is downstream evidence for implementation claims and does not gate specification publication.
 
 A release-candidate tag is optional. An immutable commit is sufficient for CI and interoperability review. If maintainers publish a named release candidate, its protected or signed tag is recorded as `specification_release`, while the commit remains mandatory.
 

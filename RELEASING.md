@@ -18,10 +18,12 @@ for completing this checklist and preserving the release controls it requires.
 - Run the repository validation at that exact commit and confirm the required
   CI run for that commit is successful. A green run for a nearby commit is not
   sufficient.
-- For a release that claims adapter, dialect, transformation, or syntax-front
-  end support, collect the required adapter conformance and service-matrix
-  evidence for that same specification commit. Do not convert a
-  `release_candidate` claim into `released` before those gates pass.
+- Gate a specification release on its normative artifacts, review, versioning,
+  repository validation, and exact-commit CI. Adapter conformance and
+  service-matrix evidence are downstream: they gate only an implementation's
+  support or conformance claims and package releases against the exact
+  specification commit and, once published, its release identifier. They do not
+  gate specification publication.
 - Confirm the changelog, versioning impact, and release notes describe only
   the included specification changes.
 
@@ -47,6 +49,7 @@ for completing this checklist and preserving the release controls it requires.
   the intended full commit ID.
 - Verify the tag-triggered CI run is successful and that the release notes are
   visible from the repository release page.
-- Record any remaining future-release gates in the roadmap. Publishing a
-  specification release never completes pending adapter or service-matrix
-  evidence by itself.
+- Track implementation conformance and service-matrix work separately from
+  specification release gates. Publishing a specification does not assert
+  implementation conformance, and incomplete implementation evidence does not
+  block specification publication.
