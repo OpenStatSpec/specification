@@ -350,4 +350,6 @@ def test_source_root_inspection_failures_are_typed(
 ) -> None:
     def fail_exists(path: Path) -> bool:
         raise PermissionError("/respondents/confidential-root")
+
     monkeypatch.setattr(Path, "exists", fail_exists)
+    _assert_sanitized_io_error(lambda: DoltDeclarationSource.from_directory(tmp_path))
