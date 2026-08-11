@@ -353,3 +353,18 @@ def test_source_root_inspection_failures_are_typed(
 
     monkeypatch.setattr(Path, "exists", fail_exists)
     _assert_sanitized_io_error(lambda: DoltDeclarationSource.from_directory(tmp_path))
+
+def test_declaration_entry_symlink_inspection_failures_are_typed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    declaration_dir = tmp_path / "sql/dolt-adapter-declarations"
+    declaration_dir.mkdir(parents=True)
+    (declaration_dir / "entry.json").write_text("{}", encoding="utf-8")
+    source = DoltDeclarationSource.from_directory(tmp_path)
+    def fail_is_symlink(path: Path) -> bool:
+        if path.name == "entry.json":
+            raise PermissionError("/respondents/confidential-entry")
+        return False
+
+    monkeypatch.setattr(Path, "is_symlink", fail_is_symlink)
+    _assert_sanitized_io_error(source.declaration_resources)

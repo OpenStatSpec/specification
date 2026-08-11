@@ -184,6 +184,7 @@ class DoltDeclarationSource:
         for entry in declarations:
             try:
                 is_file = entry.is_file()
+                is_symlink = isinstance(entry, Path) and entry.is_symlink()
             except OSError as error:
                 raise self._resource_io_error(
                     "declaration file inspection", error,
@@ -193,7 +194,7 @@ class DoltDeclarationSource:
                     "A Dolt declaration JSON resource is not a regular file.",
                     code="declaration_not_file",
                 )
-            if isinstance(entry, Path) and entry.is_symlink():
+            if is_symlink:
                 raise DoltDeclarationError(
                     "A Dolt declaration JSON resource must not be a symlink.",
                     code="declaration_symlink",
