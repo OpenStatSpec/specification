@@ -344,3 +344,10 @@ def test_resource_path_inspection_failures_are_typed(
 
     monkeypatch.setattr(Path, "is_symlink", fail_is_symlink)
     _assert_sanitized_io_error(lambda: source.resource("sql/dialect-profile-baseline.json"))
+
+def test_source_root_inspection_failures_are_typed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_exists(path: Path) -> bool:
+        raise PermissionError("/respondents/confidential-root")
+    monkeypatch.setattr(Path, "exists", fail_exists)

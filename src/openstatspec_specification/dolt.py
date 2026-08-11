@@ -42,17 +42,23 @@ class DoltDeclarationSource:
     @classmethod
     def from_directory(cls, root: str | Path) -> "DoltDeclarationSource":
         path = Path(root)
-        if not path.exists() or not path.is_dir():
+        try:
+            exists = path.exists()
+            is_directory = path.is_dir()
+            is_symlink = path.is_symlink()
+            resolved = path.resolve()
+        except OSError as error:
+            raise cls._resource_io_error("source root inspection", error) from None
+        if not exists or not is_directory:
             raise DoltDeclarationError(
                 "Dolt declaration source directory does not exist: " + str(path),
                 code="source_directory_missing",
             )
-        if path.is_symlink():
+        if is_symlink:
             raise DoltDeclarationError(
                 "Dolt declaration source root must not be a symlink.",
                 code="source_root_symlink",
             )
-        resolved = path.resolve()
         return cls(root=resolved, filesystem_root=resolved)
 
     @staticmethod
