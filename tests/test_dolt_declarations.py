@@ -102,6 +102,16 @@ def test_declaration_directory_io_failures_are_typed_and_sanitized(
     _assert_sanitized_io_error(source.declaration_resources)
 
 
+def test_declaration_json_io_failures_are_typed_and_sanitized() -> None:
+    resource = _SyntheticTraversable(
+        failure_at="read_bytes",
+        error=OSError("/respondents/confidential.json"),
+    )
+    _assert_sanitized_io_error(
+        lambda: dolt_module._json_from_resource(resource, "Dolt declaration"),
+    )
+
+
 def test_directory_source_verifies_canonical_artifact_and_hash(tmp_path: Path) -> None:
     digest = _write_evidence(tmp_path)
     source = DoltDeclarationSource.from_directory(tmp_path)

@@ -1244,6 +1244,10 @@ def validate_dolt_declaration(
 def _json_from_resource(resource: Traversable, context: str) -> Any:
     try:
         return json.loads(resource.read_bytes().decode("utf-8"))
+    except OSError as error:
+        raise DoltDeclarationError(
+            context + " could not be read.", code="resource_io_error",
+        ) from None
     except UnicodeDecodeError as error:
         raise DoltDeclarationError(
             context + " is not UTF-8.", code="resource_not_utf8",
