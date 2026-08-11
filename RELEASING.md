@@ -7,6 +7,11 @@ or adapter conformance evidence.
 The repository release maintainer with repository-admin authority is responsible
 for completing this checklist and preserving the release controls it requires.
 
+The Python companion distribution is released separately from the specification.
+Package tags use the `package-vX.Y.Z` convention; specification tags use
+`vX.Y.Z`. A specification tag MUST NOT publish the package, and a package tag
+MUST match the version declared in `pyproject.toml`.
+
 ## Before preparing a release
 
 - Choose an exact reviewed commit on the appropriate branch and record its

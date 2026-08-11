@@ -16,60 +16,6 @@
       "exclusive_resolution_required": true
     }
   },
-  "server_version_policy": {
-    "reviewed_on": "2026-07-31",
-    "claim_scope": "maintained_release_series",
-    "ci_evidence": "exact_patch_version",
-    "reference_adapter_targets": {
-      "mysql": {
-        "claimed_release_series": [
-          "8.4.x",
-          "9.7.x"
-        ],
-        "exact_ci_target_versions": [
-          "8.4.11",
-          "9.7.2"
-        ],
-        "latest_stable_version": "9.7.2"
-      },
-      "mariadb": {
-        "claimed_release_series": [
-          "11.4.x",
-          "11.8.x",
-          "12.3.x"
-        ],
-        "exact_ci_target_versions": [
-          "11.4.12",
-          "11.8.8",
-          "12.3.2"
-        ],
-        "latest_stable_version": "12.3.2"
-      },
-      "postgresql": {
-        "claimed_release_series": [
-          "17.x",
-          "18.x"
-        ],
-        "exact_ci_target_versions": [
-          "17.10",
-          "18.4"
-        ],
-        "latest_stable_version": "18.4"
-      },
-      "dolt": {
-        "claimed_release_series": [
-          "2.2.x"
-        ],
-        "minimum_inclusive": "2.2.2",
-        "maximum_exclusive": "2.3.0",
-        "exact_ci_target_versions": [
-          "2.2.2",
-          "2.2.3"
-        ],
-        "latest_stable_version": "2.2.3"
-      }
-    }
-  },
   "profiles": {
     "sqlite": {
       "maximum_columns_default": 2000,
@@ -141,93 +87,1138 @@
       "failure_cleanup_required": true
     },
     "dolt": {
-      "engine": "dolt",
-      "transport": "mysql_compatible",
-      "identity": {
-        "required_probes": [
-          "@@version",
-          "@@version_comment",
-          "DOLT_VERSION()"
-        ],
-        "version_comment_normalized_equals": "dolt",
-        "signals_must_be_mutually_consistent": true,
-        "failure_policy": "fail_before_catalog_or_dataset_mutation"
+      "declaration_schema_id": "openstatspec-dolt-adapter-declaration-v1",
+      "declaration_kind": "symbolic_template",
+      "declaration_id": null,
+      "adapter_implementation_id": null,
+      "adapter_version": null,
+      "specification_commit": null,
+      "conformance_run_id": null,
+      "conformance_status": "pending",
+      "import_enabled": false,
+      "claimed_product_versions": [],
+      "tested_product_versions": [],
+      "active_product_version": null,
+      "active_product_version_evidence_id": null,
+      "evidence_records": [],
+      "version_declaration_contract": {
+        "concrete_claimed_versions": "nonempty_unique_canonical_exact_product_versions",
+        "concrete_tested_versions": "nonempty_unique_canonical_exact_subset_of_claimed",
+        "canonical_exact_product_version_pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$",
+        "trim_identical_required": true,
+        "active_product_version_source": "DOLT_VERSION()",
+        "active_product_version_membership": "tested_product_versions_with_applicable_evidence",
+        "claimed_but_untested_failure": "reject_before_mutation",
+        "membership_failure": "reject_before_mutation",
+        "placeholder_versions_forbidden": true
       },
-      "claimed_version_range": {
-        "minimum_inclusive": "2.2.2",
-        "maximum_exclusive": "2.3.0"
+      "concrete_adapter_declaration_contract": {
+        "declaration_kind": "concrete_adapter",
+        "conformance_status": "tested",
+        "import_enabled": true,
+        "applicable_layer_exact_versions": "nonempty_canonical_exact_subset_of_tested_product_versions",
+        "non_structural_limit_values": "positive_integers",
+        "effective_limit": "numeric_minimum_of_applicable_non_effective_layers",
+        "per_basis_column_relationship": "physical_columns_equals_source_variables_plus_one",
+        "structural_row_value": "positive_integer_or_structured_not_applicable_proof",
+        "structural_row_discriminator": "kind",
+        "boundary_case_evidence": "nonnull_measured_value_observed_equals_expected_nonempty_evidence_id_and_nonempty_canonical_exact_versions_subset_of_tested"
       },
-      "exact_ci_tested_versions": [
-        "2.2.2",
-        "2.2.3"
-      ],
-      "maximum_columns_default": 306,
-      "maximum_source_variables_default": 305,
+      "wire_protocol": "mysql",
+      "inherited_mysql_innodb_limits_forbidden": true,
+      "maximum_columns_default": null,
+      "maximum_columns_default_source": "No generic Dolt default; an exact-version evidenced value is required",
       "identifier_quoting": "backtick",
       "identifier_limit": {
-        "value": 64,
-        "unit": "bytes",
-        "source": "pinned live Dolt 2.2.2: 64-byte ASCII identifier succeeded and 65-byte identifier was rejected",
-        "repertoire": "ASCII-safe generated physical identifiers"
+        "value": null,
+        "unit": null,
+        "source": "Unestablished symbolic template; a concrete adapter declaration is required",
+        "repertoire": "adapter declaration required"
       },
       "catalog_namespace_modes": [
         "database"
       ],
-      "catalog_binding_policy": "dedicated_database",
       "numeric_type": "DOUBLE",
       "string_type": "LONGTEXT NOT NULL",
       "case_ordinal_type": "BIGINT NOT NULL PRIMARY KEY",
-      "maximum_row_bytes_default": 65504,
-      "limit_evidence": {
-        "maximum_physical_columns": {
-          "value": 306,
-          "unit": "columns",
-          "classification": "proposed_adapter_envelope",
-          "source": "306 and 307 physical columns both succeeded on pinned live Dolt 2.2.2; 306 including __case_ordinal is the conservative adapter envelope, not a native maximum"
-        },
-        "maximum_source_variables": {
-          "value": 305,
-          "unit": "variables",
-          "classification": "proposed_adapter_envelope",
-          "source": "derived from the conservative 306-physical-column adapter envelope with one column reserved for __case_ordinal"
-        },
-        "identifier_length": {
-          "value": 64,
-          "unit": "bytes",
-          "classification": "observed_exact_version",
-          "source": "64-byte ASCII identifier succeeded and 65-byte identifier was rejected on pinned live Dolt 2.2.2"
-        },
-        "maximum_row_size": {
-          "value": 65504,
-          "unit": "bytes",
-          "classification": "proposed_adapter_envelope",
-          "source": "conservative row preflight ceiling supported by an observed 65,504-byte UTF-8 LONGTEXT value round trip on pinned live Dolt 2.2.2; no native row-size maximum is claimed"
-        }
+      "product_identity": {
+        "version_comment_variable": "@@version_comment",
+        "version_comment_comparison": "trim_casefold_exact",
+        "version_comment_expected": "Dolt",
+        "product_version_function": "DOLT_VERSION()",
+        "product_version_must_be_nonempty": true,
+        "active_product_version_must_match": "tested_product_versions_with_applicable_evidence",
+        "claimed_but_untested_failure": "reject_before_mutation",
+        "raw_wire_version_variable": "@@version",
+        "raw_wire_version_recorded_separately": true,
+        "raw_wire_version_is_product_version": false,
+        "failure_mode": "reject_before_mutation"
       },
-      "storage_evidence": {
-        "binary64": {
-          "type": "DOUBLE",
-          "classification": "observed_exact_version",
-          "source": "maximum finite binary64 round-tripped exactly on pinned live Dolt 2.2.2"
+      "catalog_mutation_boundary": {
+        "catalog_install_migrate": "separate_operations",
+        "import_catalog_state": "verified",
+        "unverified_catalog_states": {
+          "absent": {
+            "mutations": "zero",
+            "diagnostic_persistence": "out_of_band_only"
+          },
+          "foreign": {
+            "mutations": "zero",
+            "diagnostic_persistence": "out_of_band_only"
+          },
+          "ambiguous": {
+            "mutations": "zero",
+            "diagnostic_persistence": "out_of_band_only"
+          }
         },
-        "text": {
-          "type": "LONGTEXT NOT NULL",
-          "observed_value_bytes": 65504,
-          "classification": "observed_exact_version",
-          "source": "65,504 UTF-8 bytes round-tripped exactly on pinned live Dolt 2.2.2"
-        }
+        "verified_preflight_failure": {
+          "persistence_required": true,
+          "diagnostic_persistence": "verified_catalog",
+          "permitted_mutations": [
+            "failed_operation",
+            "target_capability_exceeded_fidelity_event"
+          ],
+          "fidelity_event_dataset_id": null,
+          "dataset_row": "forbidden",
+          "physical_data_table": "forbidden"
+        },
+        "cleanup_failure_reverification": {
+          "required": true,
+          "verified": {
+            "operation_status": "failed",
+            "diagnostic_persistence": "verified_catalog",
+            "fidelity_event_code": "cleanup_failed",
+            "fidelity_event_severity": "error",
+            "permitted_mutations": [
+              "failed_operation",
+              "cleanup_failed_fidelity_event"
+            ]
+          },
+          "unverified_or_ambiguous": {
+            "diagnostic_persistence": "out_of_band_only",
+            "further_mutations": "zero"
+          }
+        },
+        "post_failure_verification": [
+          "catalog_relations",
+          "physical_data_table",
+          "residual_objects",
+          "dolt_status_diff",
+          "branch",
+          "commit_head"
+        ]
       },
-      "transactional_ddl": false,
-      "failure_cleanup_required": true,
-      "effective_limits_must_be_published": [
-        "maximum_physical_columns",
-        "maximum_source_variables",
-        "maximum_identifier_bytes",
-        "maximum_value_bytes",
-        "maximum_row_bytes",
-        "maximum_statement_bytes"
+      "transactional_ddl": "exact_product_version_evidence_required",
+      "ddl_atomicity_case": {
+        "id": "ddl_atomicity",
+        "measurement": "ddl_transaction_atomicity",
+        "unit": "transaction_behavior",
+        "measured_value": null,
+        "expected": "ddl_atomicity_behavior_recorded",
+        "observed": null,
+        "evidence_id": null,
+        "exact_versions": []
+      },
+      "repository_commit_is_sql_atomicity_boundary": false,
+      "version_control_mutations": "forbidden_without_separate_namespaced_extension",
+      "failure_cleanup_required_unless_atomicity_proven": true,
+      "cleanup_failure": {
+        "operation_status": "failed",
+        "success_status_forbidden": true,
+        "diagnostic_code": "cleanup_failed",
+        "catalog_reverification_required_before_persistence": true,
+        "verified_catalog_persistence": "fidelity_event",
+        "unverified_catalog_persistence": "out_of_band_only",
+        "detail_json_required_fields": [
+          "original_cause",
+          "cleanup_fault",
+          "residual_object_inventory",
+          "deterministic_recovery_evidence"
+        ],
+        "cleanup_fault_injection_required": true
+      },
+      "limit_bases": [
+        "theoretical_engine",
+        "live_observed_server",
+        "active_configuration",
+        "adapter_policy",
+        "adapter_envelope",
+        "effective"
       ],
-      "transformation_workflow": "unsupported"
+      "limit_declarations": {
+        "physical_columns": [
+          {
+            "value": null,
+            "unit": "columns",
+            "scope": "one physical data table including __case_ordinal",
+            "basis": "theoretical_engine",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "columns",
+            "scope": "one physical data table including __case_ordinal",
+            "basis": "live_observed_server",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "columns",
+            "scope": "one physical data table including __case_ordinal",
+            "basis": "active_configuration",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": "N_plus_1",
+            "unit": "columns",
+            "scope": "one physical data table including __case_ordinal",
+            "basis": "adapter_policy",
+            "evidence": [
+              "template_adapter_policy"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "N_plus_1",
+            "unit": "columns",
+            "scope": "one physical data table including __case_ordinal",
+            "basis": "adapter_envelope",
+            "evidence": [
+              "template_boundary_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "N_plus_1",
+            "unit": "columns",
+            "scope": "one physical data table including __case_ordinal",
+            "basis": "effective",
+            "evidence": [
+              "template_effective_rule"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          }
+        ],
+        "source_variables": [
+          {
+            "value": null,
+            "unit": "variables",
+            "scope": "source variables excluding __case_ordinal",
+            "basis": "theoretical_engine",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "variables",
+            "scope": "source variables excluding __case_ordinal",
+            "basis": "live_observed_server",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "variables",
+            "scope": "source variables excluding __case_ordinal",
+            "basis": "active_configuration",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": "N",
+            "unit": "variables",
+            "scope": "source variables excluding __case_ordinal",
+            "basis": "adapter_policy",
+            "evidence": [
+              "template_adapter_policy"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "N",
+            "unit": "variables",
+            "scope": "source variables excluding __case_ordinal",
+            "basis": "adapter_envelope",
+            "evidence": [
+              "template_boundary_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "N",
+            "unit": "variables",
+            "scope": "source variables excluding __case_ordinal",
+            "basis": "effective",
+            "evidence": [
+              "template_effective_rule"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          }
+        ],
+        "identifier": [
+          {
+            "value": null,
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "final generated physical identifier after normalization",
+            "basis": "theoretical_engine",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "final generated physical identifier after normalization",
+            "basis": "live_observed_server",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "final generated physical identifier after normalization",
+            "basis": "active_configuration",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": "L",
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "final generated physical identifier after normalization",
+            "basis": "adapter_policy",
+            "evidence": [
+              "template_adapter_policy"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "L",
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "final generated physical identifier after normalization",
+            "basis": "adapter_envelope",
+            "evidence": [
+              "template_boundary_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "L",
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "final generated physical identifier after normalization",
+            "basis": "effective",
+            "evidence": [
+              "template_effective_rule"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          }
+        ],
+        "value": [
+          {
+            "value": null,
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "one encoded LONGTEXT value",
+            "basis": "theoretical_engine",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "one encoded LONGTEXT value",
+            "basis": "live_observed_server",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "one encoded LONGTEXT value",
+            "basis": "active_configuration",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": "V",
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "one encoded LONGTEXT value",
+            "basis": "adapter_policy",
+            "evidence": [
+              "template_adapter_policy"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "V",
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "one encoded LONGTEXT value",
+            "basis": "adapter_envelope",
+            "evidence": [
+              "template_boundary_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "V",
+            "unit": "adapter_declared_bytes_or_characters",
+            "scope": "one encoded LONGTEXT value",
+            "basis": "effective",
+            "evidence": [
+              "template_effective_rule"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          }
+        ],
+        "structural_row": [
+          {
+            "value": null,
+            "unit": "adapter_declared_engine_native_unit",
+            "scope": "one complete physical row independent of a single value",
+            "basis": "theoretical_engine",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "adapter_declared_engine_native_unit",
+            "scope": "one complete physical row independent of a single value",
+            "basis": "live_observed_server",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "adapter_declared_engine_native_unit",
+            "scope": "one complete physical row independent of a single value",
+            "basis": "active_configuration",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": "R",
+            "unit": "adapter_declared_engine_native_unit",
+            "scope": "one complete physical row independent of a single value",
+            "basis": "adapter_policy",
+            "evidence": [
+              "template_adapter_policy"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "R",
+            "unit": "adapter_declared_engine_native_unit",
+            "scope": "one complete physical row independent of a single value",
+            "basis": "adapter_envelope",
+            "evidence": [
+              "template_boundary_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "R",
+            "unit": "adapter_declared_engine_native_unit",
+            "scope": "one complete physical row independent of a single value",
+            "basis": "effective",
+            "evidence": [
+              "template_effective_rule"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          }
+        ],
+        "emitted_statement": [
+          {
+            "value": null,
+            "unit": "bytes",
+            "scope": "one encoded SQL statement or batch, not total dataset bytes",
+            "basis": "theoretical_engine",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "bytes",
+            "scope": "one encoded SQL statement or batch, not total dataset bytes",
+            "basis": "live_observed_server",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": null,
+            "unit": "bytes",
+            "scope": "one encoded SQL statement or batch, not total dataset bytes",
+            "basis": "active_configuration",
+            "evidence": [
+              "template_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": false
+          },
+          {
+            "value": "S",
+            "unit": "bytes",
+            "scope": "one encoded SQL statement or batch, not total dataset bytes",
+            "basis": "adapter_policy",
+            "evidence": [
+              "template_adapter_policy"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "S",
+            "unit": "bytes",
+            "scope": "one encoded SQL statement or batch, not total dataset bytes",
+            "basis": "adapter_envelope",
+            "evidence": [
+              "template_boundary_requirement"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          },
+          {
+            "value": "S",
+            "unit": "bytes",
+            "scope": "one encoded SQL statement or batch, not total dataset bytes",
+            "basis": "effective",
+            "evidence": [
+              "template_effective_rule"
+            ],
+            "exact_versions": [],
+            "applicable": true
+          }
+        ]
+      },
+      "column_limit_relationship": "each_applicable_basis_physical_columns_equals_source_variables_plus_one",
+      "effective_limit_rule": "concrete_numeric_minimum_of_all_applicable_non_effective_layers",
+      "dataset_total_is_emitted_statement_limit": false,
+      "boundary_conformance": {
+        "status": "pending_template",
+        "case_evidence_contract": {
+          "template_measured_value": null,
+          "template_observed": null,
+          "template_evidence_id": null,
+          "template_exact_versions": [],
+          "concrete_measured_value": "required_nonnull_machine_readable_value",
+          "concrete_observed": "required_machine_readable_value_equal_to_expected",
+          "concrete_evidence_id": "required_nonempty_string",
+          "concrete_exact_versions": "nonempty_canonical_exact_subset_of_tested_product_versions"
+        },
+        "identifier_cases": [
+          {
+            "id": "L_minus_1",
+            "measurement": "final_physical_identifier_length",
+            "unit": "declared_identifier_unit",
+            "measured_value": null,
+            "expected": "accept_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "L",
+            "measurement": "final_physical_identifier_length",
+            "unit": "declared_identifier_unit",
+            "measured_value": null,
+            "expected": "accept_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "L_plus_1",
+            "measurement": "final_physical_identifier_length",
+            "unit": "declared_identifier_unit",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "multibyte_unit_measurement",
+            "measurement": "final_physical_identifier_length",
+            "unit": "declared_identifier_unit",
+            "measured_value": null,
+            "expected": "declared_unit_proved",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "embedded_backtick",
+            "measurement": "source_and_physical_name",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_escaped_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "reserved_sql_word",
+            "measurement": "source_and_physical_name",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_quoted_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "reserved_double_underscore_prefix",
+            "measurement": "source_and_physical_name",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_with_nonreserved_physical_name",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "truncation_collision",
+            "measurement": "final_physical_names",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_with_distinct_names_and_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "casefold_collision",
+            "measurement": "final_physical_names",
+            "unit": "active_identifier_comparison",
+            "measured_value": null,
+            "expected": "accept_with_distinct_names_and_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "collation_collision",
+            "measurement": "final_physical_names",
+            "unit": "active_collation",
+            "measured_value": null,
+            "expected": "accept_with_distinct_names_and_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "physical_name_uniqueness",
+            "measurement": "final_physical_names",
+            "unit": "active_identifier_comparison",
+            "measured_value": null,
+            "expected": "all_unique",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          }
+        ],
+        "column_cases": [
+          {
+            "id": "source_N",
+            "measurement": "source_variable_count",
+            "unit": "variables",
+            "measured_value": null,
+            "expected": "accept",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "source_N_plus_1",
+            "measurement": "source_variable_count",
+            "unit": "variables",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "physical_N_plus_1",
+            "measurement": "physical_column_count_including_case_ordinal",
+            "unit": "columns",
+            "measured_value": null,
+            "expected": "accept",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "physical_N_plus_2",
+            "measurement": "physical_column_count_including_case_ordinal",
+            "unit": "columns",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          }
+        ],
+        "longtext_cases": [
+          {
+            "id": "schema_LONGTEXT",
+            "measurement": "catalog_introspection_type",
+            "unit": "sql_type",
+            "measured_value": null,
+            "expected": "equals_LONGTEXT",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "schema_NOT_NULL",
+            "measurement": "catalog_introspection_nullability",
+            "unit": "sql_nullability",
+            "measured_value": null,
+            "expected": "equals_NOT_NULL",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "empty_string",
+            "measurement": "encoded_value",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_byte_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "sql_null",
+            "measurement": "stored_value",
+            "unit": "sql_null",
+            "measured_value": null,
+            "expected": "reject",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "utf8_byte_exact_equality",
+            "measurement": "encoded_value",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_byte_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "encoded_65535_bytes",
+            "measurement": "encoded_value",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_byte_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "encoded_65536_bytes",
+            "measurement": "encoded_value",
+            "unit": "utf8_bytes",
+            "measured_value": null,
+            "expected": "accept_byte_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "V_minus_1",
+            "measurement": "encoded_value",
+            "unit": "declared_value_unit",
+            "measured_value": null,
+            "expected": "accept_byte_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "V",
+            "measurement": "encoded_value",
+            "unit": "declared_value_unit",
+            "measured_value": null,
+            "expected": "accept_byte_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "V_plus_1",
+            "measurement": "encoded_value",
+            "unit": "declared_value_unit",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          }
+        ],
+        "double_cases": [
+          {
+            "id": "positive_zero",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "negative_zero",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "minimum_positive_subnormal",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "maximum_subnormal",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "minimum_normal",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "maximum_finite",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "ordinary_positive_finite",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "ordinary_negative_finite",
+            "measurement": "ieee_754_binary64",
+            "unit": "64_bit_pattern",
+            "measured_value": null,
+            "expected": "accept_bit_exact_round_trip",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "spss_system_missing",
+            "measurement": "semantic_missing_value",
+            "unit": "sql_null_mapping",
+            "measured_value": null,
+            "expected": "accept_semantic_round_trip_via_sql_null",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          }
+        ],
+        "double_exceptional_cases": [
+          {
+            "id": "nan",
+            "policy": "reject",
+            "measurement": "ieee_754_binary64_exceptional_class",
+            "unit": "exceptional_class",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "positive_infinity",
+            "policy": "reject",
+            "measurement": "ieee_754_binary64_exceptional_class",
+            "unit": "exceptional_class",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "negative_infinity",
+            "policy": "reject",
+            "measurement": "ieee_754_binary64_exceptional_class",
+            "unit": "exceptional_class",
+            "measured_value": null,
+            "expected": "reject_before_mutation",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          }
+        ],
+        "system_missing_collision_policy": "system_missing_uses_sql_null_and_exceptional_classes_are_rejected",
+        "structural_row_cases": {
+          "variant_schema": {
+            "discriminator": "kind",
+            "allowed_kinds": [
+              "numeric_boundary",
+              "not_applicable_proof"
+            ],
+            "numeric_boundary_case_ids": [
+              "R_minus_1",
+              "R",
+              "R_plus_1"
+            ],
+            "not_applicable_required_fields": [
+              "kind",
+              "reason",
+              "inspected_structures",
+              "measurement",
+              "unit",
+              "measured_value",
+              "expected",
+              "observed",
+              "evidence_id",
+              "exact_versions"
+            ]
+          },
+          "selected_variant": null
+        },
+        "statement_cases": [
+          {
+            "id": "S_minus_1",
+            "measurement": "encoded_statement_or_batch",
+            "unit": "bytes",
+            "measured_value": null,
+            "expected": "accept",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "S",
+            "measurement": "encoded_statement_or_batch",
+            "unit": "bytes",
+            "measured_value": null,
+            "expected": "accept",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "S_plus_1",
+            "measurement": "encoded_statement_or_batch",
+            "unit": "bytes",
+            "measured_value": null,
+            "expected": "reject_or_split_before_emit",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          },
+          {
+            "id": "multi_batch_dataset",
+            "measurement": "dataset_total_and_each_emitted_batch",
+            "unit": "bytes",
+            "measured_value": null,
+            "expected": "accept_when_every_batch_at_most_S",
+            "observed": null,
+            "evidence_id": null,
+            "exact_versions": []
+          }
+        ],
+        "fault_conformance": {
+          "diagnostic_code": "cleanup_failed",
+          "injection_inventory": [],
+          "fault_cases": [
+            {
+              "id": "mutation_fault_cleanup_succeeds",
+              "measurement": "after_each_catalog_and_data_ddl_dml_mutation",
+              "unit": "fault_injection_point",
+              "measured_value": null,
+              "expected": "operation_failed_zero_residuals",
+              "observed": null,
+              "evidence_id": null,
+              "exact_versions": []
+            },
+            {
+              "id": "compensating_cleanup_fault",
+              "measurement": "during_compensating_cleanup",
+              "unit": "fault_injection_point",
+              "measured_value": null,
+              "expected": "operation_failed_cleanup_failed_diagnostic_with_residual_inventory",
+              "observed": null,
+              "evidence_id": null,
+              "exact_versions": []
+            }
+          ],
+          "verification": [
+            "catalog_relations",
+            "physical_data_table",
+            "residual_objects",
+            "dolt_status_diff",
+            "branch",
+            "commit_head"
+          ],
+          "cleanup_failed_detail_json_required_fields": [
+            "original_cause",
+            "cleanup_fault",
+            "residual_object_inventory",
+            "deterministic_recovery_evidence"
+          ],
+          "success_status_forbidden_on_cleanup_failure": true
+        }
+      }
+    }
+  },
+  "server_version_policy": {
+    "reviewed_on": "2026-07-31",
+    "claim_scope": "maintained_release_series",
+    "ci_evidence": "exact_patch_version",
+    "reference_adapter_targets": {
+      "mysql": {
+        "claimed_release_series": [
+          "8.4.x",
+          "9.7.x"
+        ],
+        "exact_ci_target_versions": [
+          "8.4.11",
+          "9.7.2"
+        ],
+        "latest_stable_version": "9.7.2"
+      },
+      "mariadb": {
+        "claimed_release_series": [
+          "11.4.x",
+          "11.8.x",
+          "12.3.x"
+        ],
+        "exact_ci_target_versions": [
+          "11.4.12",
+          "11.8.8",
+          "12.3.2"
+        ],
+        "latest_stable_version": "12.3.2"
+      },
+      "postgresql": {
+        "claimed_release_series": [
+          "17.x",
+          "18.x"
+        ],
+        "exact_ci_target_versions": [
+          "17.10",
+          "18.4"
+        ],
+        "latest_stable_version": "18.4"
+      },
+      "dolt": {
+        "claimed_release_series": [
+          "2.2.x"
+        ],
+        "minimum_inclusive": "2.2.2",
+        "maximum_exclusive": "2.3.0",
+        "exact_ci_target_versions": [
+          "2.2.2",
+          "2.2.3"
+        ],
+        "latest_stable_version": "2.2.3"
+      }
     }
   }
 }
