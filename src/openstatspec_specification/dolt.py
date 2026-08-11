@@ -109,6 +109,13 @@ class DoltDeclarationSource:
             code="resource_io_error",
         )
 
+    def is_directory(self, relative_path: str) -> bool:
+        resource = self.resource(relative_path)
+        try:
+            return resource.is_dir()
+        except OSError as error:
+            raise self._resource_io_error("directory inspection", error) from None
+
     def read_bytes(self, relative_path: str) -> bytes:
         resource = self.resource(relative_path)
         try:
@@ -480,8 +487,10 @@ def validate_dolt_declaration(
     evidence_id_pattern = re.compile(r"^[a-z0-9][a-z0-9._:-]*$")
     evidence_artifact_root = "sql/dolt-adapter-declarations/evidence"
     if concrete_declaration:
-        evidence_root = declaration_source.resource(evidence_artifact_root)
-        require(evidence_root.is_dir(), "Dolt evidence artifact root is missing.")
+        require(
+            declaration_source.is_directory(evidence_artifact_root),
+            "Dolt evidence artifact root is missing.",
+        )
     for index, evidence_record in enumerate(evidence_records):
         evidence_context = f"Dolt evidence_records[{index}]"
         require(isinstance(evidence_record, dict), f"{evidence_context} must be an object.")
@@ -1157,6 +1166,7 @@ def validate_dolt_declaration(
                 require(structural_record["value"]["inspected_structures"] == selected_structural["inspected_structures"], f"Dolt structural N/A {structural_record['basis']} inspected structures differ from the selected proof.")
 
     fault = boundary["fault_conformance"]
+    require(isinstance(fault, dict), "Dolt fault-conformance declaration must be an object.")
     require(
         set(fault) == {
             "diagnostic_code",

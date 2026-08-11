@@ -86,6 +86,18 @@ def test_resource_file_io_failures_are_typed_and_sanitized(
     )
 
 
+def test_evidence_directory_io_failures_are_typed_and_sanitized() -> None:
+    source = DoltDeclarationSource(
+        root=_SyntheticTraversable(
+            failure_at="is_dir",
+            error=PermissionError("/respondents/confidential-evidence"),
+        ),
+    )
+    _assert_sanitized_io_error(
+        lambda: source.is_directory("sql/dolt-adapter-declarations/evidence"),
+    )
+
+
 @pytest.mark.parametrize(
     ("boundary", "error"),
     [
@@ -180,6 +192,22 @@ def test_packaged_source_reads_authoritative_resources_from_zip(
 def test_directory_root_loads_authoritative_empty_declaration_set() -> None:
     source = DoltDeclarationSource.from_directory(REPOSITORY_ROOT)
     assert load_validated_dolt_declarations(source) == ()
+
+
+def test_malformed_fault_conformance_is_typed() -> None:
+    baseline = json.loads(
+        (REPOSITORY_ROOT / "sql/dialect-profile-baseline.json").read_text(
+            encoding="utf-8"
+        )
+    )["profiles"]["dolt"]
+    declaration = copy.deepcopy(baseline)
+    declaration["boundary_conformance"]["fault_conformance"] = None
+    with pytest.raises(DoltDeclarationError, match="fault-conformance"):
+        validate_dolt_declaration(
+            declaration,
+            "synthetic malformed fault declaration",
+            source=DoltDeclarationSource.from_directory(REPOSITORY_ROOT),
+        )
 
 
 def test_malformed_boundary_conformance_is_typed() -> None:

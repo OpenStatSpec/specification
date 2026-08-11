@@ -3,7 +3,7 @@ name: Publish Python specification package
 on:
   push:
     tags:
-      - "v*"
+      - "package-v*"
   workflow_dispatch:
 
 permissions:
@@ -38,7 +38,7 @@ jobs:
         run: python -m twine check dist/*
 
       - name: Verify release tag version
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/package-v')
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
@@ -50,9 +50,9 @@ jobs:
           project = tomllib.loads(Path("pyproject.toml").read_text())
           version = project["project"]["version"]
           tag = os.environ["RELEASE_TAG"]
-          if tag != f"v{version}":
+          if tag != f"package-v{version}":
               raise SystemExit(
-                  f"release tag {tag!r} does not match project version v{version}"
+                  f"release tag {tag!r} does not match project version package-v{version}"
               )
           PY
 
@@ -88,7 +88,7 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/package-v')
     needs: build
     runs-on: ubuntu-latest
     environment:
