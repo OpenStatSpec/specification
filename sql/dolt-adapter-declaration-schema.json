@@ -17,9 +17,9 @@
   ],
   "required_top_level_fields": [
     "active_product_version",
+    "active_product_version_evidence_id",
     "adapter_implementation_id",
     "adapter_version",
-    "active_product_version_evidence_id",
     "boundary_conformance",
     "case_ordinal_type",
     "catalog_mutation_boundary",
