@@ -504,6 +504,7 @@ def validate_dolt_declaration(
         require(evidence_id not in evidence_by_id, f"{evidence_context}.evidence_id is duplicated.")
         if concrete_declaration:
             require(not is_template_placeholder(evidence_id), f"{evidence_context}.evidence_id retains a template placeholder.")
+        require(isinstance(evidence_record["kind"], str), f"{evidence_context}.kind must be a string.")
         require(
             evidence_record["kind"] in {"product_identity", "limit", "boundary", "fault", "ddl_atomicity", "structural"},
             f"{evidence_context}.kind is invalid.",

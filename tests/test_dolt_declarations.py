@@ -239,6 +239,30 @@ def test_malformed_declaration_kind_is_typed(malformed_kind: object) -> None:
             source=DoltDeclarationSource.from_directory(REPOSITORY_ROOT),
         )
 
+@pytest.mark.parametrize("malformed_kind", [[], {}])
+def test_malformed_evidence_kind_is_typed(malformed_kind: object) -> None:
+    baseline = json.loads(
+        (REPOSITORY_ROOT / "sql/dialect-profile-baseline.json").read_text(
+            encoding="utf-8"
+        )
+    )["profiles"]["dolt"]
+    declaration = copy.deepcopy(baseline)
+    declaration["evidence_records"] = [{
+        "evidence_id": "synthetic",
+        "kind": malformed_kind,
+        "exact_versions": [],
+        "artifact_ref": "template",
+        "artifact_sha256": "0" * 64,
+        "measurement": "template",
+        "observed": "template",
+    }]
+    with pytest.raises(DoltDeclarationError, match="kind must be a string"):
+        validate_dolt_declaration(
+            declaration,
+            "synthetic malformed evidence kind declaration",
+            source=DoltDeclarationSource.from_directory(REPOSITORY_ROOT),
+        )
+
 
 def test_malformed_boundary_conformance_is_typed() -> None:
     baseline = json.loads(
