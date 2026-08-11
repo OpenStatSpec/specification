@@ -182,6 +182,22 @@ def test_directory_root_loads_authoritative_empty_declaration_set() -> None:
     assert load_validated_dolt_declarations(source) == ()
 
 
+def test_malformed_boundary_conformance_is_typed() -> None:
+    baseline = json.loads(
+        (REPOSITORY_ROOT / "sql/dialect-profile-baseline.json").read_text(
+            encoding="utf-8"
+        )
+    )["profiles"]["dolt"]
+    declaration = copy.deepcopy(baseline)
+    declaration["boundary_conformance"] = None
+    with pytest.raises(DoltDeclarationError, match="boundary-conformance"):
+        validate_dolt_declaration(
+            declaration,
+            "synthetic malformed declaration",
+            source=DoltDeclarationSource.from_directory(REPOSITORY_ROOT),
+        )
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [

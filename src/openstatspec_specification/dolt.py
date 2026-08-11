@@ -857,6 +857,7 @@ def validate_dolt_declaration(
     require(dolt["dataset_total_is_emitted_statement_limit"] is False, "Dataset total must not be a statement limit.")
 
     boundary = dolt["boundary_conformance"]
+    require(isinstance(boundary, dict), "Dolt boundary-conformance declaration must be an object.")
     require(
         set(boundary) == {
             "status",
