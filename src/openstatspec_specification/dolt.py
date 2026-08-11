@@ -1295,6 +1295,11 @@ def load_validated_dolt_declarations(
     profiles = baseline.get("profiles")
     require(isinstance(profiles, dict), "SQL dialect profiles are missing.")
     symbolic = profiles.get("dolt")
+    require(
+        isinstance(symbolic, dict)
+        and symbolic.get("declaration_kind") == "symbolic_template",
+        "Dolt repository baseline must remain a symbolic template.",
+    )
     validate_dolt_declaration(
         symbolic, "Dolt symbolic baseline", source=declaration_source,
     )

@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -187,6 +188,18 @@ def test_packaged_source_reads_authoritative_resources_from_zip(
     monkeypatch.setattr(dolt_module.resources, "files", lambda package: zipped_root)
     source = DoltDeclarationSource.packaged()
     assert load_validated_dolt_declarations(source) == ()
+
+
+def test_repository_baseline_must_remain_symbolic(tmp_path: Path) -> None:
+    shutil.copytree(REPOSITORY_ROOT / "sql", tmp_path / "sql")
+    baseline_path = tmp_path / "sql/dialect-profile-baseline.json"
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    baseline["profiles"]["dolt"]["declaration_kind"] = "concrete_adapter"
+    baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
+    with pytest.raises(DoltDeclarationError, match="symbolic template"):
+        load_validated_dolt_declarations(
+            DoltDeclarationSource.from_directory(tmp_path),
+        )
 
 
 def test_directory_root_loads_authoritative_empty_declaration_set() -> None:
