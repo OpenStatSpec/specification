@@ -406,6 +406,7 @@ def validate_dolt_declaration(
 
     require(dolt["declaration_schema_id"] == "openstatspec-dolt-adapter-declaration-v1", "Unexpected Dolt declaration schema.")
     declaration_kind = dolt["declaration_kind"]
+    require(isinstance(declaration_kind, str), "Dolt declaration kind must be a string.")
     require(declaration_kind in {"symbolic_template", "concrete_adapter"}, "Unexpected Dolt declaration kind.")
     exact_version_pattern = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$")
     adapter_version_pattern = re.compile(
@@ -823,6 +824,20 @@ def validate_dolt_declaration(
                 require(
                     all(isinstance(value, int) and not isinstance(value, bool) and value > 0 for value in applicable_values),
                     f"Dolt {name} concrete applicable values must be positive integers.",
+                )
+                applicable_units = {
+                    record["unit"]
+                    for record in records
+                    if record["applicable"] and record["basis"] != "effective"
+                }
+                require(
+                    len(applicable_units) == 1,
+                    f"Dolt {name} applicable limit layers must use one common unit.",
+                )
+                common_unit = next(iter(applicable_units))
+                require(
+                    by_basis["effective"]["unit"] == common_unit,
+                    f"Dolt {name} effective limit unit must match applicable layers.",
                 )
                 require(
                     by_basis["effective"]["value"] == min(applicable_values),

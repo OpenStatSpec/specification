@@ -210,6 +210,23 @@ def test_malformed_fault_conformance_is_typed() -> None:
         )
 
 
+@pytest.mark.parametrize("malformed_kind", [[], {}])
+def test_malformed_declaration_kind_is_typed(malformed_kind: object) -> None:
+    baseline = json.loads(
+        (REPOSITORY_ROOT / "sql/dialect-profile-baseline.json").read_text(
+            encoding="utf-8"
+        )
+    )["profiles"]["dolt"]
+    declaration = copy.deepcopy(baseline)
+    declaration["declaration_kind"] = malformed_kind
+    with pytest.raises(DoltDeclarationError, match="declaration kind"):
+        validate_dolt_declaration(
+            declaration,
+            "synthetic malformed kind declaration",
+            source=DoltDeclarationSource.from_directory(REPOSITORY_ROOT),
+        )
+
+
 def test_malformed_boundary_conformance_is_typed() -> None:
     baseline = json.loads(
         (REPOSITORY_ROOT / "sql/dialect-profile-baseline.json").read_text(
