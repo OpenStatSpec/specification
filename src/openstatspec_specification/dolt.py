@@ -80,15 +80,20 @@ class DoltDeclarationSource:
         current: Traversable = self.root
         if self.filesystem_root is not None:
             candidate = self.filesystem_root
-            for part in parts:
-                candidate = candidate / part
-                if candidate.is_symlink():
-                    raise DoltDeclarationError(
-                        "Resource path traverses a symlink: " + relative_path,
-                        code="resource_symlink",
-                    )
             try:
-                candidate.resolve().relative_to(self.filesystem_root.resolve())
+                for part in parts:
+                    candidate = candidate / part
+                    if candidate.is_symlink():
+                        raise DoltDeclarationError(
+                            "Resource path traverses a symlink: " + relative_path,
+                            code="resource_symlink",
+                        )
+                resolved = candidate.resolve()
+                source_root = self.filesystem_root.resolve()
+            except OSError as error:
+                raise self._resource_io_error("resource path inspection", error) from None
+            try:
+                resolved.relative_to(source_root)
             except ValueError as error:
                 raise DoltDeclarationError(
                     "Resource path escapes its source root: " + relative_path,
@@ -598,6 +603,7 @@ def validate_dolt_declaration(
         require(identifier_limit["value"] is None and identifier_limit["unit"] is None, "The symbolic Dolt identifier limit must remain pending.")
     else:
         require(isinstance(identifier_limit["value"], int) and not isinstance(identifier_limit["value"], bool) and identifier_limit["value"] > 0, "Dolt concrete identifier_limit.value must be a positive integer.")
+        require(isinstance(identifier_limit["unit"], str), "Dolt concrete identifier_limit.unit must be a string.")
         require(identifier_limit["unit"] in {"bytes", "characters"}, "Dolt concrete identifier_limit.unit is not canonical.")
         require(all(token not in identifier_limit[field].casefold() for field in ("source", "repertoire") for token in ("template", "unestablished", "adapter declaration required")), "Dolt concrete identifier_limit retains template text.")
     require(dolt["catalog_namespace_modes"] == ["database"], "Unexpected Dolt catalog namespace mode.")
@@ -975,6 +981,7 @@ def validate_dolt_declaration(
         evidence_kind="ddl_atomicity",
     )
     if concrete_declaration:
+        require(isinstance(dolt["ddl_atomicity_case"]["measured_value"], str), "Dolt DDL atomicity measured value must be a string.")
         require(dolt["ddl_atomicity_case"]["measured_value"] in {"atomic", "non_atomic"}, "Dolt DDL atomicity measured value is invalid.")
 
     validate_boundary_cases(
@@ -1081,8 +1088,10 @@ def validate_dolt_declaration(
         require(selected_structural is None, "The pending Dolt template must not select structural evidence.")
     else:
         require(isinstance(selected_structural, dict), "A concrete Dolt declaration must select structural evidence.")
-        require(selected_structural.get("kind") in {"numeric_boundary", "not_applicable_proof"}, "Dolt structural-row kind is invalid.")
-        if selected_structural["kind"] == "numeric_boundary":
+        selected_kind = selected_structural.get("kind")
+        require(isinstance(selected_kind, str), "Dolt structural-row kind must be a string.")
+        require(selected_kind in {"numeric_boundary", "not_applicable_proof"}, "Dolt structural-row kind is invalid.")
+        if selected_kind == "numeric_boundary":
             require(set(selected_structural) == {"kind", "cases"}, "Dolt numeric structural-row variant fields are incomplete.")
             validate_boundary_cases(
                 selected_structural["cases"],
@@ -1208,6 +1217,7 @@ def validate_dolt_declaration(
         for index, item in enumerate(injection_inventory):
             inventory_context = f"Dolt fault injection inventory[{index}]"
             require(set(item) == {"injection_id", "phase", "mutation", "evidence_id", "exact_versions", "observed"}, f"{inventory_context} fields are incomplete.")
+            require(isinstance(item["phase"], str), f"{inventory_context}.phase must be a string.")
             require(item["phase"] in {"catalog_or_data_mutation", "compensating_cleanup"}, f"{inventory_context}.phase is invalid.")
             require_string(item["mutation"], inventory_context + ".mutation")
             inventory_evidence_id = require_string(item["evidence_id"], inventory_context + ".evidence_id")

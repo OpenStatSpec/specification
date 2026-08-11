@@ -333,3 +333,14 @@ def test_exact_selection_rejects_zero_and_multiple_matches() -> None:
             (duplicate, {**duplicate, "declaration_id": "two"}), **binding,
         )
     assert ambiguous.value.code == "dolt_declaration_ambiguous"
+
+def test_resource_path_inspection_failures_are_typed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path.resolve()
+    source = DoltDeclarationSource(root=root, filesystem_root=root)
+    def fail_is_symlink(path: Path) -> bool:
+        raise PermissionError("/respondents/confidential")
+
+    monkeypatch.setattr(Path, "is_symlink", fail_is_symlink)
+    _assert_sanitized_io_error(lambda: source.resource("sql/dialect-profile-baseline.json"))
