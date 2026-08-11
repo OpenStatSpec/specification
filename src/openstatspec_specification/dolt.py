@@ -1510,10 +1510,37 @@ def relation_snapshot_hash(schema_hash: str, rows: list[list[object]]) -> str:
     return canonical_hash(envelope)
 
 
+def require_well_formed_create_table_blocks(
+    schema: str,
+    context: str,
+) -> None:
+    matches = list(re.finditer(
+        r"(?m)^CREATE TABLE ([A-Za-z_][A-Za-z0-9_]*) \(", schema
+    ))
+    names = [match.group(1) for match in matches]
+    require(
+        len(names) == len(set(names)),
+        f"{context}: duplicate CREATE TABLE declaration.",
+    )
+    for index, match in enumerate(matches):
+        next_start = (
+            matches[index + 1].start()
+            if index + 1 < len(matches)
+            else len(schema)
+        )
+        terminator = schema.find(");", match.end())
+        require(
+            terminator != -1 and terminator < next_start,
+            f"{context}: CREATE TABLE {match.group(1)} is not terminated "
+            "before the next declaration.",
+        )
+
+
+
 def validate_transformation_profile() -> None:
     path = ROOT / "conformance/sql-transformation-workflow-0.1.json"
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    require(set(manifest) == {"manifest_version", "profile", "contract", "hash_profile", "canonicalization_cases", "fixtures", "cases"}, "Transformation manifest fields are incomplete.")
+    require(set(manifest) == {"manifest_version", "profile", "contract", "hash_profile", "canonicalization_cases", "fixtures", "cases", "recovery_cases"}, "Transformation manifest fields are incomplete.")
     require(manifest["manifest_version"] == "0.1", "Unexpected transformation manifest version.")
     require(manifest["profile"] == "OpenStatSpec SQL Transformation Workflow 0.1", "Unexpected transformation profile.")
     require(manifest["contract"] == "openstatspec-sql-transformation-workflow-v0.1", "Unexpected transformation contract.")
@@ -1647,6 +1674,41 @@ def validate_transformation_profile() -> None:
             require({"failed_run_retained", "no_derived_dataset", "no_published_output"} <= set(expected["invariants"]), f"{identifier}: failure atomicity invariants are incomplete.")
     require(identifiers == required_cases, "Transformation conformance case set is incomplete.")
 
+    recovery_cases = manifest["recovery_cases"]
+    require(isinstance(recovery_cases, list), "Transformation recovery cases must be an array.")
+    require(len(recovery_cases) == 2, "Transformation recovery case set is incomplete.")
+    recovery_fields = {
+        "id", "trigger", "initial_status", "staging_relation_key", "event",
+        "invariants", "terminal_status_after_reconciliation",
+    }
+    expected_recovery = {
+        "cleanup-failure-quarantines-staging": ("cleanup_failed", {"code": "cleanup_failed", "phase": "cleanup"}),
+        "crash-leaves-quarantined-staging": ("process_crash", None),
+    }
+    recovery_ids: set[str] = set()
+    required_recovery_invariants = {
+        "no_derived_dataset", "no_published_output",
+        "quarantined_staging_not_exposed",
+        "run_remains_started_while_staging_exists",
+        "reconciliation_required",
+        "remove_only_recorded_profile_owned_staging", "success_forbidden",
+    }
+    for recovery in recovery_cases:
+        require(isinstance(recovery, dict) and set(recovery) == recovery_fields, "Transformation recovery case fields are incomplete.")
+        identifier = require_string(recovery["id"], "transformation recovery case id")
+        require(identifier not in recovery_ids, f"Duplicate transformation recovery case: {identifier}")
+        recovery_ids.add(identifier)
+        require(identifier in expected_recovery, f"Unexpected transformation recovery case: {identifier}")
+        trigger, event = expected_recovery[identifier]
+        require(recovery["trigger"] == trigger, f"{identifier}: unexpected recovery trigger.")
+        require(recovery["event"] == event, f"{identifier}: unexpected recovery event.")
+        require(recovery["initial_status"] == "started", f"{identifier}: quarantined staging must keep the run started.")
+        require(recovery["terminal_status_after_reconciliation"] == "failed", f"{identifier}: reconciliation must terminate as failed.")
+        require_string(recovery["staging_relation_key"], f"{identifier}.staging_relation_key")
+        require(recovery["staging_relation_key"].startswith("sqlite:main.__openstatspec_staging_"), f"{identifier}: staging key is outside the profile-owned namespace.")
+        require(set(recovery["invariants"]) == required_recovery_invariants, f"{identifier}: recovery invariants are incomplete.")
+    require(recovery_ids == set(expected_recovery), "Transformation recovery case identifiers are incomplete.")
+
     fixture = fixture_map["core-respondents"]
     columns = fixture["schema"]["variables"]
     connection = sqlite3.connect(":memory:")
@@ -1686,6 +1748,15 @@ def validate_transformation_profile() -> None:
             require(all(item["expression_role"] in expression_roles for item in variable["lineage"]), f"{case['id']}: invalid expression_role.")
 
     schema = (ROOT / "sql/transformation-workflow-profile-schema.sql").read_text(encoding="utf-8")
+    require_well_formed_create_table_blocks(
+        schema, "SQL Transformation Workflow schema"
+    )
+    require_well_formed_create_table_blocks(
+        (ROOT / "sql/transformation-plan-profile-schema.sql").read_text(
+            encoding="utf-8"
+        ),
+        "Transformation Plan schema",
+    )
     require("CHECK (contract_id = 'openstatspec-sql-transformation-workflow-v0.1')" in schema, "Transformation profile identity is not enforced.")
     require("CHECK (core_contract_id = 'openstatspec-strict-wide-table-v1')" in schema, "Transformation profile does not bind the immutable core contract.")
     for field in ("output_schema_json", "deterministic_order_json", "physical_relation_key", "snapshot_hash_kind", "snapshot_hash_algorithm", "snapshot_hash_version", "content_hash_kind", "content_hash_algorithm", "content_hash_version"):
@@ -1703,6 +1774,8 @@ def validate_transformation_profile() -> None:
     for phrase in ("Lookup relations are forbidden", "openstatspec-relation-snapshot-v1", "openstatspec-parameter-set-v1", "openstatspec-input-set-v1", "physical_relation_key", "physical_removal_requested", "crash reconciler", "non_unique_order_key", "dialect-aware AST parser", "database MUST enforce an authorizer", "`transformation_id`, positive `version_number`", "stored `query_sql` MUST already equal", "non-collatable", "default is insufficient", "`input_alias`"):
         require(phrase in profile, f"Transformation profile requirement is missing: {phrase}")
     example = (ROOT / "examples/sql-transformation-workflow.md").read_text(encoding="utf-8")
+    for phrase in ("recoverable quarantined staging", "remain non-terminal `started`", "`succeeded`. An observed cleanup failure"):
+        require(phrase in profile, f"Transformation recovery requirement is missing: {phrase}")
     require("FROM parent" in example and ":minimum_age" in example, "Transformation example is incomplete.")
     require('"collation": null' in example and "respondent_id COLLATE BINARY" not in example, "PostgreSQL numeric order example has an invalid collation.")
     print(f"Validated 3 executable-success and {len(cases) - 3} structural-failure SQL workflow cases with {len(fixtures)} executable fixture.")
