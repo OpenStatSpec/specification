@@ -18,6 +18,17 @@ Until a protected or signed `v0.3.0` tag targets this work, implementations MUST
 - Added independent synthetic golden fixtures, hashes, examples, and repository
   validation gates for the new contracts.
 
+- Packaged the repository's Dolt declaration validator and authoritative SQL
+  resources as the `openstatspec-specification` companion distribution.
+- Bound every concrete Dolt declaration to a declaration ID, adapter
+  implementation and exact version, exact specification commit, and conformance
+  run ID; exact single-match selection is required before mutation.
+
+- Added a pending symbolic Dolt profile template and a separate concrete adapter
+  declaration schema/path and contract for tested active-version identity,
+  numeric limits, DDL atomicity, audit-safe cleanup failure, and machine-linked
+  boundary/fault evidence.
+
 ## v0.2.1 - 2026-08-04
 
 - Corrected the SPSS Syntax Frontend 0.1 schema's `$defs` and `$ref`
@@ -48,19 +59,9 @@ Until a protected or signed `v0.3.0` tag targets this work, implementations MUST
 - Added an explicitly unsupported Microsoft SQL Server dialect roadmap.
 - Prepared the initial specification release as `v0.1.0`.
 
-- Packaged the repository's Dolt declaration validator and authoritative SQL
-  resources as the `openstatspec-specification` companion distribution.
-- Bound every concrete Dolt declaration to a declaration ID, adapter
-  implementation and exact version, exact specification commit, and conformance
-  run ID; exact single-match selection is required before mutation.
-
 - Defined the strict one-source-dataset to one-wide-table relational contract.
 - Added the normative operation and fidelity-event model.
 - Added SQLite, PostgreSQL, and MySQL/MariaDB dialect capability profiles.
-- Added a pending symbolic Dolt profile template and a separate concrete adapter
-  declaration schema/path and contract for tested active-version identity,
-  numeric limits, DDL atomicity, audit-safe cleanup failure, and machine-linked
-  boundary/fault evidence.
 - Added generated CC0 SAV/ZSAV conformance fixtures and a machine-readable manifest.
 - Added Python and PHP reference-adapter conformance coverage.
 - Made the singular normative catalog the required source of truth for export.
