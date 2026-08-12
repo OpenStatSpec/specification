@@ -30,7 +30,7 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
   and fixtures.
 - [x] Define adapter conformance guidance; each adapter repository owns its runtime CI and evidence.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [x] Publish release notes and tagged specification releases; `v0.2.1` is the
+- [x] Publish release notes and tagged specification releases; `v0.3.0` is the
   current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
@@ -88,16 +88,15 @@ specification defines and publishes the contract first; implementation evidence
 follows and does not block specification publication.
 
 1. [x] Merged Transformation Plan and SPSS Frontend profile 0.2 as
-   unreleased, release-candidate work for the planned specification `v0.3.0`.
-2. [ ] Complete and review the normative `v0.3.0` documents, schemas,
+   unreleased, release-candidate work for specification `v0.3.0`.
+2. [x] Complete and review the normative `v0.3.0` documents, schemas,
    declarative fixtures, and hashes; select the exact release commit and pass
    this repository's validation and CI on that commit.
-3. [ ] After confirming release-tag signing or protection, create a signed or
-   protected `v0.3.0` tag on that commit, require its exact tag-context CI run
-   to pass, and follow the [release checklist](RELEASING.md) draft and control
-   verification before publishing the immutable release.
-   Until then claims use `release_candidate`, a null release identifier, and
-   the exact tested commit.
+3. [x] The protected `v0.3.0` tag points to commit
+   `cd8f198c68b849eb8ed018a894670a0904c2181d`; its exact tag-context
+   [CI run](https://github.com/OpenStatSpec/specification/actions/runs/31588389841)
+   passed, and the immutable [GitHub release](https://github.com/OpenStatSpec/specification/releases/tag/v0.3.0)
+   was published using the [release checklist](RELEASING.md).
 4. [ ] Have Python pin the exact specification commit and, once published,
    record its `v0.3.0` release identifier; rebase conditional transformations
    on the lifecycle implementation and pass the combined service and
