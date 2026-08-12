@@ -92,11 +92,11 @@ follows and does not block specification publication.
 2. [x] Complete and review the normative `v0.3.0` documents, schemas,
    declarative fixtures, and hashes; select the exact release commit and pass
    this repository's validation and CI on that commit.
-3. [x] After confirming release-tag signing or protection, create the protected
-   `v0.3.0` tag on commit
-   `cd8f198c68b849eb8ed018a894670a0904c2181d`, require its exact tag-context CI
-   run to pass, and publish the immutable release using the
-   [release checklist](RELEASING.md).
+3. [x] The protected `v0.3.0` tag points to commit
+   `cd8f198c68b849eb8ed018a894670a0904c2181d`; its exact tag-context
+   [CI run](https://github.com/OpenStatSpec/specification/actions/runs/31588389841)
+   passed, and the immutable [GitHub release](https://github.com/OpenStatSpec/specification/releases/tag/v0.3.0)
+   was published using the [release checklist](RELEASING.md).
 4. [ ] Have Python pin the exact specification commit and, once published,
    record its `v0.3.0` release identifier; rebase conditional transformations
    on the lifecycle implementation and pass the combined service and
