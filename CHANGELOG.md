@@ -2,9 +2,15 @@
 
 ## Unreleased
 
-Target stable specification release: `v0.3.0` (not published).
+Future changes will be listed here.
 
-Until a protected or signed `v0.3.0` tag targets this work, implementations MUST identify it with `specification_status: release_candidate`, `specification_release: null`, and the exact immutable specification commit. The entries below do not constitute a stable release.
+## v0.3.0 - 2026-08-12
+
+Release preparation for the planned stable `v0.3.0` tag. Until a protected or
+signed `v0.3.0` tag targets this exact release commit, implementations MUST
+identify it with `specification_status: release_candidate`,
+`specification_release: null`, and the exact immutable specification commit.
+The entries below become the stable release only when that tag exists.
 
 - Added backward-compatible Transformation Plan and SPSS Syntax Frontend 0.2
   contracts for sequential numeric `COMPUTE` and conditional `IF`, bounded
