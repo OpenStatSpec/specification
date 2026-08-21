@@ -30,7 +30,7 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
   and fixtures.
 - [x] Define adapter conformance guidance; each adapter repository owns its runtime CI and evidence.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [x] Publish release notes and tagged specification releases; `v0.4.0` is the
+- [x] Publish release notes and tagged specification releases; `v0.4.1` is the
   current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
@@ -127,6 +127,8 @@ follows and does not block specification publication.
 7. [x] Prepared specification `v0.4.0` release notes, stable profile status,
    exact artifact validation, and tag-context CI requirements; adapter claims
    remain downstream and are not implied by this release.
+8. [x] Published documentation patch release `v0.4.1` to align the frontend
+   roadmap with the stable Frontend 0.3 profile; no normative contract changed.
 
 The pending in-place service matrix and adapter conformance work in sections 6
 and 7 are downstream implementation gates. They do not block the `v0.4.0`

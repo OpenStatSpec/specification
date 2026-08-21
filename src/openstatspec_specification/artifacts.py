@@ -26,6 +26,7 @@ BINDING_MANIFESTS = {
 }
 V030_COMMIT = "cd8f198c68b849eb8ed018a894670a0904c2181d"
 V040_RELEASE = "v0.4.0"
+CURRENT_RELEASE = "v0.4.1"
 V030_PROFILE_DOCUMENTS = (
     "docs/transformation-plan-profile-0.2.md",
     "docs/spss-syntax-frontend-profile-0.2.md",
@@ -719,7 +720,7 @@ def validate_release_metadata(root: Path) -> None:
             f"{relative}: stale release status remains",
         )
     roadmap = " ".join(_load_text(root, "ROADMAP.md").split())
-    _require(f"`{V040_RELEASE}` is the" in roadmap, "ROADMAP release tag mismatch")
+    _require(f"`{CURRENT_RELEASE}` is the" in roadmap, "ROADMAP release tag mismatch")
     _require(
         "current public specification release and is immutable" in roadmap,
         "ROADMAP release status mismatch",
@@ -753,6 +754,11 @@ def validate_release_metadata(root: Path) -> None:
         f"## {V040_RELEASE} - 2026-08-21" in changelog
         and f"OpenStatSpec `{V040_RELEASE}` publishes SPSS Syntax Frontend 0.3" in changelog,
         "CHANGELOG v0.4.0 release entry is missing",
+    )
+    _require(
+        f"## {CURRENT_RELEASE} - 2026-08-21" in changelog
+        and f"OpenStatSpec `{CURRENT_RELEASE}` is a documentation and release-bookkeeping patch" in changelog,
+        "CHANGELOG v0.4.1 release entry is missing",
     )
     readme = " ".join(_load_text(root, "README.md").split())
     _require(
