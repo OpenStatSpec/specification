@@ -65,6 +65,24 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
   this does not block specification publication.
 - [ ] Evaluate additional language frontends as separate adapters that lower to
   the same canonical plan.
+- [ ] Expand the bounded SPSS frontend through the independently versioned
+  milestones in the [SPSS frontend roadmap](docs/spss-frontend-roadmap.md),
+  without creating a general SPSS compatibility claim.
+- [x] Complete the Frontend 0.3 specification candidate as a syntax-only
+   expansion over immutable Plan 0.1/0.2 after its schema, profile, 35 declared
+   cases, inherited compatibility, and repository validation are complete:
+   comments, dictionary-order variable lists, grouped supported forms, ordinary
+   not-equal/NOT predicates, open recode ranges, and additive value labels.
+- [ ] Define typed numeric expressions, deterministic numeric/date functions,
+  missing-value predicates and metadata, additional numeric/date formats, and
+  restricted conditional blocks in a new Plan/Frontend/In-Place Binding
+  generation.
+- [ ] Define string and physical-schema operations separately, with exact
+  add/rename/drop-column atomicity and rollback evidence for every claimed SQL
+  profile.
+- [ ] Keep case-count/order and group/cross-dataset operations in separate
+  profiles whose invariants do not weaken the current same-cases in-place
+  binding.
 
 ## 8. Microsoft SQL Server dialect
 
@@ -101,10 +119,8 @@ follows and does not block specification publication.
    record its `v0.3.0` release identifier; rebase conditional transformations
    on the lifecycle implementation and pass the combined service and
    conformance gates before making an adapter claim or package release.
-5. [ ] Have PHP pin the exact specification commit and, once published, record
-   its `v0.3.0` release identifier; migrate to the canonical transformation plan
-   and pass the relevant conformance cases before making an adapter claim or
-   package release.
+5. [ ] Have PHP pin the exact specification commit and pass applicable
+   conformance evidence before changing adapter or package-release claims.
 
 The pending in-place service matrix and adapter conformance work in sections 6
 and 7 are downstream implementation gates. They do not block the `v0.3.0`
