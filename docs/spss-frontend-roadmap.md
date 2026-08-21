@@ -3,18 +3,19 @@
 ## Status and boundary
 
 This roadmap describes intended work, not a compatibility claim or release-date
-promise. The current published boundary remains the exact bounded grammar in
-[SPSS Syntax Frontend 0.2](spss-syntax-frontend-profile-0.2.md). Every syntax
-form outside a claimed frontend contract must continue to fail closed.
+promise. The current published boundary includes the exact bounded grammar in
+[SPSS Syntax Frontend 0.3](spss-syntax-frontend-profile-0.3.md) and its
+backward-compatible 0.1/0.2 predecessor profiles. Every syntax form outside a
+claimed frontend contract must continue to fail closed.
 
 OpenStatSpec will expand the frontend in independently versioned stages. It will
 not advertise general IBM SPSS Statistics compatibility, forward source
 expressions into SQL, or weaken the same-dataset/same-table and caller-owned
 Dolt history rules.
 
-Frontend 0.3 is specification-complete as a release candidate. Adapter claims
-remain pending and separately gated; adapter evidence does not block
-specification publication.
+Frontend 0.3 is released in OpenStatSpec `v0.4.0`. Adapter claims remain
+pending and separately gated; adapter evidence does not block specification
+publication.
 
 ## Command classification
 
