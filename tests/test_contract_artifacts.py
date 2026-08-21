@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -38,6 +39,22 @@ def test_frontend_03_schema_changes_only_contract_identity() -> None:
         document.pop("title")
         document["properties"]["contract"].pop("const")
     assert new == old
+
+
+@pytest.mark.parametrize("artifact_type", ["directory", "fifo", "symlink"])
+def test_existing_frontend_03_manifest_artifact_type_fails_closed(
+    tmp_path: Path, artifact_type: str,
+) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/spss-syntax-frontend-0.3.json"
+    if artifact_type == "directory":
+        path.mkdir()
+    elif artifact_type == "fifo":
+        os.mkfifo(path)
+    else:
+        path.symlink_to(root / "conformance")
+    with pytest.raises(ArtifactValidationError, match="artifact"):
+        validate_contract_artifacts(root)
 
 
 def test_v030_profile_status_is_consistently_released() -> None:

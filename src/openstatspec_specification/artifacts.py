@@ -643,10 +643,18 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             "0.3": "../transformation/spss-syntax-frontend-0.3.schema.json",
         }[version]
         request_relative = _resolve_manifest_reference(manifest_relative, request_reference)
-        if version == "0.3" and not _safe_candidate(root, manifest_relative).is_file():
-            _schema(root, request_relative)
-            frontend_manifests[version] = {"cases": []}
-            continue
+        if version == "0.3":
+            manifest_path = _safe_candidate(root, manifest_relative)
+            try:
+                manifest_path.stat()
+            except FileNotFoundError:
+                _schema(root, request_relative)
+                frontend_manifests[version] = {"cases": []}
+                continue
+            except OSError as error:
+                raise ArtifactValidationError(
+                    f"artifact cannot be inspected: {manifest_relative} ({type(error).__name__})"
+                ) from None
         manifest = _load_manifest(root, manifest_relative, version, frontend_contracts[version])
         _require_exact_field(
             manifest.get("request_schema"),
