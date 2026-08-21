@@ -12,6 +12,10 @@ not advertise general IBM SPSS Statistics compatibility, forward source
 expressions into SQL, or weaken the same-dataset/same-table and caller-owned
 Dolt history rules.
 
+Frontend 0.3 is specification-complete as a release candidate. Adapter claims
+remain pending and separately gated; adapter evidence does not block
+specification publication.
+
 ## Command classification
 
 | Capability | Intended boundary | Reason |
@@ -30,6 +34,8 @@ Dolt history rules.
 
 ## Milestone 0: integrity and classification
 
+- [x] Specification-complete: Plan, Frontend, and In-Place schemas, manifests,
+  references, canonical bytes, and source/plan hashes are validated.
 - Add specification-owned validation for Plan, Frontend, and In-Place schemas,
   manifests, references, canonical bytes, and source/plan hashes.
 - Keep release status consistent across profile documents, roadmap, changelog,
@@ -37,8 +43,13 @@ Dolt history rules.
 - Classify every proposed command as frontend-only, new Plan/Binding work, a
   separate profile, or an explicit non-goal before accepting syntax.
 
+Adapter claims remain pending and separately gated; adapter evidence does not
+block specification publication.
+
 ## Milestone 1: Frontend 0.3 over Plan 0.1/0.2
 
+- [x] Specification-complete: the schema, profile, 35 declared cases,
+  inherited compatibility, and repository validation are present.
 Frontend 0.3 should add syntax depth without adding plan operations:
 
 - `COMMENT`, leading-star comments, and inline block comments;
@@ -54,6 +65,9 @@ Frontend 0.3 should add syntax depth without adding plan operations:
 The manifest must list only Plan 0.1 and Plan 0.2 outputs and prove that all
 inherited programs retain their exact prior plans and hashes. No SQL binding or
 executor change belongs in this milestone.
+
+Adapter claims remain pending and separately gated; adapter evidence does not
+block specification publication.
 
 ## Milestone 2: typed numeric expressions and metadata
 

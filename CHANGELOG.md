@@ -2,7 +2,14 @@
 
 ## Unreleased
 
-Future changes will be listed here.
+- SPSS Syntax Frontend 0.3 is a release candidate, not a published stable
+  claim.
+- Added comments, existing-variable `TO`, grouped supported forms, predicate
+  aliases and bounded `NOT`, open recode ranges, and additive value labels.
+- Frontend 0.3 emits only immutable Plan 0.1/0.2 objects and adds no SQL
+  binding operation.
+- Repository validation now covers all Plan/Frontend/Binding schemas,
+  manifests, references, and hashes.
 
 ## v0.3.0 - 2026-08-12
 

@@ -68,9 +68,11 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
 - [ ] Expand the bounded SPSS frontend through the independently versioned
   milestones in the [SPSS frontend roadmap](docs/spss-frontend-roadmap.md),
   without creating a general SPSS compatibility claim.
-- [ ] Publish Frontend 0.3 as syntax-only expansion over immutable Plan 0.1/0.2:
-  comments, dictionary-order variable lists, grouped supported forms, ordinary
-  not-equal/NOT predicates, open recode ranges, and additive value labels.
+- [x] Complete the Frontend 0.3 specification candidate as a syntax-only
+   expansion over immutable Plan 0.1/0.2 after its schema, profile, 35 declared
+   cases, inherited compatibility, and repository validation are complete:
+   comments, dictionary-order variable lists, grouped supported forms, ordinary
+   not-equal/NOT predicates, open recode ranges, and additive value labels.
 - [ ] Define typed numeric expressions, deterministic numeric/date functions,
   missing-value predicates and metadata, additional numeric/date formats, and
   restricted conditional blocks in a new Plan/Frontend/In-Place Binding

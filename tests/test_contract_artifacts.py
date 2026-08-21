@@ -65,6 +65,18 @@ def test_frontend_03_comment_and_varlist_case_inventory() -> None:
     assert inventory.frontend_effective_cases["0.3"] == 90
 
 
+def test_frontend_03_release_candidate_documentation_is_complete() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    roadmap = (ROOT / "ROADMAP.md").read_text(encoding="utf-8")
+    example = (ROOT / "examples/spss-syntax-transformation-0.3.md").read_text(encoding="utf-8")
+    assert "spss-syntax-frontend-0.3.schema.json" in readme
+    assert "SPSS Syntax Frontend 0.3" in changelog
+    assert "Frontend 0.3" in roadmap
+    assert "ADD VALUE LABELS" in example
+    assert "Plan 0.1/0.2" in example
+
+
 def test_inherited_manifest_path_escape_fails_closed(tmp_path: Path) -> None:
     root = copied_artifacts(tmp_path)
     path = root / "conformance/spss-syntax-frontend-0.3.json"

@@ -2,6 +2,10 @@
 
 ## Status and boundary
 
+Status: release candidate for the next OpenStatSpec minor release. This profile
+is not published stable until a protected or signed specification tag targets
+its exact reviewed commit and tag-context CI passes.
+
 This optional frontend profile maps a deliberately bounded SPSS-like command
 language to Transformation Plan 0.1 or 0.2. Its request contract is
 `openstatspec-spss-syntax-frontend-v0.3`. It is not full IBM SPSS Statistics
@@ -140,3 +144,19 @@ Conformance cases for this profile are published in
 [`../conformance/spss-syntax-frontend-0.3.json`](../conformance/spss-syntax-frontend-0.3.json).
 The manifest declares 35 Frontend 0.3 cases and expands to 90 effective cases
 after inherited cases and the two published comment supersessions are applied.
+
+## Adapter claim gate
+
+An adapter claim for this profile MUST satisfy every gate below:
+
+1. Pin the exact future specification release commit.
+2. Accept only the exact Frontend 0.3 request contract for this suite.
+3. Run all 90 effective Frontend 0.3 cases.
+4. Preserve every inherited Plan 0.1/0.2 object and hash.
+5. Pass all 35 declared cases with exact source/plan hashes and diagnostics.
+6. Continue running existing Plan 0.1/0.2 and In-Place 0.1/0.2 suites.
+7. Keep MySQL/MariaDB/Dolt pre-provisioning and Dolt caller-owned commit policy
+   unchanged.
+
+Adapter evidence does not block specification publication. The specification
+release-candidate gate and each downstream adapter claim gate are separate.

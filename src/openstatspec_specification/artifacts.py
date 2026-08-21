@@ -30,6 +30,7 @@ V030_PROFILE_DOCUMENTS = (
     "docs/spss-syntax-frontend-profile-0.2.md",
     "docs/transformation-plan-sql-binding-0.2.md",
 )
+FRONTEND_03_PROFILE_DOCUMENT = "docs/spss-syntax-frontend-profile-0.3.md"
 
 
 class ArtifactValidationError(ValueError):
@@ -737,12 +738,37 @@ def validate_release_metadata(root: Path) -> None:
     )
     _require(V030_COMMIT in roadmap, "ROADMAP v0.3.0 commit mismatch")
 
+    frontend_03 = (root / FRONTEND_03_PROFILE_DOCUMENT).read_text(encoding="utf-8")
+    _require(
+        "Status: release candidate for the next OpenStatSpec minor release." in frontend_03
+        and "is not published stable until a protected or signed specification tag targets" in frontend_03
+        and "its exact reviewed commit and tag-context CI passes." in frontend_03,
+        f"{FRONTEND_03_PROFILE_DOCUMENT}: release-candidate status is missing",
+    )
+    for phrase in (
+        "Pin the exact future specification release commit.",
+        "Accept only the exact Frontend 0.3 request contract for this suite.",
+        "Run all 90 effective Frontend 0.3 cases.",
+        "Preserve every inherited Plan 0.1/0.2 object and hash.",
+        "Pass all 35 declared cases with exact source/plan hashes and diagnostics.",
+        "Continue running existing Plan 0.1/0.2 and In-Place 0.1/0.2 suites.",
+        "Keep MySQL/MariaDB/Dolt pre-provisioning and Dolt caller-owned commit policy",
+        "Adapter evidence does not block specification publication.",
+    ):
+        _require(
+            phrase in frontend_03,
+            f"{FRONTEND_03_PROFILE_DOCUMENT}: adapter claim gate is missing {phrase}",
+        )
+
     classification = (root / "docs/spss-frontend-roadmap.md").read_text(encoding="utf-8")
     for phrase in (
         "Frontend 0.3, Plan 0.1/0.2",
         "New Plan/Frontend/Binding generation",
         "Separate case-transformation profile",
         "Explicit non-goal",
+        "Milestone 0: integrity and classification\n\n- [x] Specification-complete",
+        "Milestone 1: Frontend 0.3 over Plan 0.1/0.2\n\n- [x] Specification-complete",
+        "Adapter claims remain pending and separately gated",
     ):
         _require(phrase in classification, f"SPSS classification is missing {phrase}")
 

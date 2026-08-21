@@ -72,8 +72,18 @@ to be provisioned separately before an in-place transformation apply.
 - `transformation/plan-0.1.schema.json` — canonical transformation-plan schema.
 - `sql/transformation-plan-profile-schema.sql` — compact in-place apply audit;
   it is not a dataset-version catalog.
-- `conformance/transformation-plan-0.2.json` and
-  `conformance/spss-syntax-frontend-0.2.json` — additive plan and frontend
+- `docs/spss-syntax-frontend-profile-0.1.md`,
+  `docs/spss-syntax-frontend-profile-0.2.md`, and
+  `docs/spss-syntax-frontend-profile-0.3.md` — bounded syntax frontend
+  profiles and their contract boundaries.
+- `transformation/spss-syntax-frontend-0.1.schema.json`,
+  `transformation/spss-syntax-frontend-0.2.schema.json`, and
+  `transformation/spss-syntax-frontend-0.3.schema.json` — frontend request
+  schemas.
+- `conformance/transformation-plan-0.2.json`,
+  `conformance/spss-syntax-frontend-0.1.json`,
+  `conformance/spss-syntax-frontend-0.2.json`, and
+  `conformance/spss-syntax-frontend-0.3.json` — additive plan and frontend
   conformance cases with independent golden hashes; `conformance/in-place-transformation-0.2.json`
   fixes the same-dataset/same-table execution invariants and the additional
   controlled Dolt context. The 0.1 schemas and fixtures remain unchanged.
