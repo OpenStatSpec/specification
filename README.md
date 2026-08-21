@@ -51,9 +51,9 @@ creates no derived dataset, data copy, or OpenStatSpec undo layer; Dolt-specific
 history and commits remain Dolt's. MySQL, MariaDB, and Dolt require a new target
 to be provisioned separately before an in-place transformation apply.
 
-The release-candidate [SPSS Syntax Frontend Profile 0.3](docs/spss-syntax-frontend-profile-0.3.md)
-adds syntax-only expansion over the released Plan 0.1/0.2 contracts and is not
-published stable yet.
+The released [SPSS Syntax Frontend Profile 0.3](docs/spss-syntax-frontend-profile-0.3.md)
+was published in OpenStatSpec `v0.4.0`. It adds syntax-only expansion over the
+released Plan 0.1/0.2 contracts and does not change SQL binding behavior.
 
 ## Repository layout
 

@@ -25,6 +25,7 @@ BINDING_MANIFESTS = {
     "0.2": "conformance/in-place-transformation-0.2.json",
 }
 V030_COMMIT = "cd8f198c68b849eb8ed018a894670a0904c2181d"
+V040_RELEASE = "v0.4.0"
 V030_PROFILE_DOCUMENTS = (
     "docs/transformation-plan-profile-0.2.md",
     "docs/spss-syntax-frontend-profile-0.2.md",
@@ -718,7 +719,7 @@ def validate_release_metadata(root: Path) -> None:
             f"{relative}: stale release status remains",
         )
     roadmap = " ".join(_load_text(root, "ROADMAP.md").split())
-    _require("`v0.3.0` is the" in roadmap, "ROADMAP release tag mismatch")
+    _require(f"`{V040_RELEASE}` is the" in roadmap, "ROADMAP release tag mismatch")
     _require(
         "current public specification release and is immutable" in roadmap,
         "ROADMAP release status mismatch",
@@ -727,13 +728,13 @@ def validate_release_metadata(root: Path) -> None:
 
     frontend_03 = " ".join(_load_text(root, FRONTEND_03_PROFILE_DOCUMENT).split())
     _require(
-        "Status: release candidate for the next OpenStatSpec minor release." in frontend_03
-        and "is not published stable until a protected or signed specification tag targets" in frontend_03
-        and "its exact reviewed commit and tag-context CI passes." in frontend_03,
-        f"{FRONTEND_03_PROFILE_DOCUMENT}: release-candidate status is missing",
+        f"Status: released in OpenStatSpec `{V040_RELEASE}`." in frontend_03
+        and "protected specification tag is the immutable release identity" in frontend_03
+        and "exact tag-context CI passed before publication." in frontend_03,
+        f"{FRONTEND_03_PROFILE_DOCUMENT}: stable release status is missing",
     )
     for phrase in (
-        "Pin the exact future specification release commit.",
+        f"Pin the exact `{V040_RELEASE}` specification commit.",
         "Accept only the exact Frontend 0.3 request contract for this suite.",
         "Run all 90 effective Frontend 0.3 cases.",
         "Preserve every inherited Plan 0.1/0.2 object and hash.",
@@ -746,6 +747,18 @@ def validate_release_metadata(root: Path) -> None:
             phrase in frontend_03,
             f"{FRONTEND_03_PROFILE_DOCUMENT}: adapter claim gate is missing {phrase}",
         )
+
+    changelog = " ".join(_load_text(root, "CHANGELOG.md").split())
+    _require(
+        f"## {V040_RELEASE} - 2026-08-21" in changelog
+        and f"OpenStatSpec `{V040_RELEASE}` publishes SPSS Syntax Frontend 0.3" in changelog,
+        "CHANGELOG v0.4.0 release entry is missing",
+    )
+    readme = " ".join(_load_text(root, "README.md").split())
+    _require(
+        f"was published in OpenStatSpec `{V040_RELEASE}`" in readme,
+        "README v0.4.0 Frontend 0.3 release wording is missing",
+    )
 
     classification = " ".join(
         _load_text(root, "docs/spss-frontend-roadmap.md").split()

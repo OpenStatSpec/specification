@@ -2,14 +2,22 @@
 
 ## Unreleased
 
-- SPSS Syntax Frontend 0.3 is a release candidate, not a published stable
-  claim.
+Future changes will be listed here.
+
+## v0.4.0 - 2026-08-21
+
+OpenStatSpec `v0.4.0` publishes SPSS Syntax Frontend 0.3 as a stable optional
+profile. The release tag is the immutable specification identity for this
+release.
+
 - Added comments, existing-variable `TO`, grouped supported forms, predicate
   aliases and bounded `NOT`, open recode ranges, and additive value labels.
 - Frontend 0.3 emits only immutable Plan 0.1/0.2 objects and adds no SQL
   binding operation.
 - Repository validation now covers all Plan/Frontend/Binding schemas,
-  manifests, references, and hashes.
+  manifests, references, inherited cases, and canonical hashes.
+- Adapter claims remain downstream and separately gated; this release does not
+  assert PHP or Python implementation conformance.
 
 ## v0.3.0 - 2026-08-12
 

@@ -129,7 +129,7 @@ def test_existing_frontend_03_manifest_artifact_type_fails_closed(
         validate_contract_artifacts(root)
 
 
-def test_v030_profile_status_is_consistently_released() -> None:
+def test_v040_profile_status_is_consistently_released() -> None:
     validate_release_metadata(ROOT)
 
 
