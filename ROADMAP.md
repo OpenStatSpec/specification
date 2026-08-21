@@ -65,6 +65,22 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
   this does not block specification publication.
 - [ ] Evaluate additional language frontends as separate adapters that lower to
   the same canonical plan.
+- [ ] Expand the bounded SPSS frontend through the independently versioned
+  milestones in the [SPSS frontend roadmap](docs/spss-frontend-roadmap.md),
+  without creating a general SPSS compatibility claim.
+- [ ] Publish Frontend 0.3 as syntax-only expansion over immutable Plan 0.1/0.2:
+  comments, dictionary-order variable lists, grouped supported forms, ordinary
+  not-equal/NOT predicates, open recode ranges, and additive value labels.
+- [ ] Define typed numeric expressions, deterministic numeric/date functions,
+  missing-value predicates and metadata, additional numeric/date formats, and
+  restricted conditional blocks in a new Plan/Frontend/In-Place Binding
+  generation.
+- [ ] Define string and physical-schema operations separately, with exact
+  add/rename/drop-column atomicity and rollback evidence for every claimed SQL
+  profile.
+- [ ] Keep case-count/order and group/cross-dataset operations in separate
+  profiles whose invariants do not weaken the current same-cases in-place
+  binding.
 
 ## 8. Microsoft SQL Server dialect
 
