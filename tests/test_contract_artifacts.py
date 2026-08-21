@@ -47,3 +47,42 @@ def test_invalid_json_schema_fails_closed(tmp_path: Path) -> None:
     path.write_text(json.dumps(schema), encoding="utf-8")
     with pytest.raises(ArtifactValidationError, match="invalid JSON Schema"):
         validate_contract_artifacts(root)
+
+
+@pytest.mark.parametrize(
+    ("manifest_name", "field"),
+    [
+        ("transformation-plan-0.2.json", "expected_plan_hash"),
+        ("spss-syntax-frontend-0.2.json", "expected_source_hash"),
+    ],
+)
+def test_hash_mismatch_fails_closed(
+    tmp_path: Path, manifest_name: str, field: str,
+) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance" / manifest_name
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["cases"][0][field] = "0" * 64
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="hash mismatch"):
+        validate_contract_artifacts(root)
+
+
+def test_missing_frontend_plan_reference_fails_closed(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/spss-syntax-frontend-0.2.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["cases"][0]["expected_plan_case"] = "absent-plan"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="unknown plan case"):
+        validate_contract_artifacts(root)
+
+
+def test_binding_plan_and_frontend_references_must_agree(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/in-place-transformation-0.2.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["cases"][0]["applied_plan_case"] = "strict-greater-than"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="binding reference mismatch"):
+        validate_contract_artifacts(root)

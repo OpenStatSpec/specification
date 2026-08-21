@@ -48,7 +48,11 @@ def canonical_json_bytes(value: object) -> bytes:
 
 def source_hash(source_text: str) -> str:
     normalized = source_text.replace("\r\n", "\n").replace("\r", "\n")
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    return _sha256(normalized.encode("utf-8"))
+
+
+def _sha256(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
 
 
 def _require(condition: bool, message: str) -> None:
@@ -221,12 +225,354 @@ def _validate_expected_plans(
                 ) from None
 
 
+def _expected_error(case: Mapping[str, object], context: str) -> str | None:
+    value = case.get("expected_error")
+    _require(
+        value is None or (isinstance(value, str) and bool(value)),
+        f"{context}: expected_error must be null or a non-empty string",
+    )
+    return value if isinstance(value, str) else None
+
+
+def _schema_is_valid(value: object, schema: Mapping[str, object]) -> bool:
+    try:
+        Draft202012Validator(schema).validate(value)
+    except ValidationError:
+        return False
+    return True
+
+
+def _validate_plan_manifests(
+    root: Path,
+    manifests: Mapping[str, Mapping[str, object]],
+) -> Mapping[str, Mapping[str, object]]:
+    """Return version -> case-id -> successful canonical plan case."""
+    successful: dict[str, Mapping[str, object]] = {}
+    for version, manifest in manifests.items():
+        manifest_relative = PLAN_MANIFESTS[version]
+        schema_reference = manifest.get("schema")
+        _require(
+            isinstance(schema_reference, str),
+            f"{manifest_relative}: schema must be a string",
+        )
+        schema = _schema(root, _resolve_manifest_reference(manifest_relative, schema_reference))
+        cases = manifest.get("cases")
+        _require(isinstance(cases, list), f"{manifest_relative}: cases must be a list")
+        successful_cases: dict[str, Mapping[str, object]] = {}
+        validator = Draft202012Validator(schema)
+        for index, case in enumerate(cases):
+            context = f"{manifest_relative}.cases[{index}]"
+            _require(isinstance(case, dict), f"{context}: each case must be an object")
+            expected_error = _expected_error(case, context)
+            plan = case.get("plan")
+            _require(isinstance(plan, dict), f"{context}.plan: must be an object")
+            expected_hash = case.get("expected_plan_hash")
+            if expected_error is not None:
+                _require(
+                    "expected_plan_hash" not in case or expected_hash is None,
+                    f"{context}: failing case must omit expected_plan_hash or set it to null",
+                )
+                continue
+
+            try:
+                validator.validate(plan)
+            except ValidationError as error:
+                raise ArtifactValidationError(
+                    f"{context}.plan: schema validation failed: {error.message}"
+                ) from None
+            _require(
+                plan.get("contract") == manifest.get("contract"),
+                f"{context}.plan: contract does not match manifest",
+            )
+            actual_hash = _sha256(canonical_json_bytes(plan))
+            _require(
+                isinstance(expected_hash, str) and expected_hash == actual_hash,
+                f"{context}: plan hash mismatch",
+            )
+            successful_cases[case["id"]] = case
+        successful[version] = successful_cases
+    return successful
+
+
+def _frontend_plan_schemas(
+    root: Path,
+    version: str,
+    manifest: Mapping[str, object],
+) -> Mapping[str, Mapping[str, object]]:
+    manifest_relative = FRONTEND_MANIFESTS[version]
+    if version == "0.1":
+        contract = manifest.get("plan_contract")
+        reference = manifest.get("plan_schema")
+        _require(
+            isinstance(contract, str) and isinstance(reference, str),
+            f"{manifest_relative}: plan contract and schema must be declared",
+        )
+        return {
+            contract: _schema(
+                root,
+                _resolve_manifest_reference(manifest_relative, reference),
+            )
+        }
+
+    references = manifest.get("plan_schemas")
+    _require(isinstance(references, dict), f"{manifest_relative}: plan_schemas must be an object")
+    schemas: dict[str, Mapping[str, object]] = {}
+    for contract, reference in references.items():
+        _require(
+            isinstance(contract, str) and isinstance(reference, str),
+            f"{manifest_relative}: plan schema references must be strings",
+        )
+        schemas[contract] = _schema(
+            root,
+            _resolve_manifest_reference(manifest_relative, reference),
+        )
+    return schemas
+
+
+def _resolve_frontend_plans(
+    root: Path,
+    manifests: Mapping[str, Mapping[str, object]],
+    plan_cases: Mapping[str, Mapping[str, object]],
+) -> Mapping[str, Mapping[str, Mapping[str, object]]]:
+    """Return version -> case-id -> resolved canonical plan for successes."""
+    resolved: dict[str, dict[str, Mapping[str, object]]] = {}
+    for version in ("0.1", "0.2"):
+        manifest = manifests[version]
+        manifest_relative = FRONTEND_MANIFESTS[version]
+        request_reference = manifest.get("request_schema")
+        _require(
+            isinstance(request_reference, str),
+            f"{manifest_relative}: request_schema must be a string",
+        )
+        request_schema = _schema(
+            root,
+            _resolve_manifest_reference(manifest_relative, request_reference),
+        )
+        plan_schemas = _frontend_plan_schemas(root, version, manifest)
+        cases = manifest.get("cases")
+        _require(isinstance(cases, list), f"{manifest_relative}: cases must be a list")
+        successful: dict[str, Mapping[str, object]] = {}
+        for index, case in enumerate(cases):
+            context = f"{manifest_relative}.cases[{index}]"
+            _require(isinstance(case, dict), f"{context}: each case must be an object")
+            expected_error = _expected_error(case, context)
+            request = case.get("request")
+            _require(isinstance(request, dict), f"{context}.request: must be an object")
+            source_text = request.get("source_text")
+            if isinstance(source_text, str):
+                actual_source_hash = source_hash(source_text)
+                _require(
+                    isinstance(case.get("expected_source_hash"), str)
+                    and case.get("expected_source_hash") == actual_source_hash,
+                    f"{context}: source hash mismatch",
+                )
+            request_valid = _schema_is_valid(request, request_schema)
+            if expected_error == "plan_schema_invalid":
+                _require(
+                    not request_valid,
+                    f"{context}: plan_schema_invalid requires an invalid request",
+                )
+            else:
+                _require(
+                    request_valid,
+                    f"{context}.request: schema validation failed",
+                )
+
+            plan_fields = (
+                "expected_plan",
+                "expected_plan_0_1",
+                "expected_plan_case",
+                "expected_plan_case_0_1",
+            )
+            present_plan_fields = [field for field in plan_fields if field in case]
+            if expected_error is not None:
+                for field in (*plan_fields, "expected_plan_contract", "expected_plan_hash"):
+                    _require(
+                        field not in case,
+                        f"{context}: failing case must omit {field}",
+                    )
+                continue
+
+            _require(
+                len(present_plan_fields) == 1,
+                f"{context}: successful case must declare exactly one expected plan",
+            )
+            expected_field = present_plan_fields[0]
+            plan: Mapping[str, object]
+            referenced_plan_hash: object = None
+            if expected_field in {"expected_plan", "expected_plan_0_1"}:
+                inline_plan = case.get(expected_field)
+                _require(
+                    isinstance(inline_plan, dict),
+                    f"{context}.{expected_field}: must be an object",
+                )
+                plan = inline_plan
+            elif expected_field == "expected_plan_case":
+                plan_version = "0.1" if version == "0.1" else "0.2"
+                expected_contract = case.get("expected_plan_contract")
+                _require(
+                    expected_contract is None
+                    or expected_contract == manifests[version].get(
+                        "plan_contract", "openstatspec-transformation-plan-v0.2"
+                    ),
+                    f"{context}: expected_plan_contract does not match expected_plan_case",
+                )
+                reference = case.get(expected_field)
+                _require(
+                    isinstance(reference, str),
+                    f"{context}.{expected_field}: must be a string",
+                )
+                referenced_case = plan_cases[plan_version].get(reference)
+                _require(
+                    referenced_case is not None,
+                    f"{context}: unknown plan case: {reference}",
+                )
+                plan = referenced_case["plan"]
+                referenced_plan_hash = referenced_case.get("expected_plan_hash")
+            else:
+                _require(
+                    version == "0.2",
+                    f"{context}.{expected_field}: only Frontend 0.2 may use this reference",
+                )
+                reference = case.get(expected_field)
+                _require(
+                    isinstance(reference, str),
+                    f"{context}.{expected_field}: must be a string",
+                )
+                frontend_01_plan = resolved["0.1"].get(reference)
+                _require(
+                    frontend_01_plan is not None,
+                    f"{context}: unknown Frontend 0.1 plan case: {reference}",
+                )
+                plan = frontend_01_plan
+
+            contract = plan.get("contract")
+            _require(
+                isinstance(contract, str) and contract in plan_schemas,
+                f"{context}: unsupported expected plan contract",
+            )
+            try:
+                Draft202012Validator(plan_schemas[contract]).validate(plan)
+            except ValidationError as error:
+                raise ArtifactValidationError(
+                    f"{context}: expected plan schema validation failed: {error.message}"
+                ) from None
+            declared_contract = case.get("expected_plan_contract")
+            _require(
+                declared_contract is None or declared_contract == contract,
+                f"{context}: expected_plan_contract does not match plan",
+            )
+            expected_hash = case.get("expected_plan_hash", referenced_plan_hash)
+            actual_hash = _sha256(canonical_json_bytes(plan))
+            _require(
+                isinstance(expected_hash, str) and expected_hash == actual_hash,
+                f"{context}: plan hash mismatch",
+            )
+            successful[case["id"]] = plan
+        resolved[version] = successful
+    return resolved
+
+
+def _validate_binding_manifests(
+    manifests: Mapping[str, Mapping[str, object]],
+    plan_cases: Mapping[str, Mapping[str, object]],
+    frontend_plans: Mapping[str, Mapping[str, Mapping[str, object]]],
+    frontend_manifests: Mapping[str, Mapping[str, object]],
+) -> None:
+    for version, manifest in manifests.items():
+        manifest_relative = BINDING_MANIFESTS[version]
+        cases = manifest.get("cases")
+        _require(isinstance(cases, list), f"{manifest_relative}: cases must be a list")
+        for index, case in enumerate(cases):
+            context = f"{manifest_relative}.cases[{index}]"
+            _require(isinstance(case, dict), f"{context}: each case must be an object")
+            expected_error = _expected_error(case, context)
+            if expected_error is not None:
+                _require(
+                    case.get("mutation_started") is False
+                    or (
+                        case.get("mutation_started") is True
+                        and case.get("failure_point") == "after_data_and_metadata_before_audit"
+                    ),
+                    f"{context}: failing binding case must set mutation_started to false",
+                )
+            if version != "0.2":
+                continue
+
+            has_plan_reference = "applied_plan_case" in case
+            has_frontend_reference = "applied_frontend_case" in case
+            _require(
+                has_plan_reference == has_frontend_reference,
+                f"{context}: binding plan and frontend references must be paired",
+            )
+            if not has_plan_reference:
+                continue
+
+            plan_reference = case.get("applied_plan_case")
+            frontend_reference = case.get("applied_frontend_case")
+            _require(
+                isinstance(plan_reference, str),
+                f"{context}: applied_plan_case must be a string",
+            )
+            _require(
+                isinstance(frontend_reference, str),
+                f"{context}: applied_frontend_case must be a string",
+            )
+            plan_case = plan_cases["0.2"].get(plan_reference)
+            _require(
+                plan_case is not None,
+                f"{context}: unknown plan case: {plan_reference}",
+            )
+            frontend_plan = frontend_plans["0.2"].get(frontend_reference)
+            _require(
+                frontend_plan is not None,
+                f"{context}: unknown frontend case: {frontend_reference}",
+            )
+            _require(
+                frontend_plan == plan_case["plan"],
+                f"{context}: binding reference mismatch",
+            )
+
+            expected_audit = case.get("expected_audit")
+            if expected_audit is None:
+                continue
+            _require(
+                isinstance(expected_audit, dict),
+                f"{context}.expected_audit: must be an object",
+            )
+            plan = plan_case["plan"]
+            frontend_case = next(
+                (
+                    frontend_case
+                    for frontend_case in frontend_manifests["0.2"].get("cases", [])
+                    if isinstance(frontend_case, dict)
+                    and frontend_case.get("id") == frontend_reference
+                ),
+                None,
+            )
+            _require(
+                isinstance(frontend_case, dict),
+                f"{context}: unknown frontend case: {frontend_reference}",
+            )
+            expected_values = {
+                "plan_hash": plan_case.get("expected_plan_hash"),
+                "source_hash": frontend_case.get("expected_source_hash"),
+                "canonical_plan_json": canonical_json_bytes(plan).decode("utf-8"),
+                "operation_count": len(plan["operations"]),
+            }
+            for field, expected in expected_values.items():
+                if field in expected_audit:
+                    _require(
+                        expected_audit[field] == expected,
+                        f"{context}.expected_audit.{field}: audit identity mismatch",
+                    )
+
+
 def _require_exact_field(value: object, expected: object, context: str) -> None:
     _require(value == expected, f"{context}: has an unexpected value")
 
 
 def validate_contract_artifacts(root: Path) -> ArtifactInventory:
-    plan_schemas: dict[str, Mapping[str, object]] = {}
     plan_manifests: dict[str, dict[str, object]] = {}
     plan_contracts = {
         "0.1": "openstatspec-transformation-plan-v0.1",
@@ -244,11 +590,10 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             f"{manifest_relative}: schema",
         )
         schema_relative = _resolve_manifest_reference(manifest_relative, schema_reference)
-        plan_schemas[version] = _schema(root, schema_relative)
-        _validate_cases(manifest.get("cases"), plan_schemas[version], "plan", manifest_relative)
+        _schema(root, schema_relative)
         plan_manifests[version] = manifest
+    plan_cases = _validate_plan_manifests(root, plan_manifests)
 
-    frontend_schemas: dict[str, Mapping[str, object]] = {}
     frontend_manifests: dict[str, dict[str, object]] = {}
     frontend_contracts = {
         "0.1": "openstatspec-spss-syntax-frontend-v0.1",
@@ -266,13 +611,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             f"{manifest_relative}: request_schema",
         )
         request_relative = _resolve_manifest_reference(manifest_relative, request_reference)
-        frontend_schemas[version] = _schema(root, request_relative)
-        _validate_cases(
-            manifest.get("cases"),
-            frontend_schemas[version],
-            "request",
-            manifest_relative,
-        )
+        _schema(root, request_relative)
 
         if version == "0.1":
             _require_exact_field(
@@ -290,12 +629,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
                 manifest_relative,
                 plan_reference,
             )
-            plan_schema = _schema(root, resolved_plan_reference)
-            _validate_expected_plans(
-                manifest.get("cases"),
-                {"openstatspec-transformation-plan-v0.1": plan_schema},
-                manifest_relative,
-            )
+            _schema(root, resolved_plan_reference)
         else:
             _require_exact_field(
                 manifest.get("plan_contracts"),
@@ -314,19 +648,13 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
                 plan_references,
                 f"{manifest_relative}: plan_schemas",
             )
-            resolved_plan_schemas = {
-                contract: _schema(
+            for reference in plan_references.values():
+                _schema(
                     root,
                     _resolve_manifest_reference(manifest_relative, reference),
                 )
-                for contract, reference in plan_references.items()
-            }
-            _validate_expected_plans(
-                manifest.get("cases"),
-                resolved_plan_schemas,
-                manifest_relative,
-            )
         frontend_manifests[version] = manifest
+    frontend_plans = _resolve_frontend_plans(root, frontend_manifests, plan_cases)
 
     binding_contracts = {
         "0.1": "openstatspec-in-place-transformation-v0.1",
@@ -348,6 +676,12 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             )
             _require_file(root, resolved_audit_reference)
         binding_manifests[version] = manifest
+    _validate_binding_manifests(
+        binding_manifests,
+        plan_cases,
+        frontend_plans,
+        frontend_manifests,
+    )
 
     return ArtifactInventory(
         plan_cases={version: len(manifest["cases"]) for version, manifest in plan_manifests.items()},

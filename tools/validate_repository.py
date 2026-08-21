@@ -13,6 +13,10 @@ from openstatspec_specification.dolt import (  # noqa: E402
     DoltDeclarationError,
     main,
 )
+from openstatspec_specification.artifacts import (  # noqa: E402
+    ArtifactValidationError,
+    validate_contract_artifacts,
+)
 
 
 def require(condition: bool, message: str) -> None:
@@ -140,6 +144,13 @@ def validate_repository_controls() -> None:
 if __name__ == "__main__":
     try:
         main()
+        inventory = validate_contract_artifacts(ROOT)
         validate_repository_controls()
-    except DoltDeclarationError as error:
+        print(
+            "Validated contract artifacts: "
+            f"Plan {dict(inventory.plan_cases)}, "
+            f"Frontend {dict(inventory.frontend_effective_cases)}, "
+            f"Binding {dict(inventory.binding_cases)}."
+        )
+    except (DoltDeclarationError, ArtifactValidationError) as error:
         raise SystemExit(str(error)) from error
