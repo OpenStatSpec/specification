@@ -51,6 +51,243 @@
       "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
       "expected_source_hash": "3c4ef459e9a2021100ef166ef0038c5f920b126d916db4c7273537d21b256f65",
       "expected_error": null
+    },
+    {
+      "id": "comment-command-before-recode",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "COMMENT recode one to zero.\nRECODE q1 (1 = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_case_0_1": "in-place-recode-default-copy",
+      "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
+      "expected_source_hash": "5211e79a67d5f493b48a6907d365ade7b877d8351191c9924121af30f7865989",
+      "expected_error": null
+    },
+    {
+      "id": "leading-star-comment-before-recode",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "* recode one to zero.\nRECODE q1 (1 = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_case_0_1": "in-place-recode-default-copy",
+      "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
+      "expected_source_hash": "dddbaf0dd69f364ccc895d0d3b65daa63208edfd9b4e8e2112f915f1e73e5d70",
+      "expected_error": null
+    },
+    {
+      "id": "comments-change-source-hash-not-plan-hash",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "COMMENT first comment.\n* second comment.\nRECODE q1 (1 = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_case_0_1": "in-place-recode-default-copy",
+      "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
+      "expected_source_hash": "8b0d8f677faa7e919c89ace749d0e45f89531fc6e22bfc796819c23081c1a5dc",
+      "expected_error": null
+    },
+    {
+      "id": "reject-unterminated-inline-comment",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "RECODE q1 (1 = 0) /* unterminated."
+      },
+      "expected_source_hash": "d675e34c7617e21d3b298bdc139d69fe2239fce0c82c03933da409c5a735f064",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "recode-to-expands-dictionary-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "RECODE a TO c (1 = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {"op": "recode", "source": "a", "target": "a", "target_mode": "replace", "rules": [{"match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}},
+          {"op": "recode", "source": "middle", "target": "middle", "target_mode": "replace", "rules": [{"match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}},
+          {"op": "recode", "source": "c", "target": "c", "target_mode": "replace", "rules": [{"match": {"kind": "values", "values": [{"type": "binary64", "bits": "3ff0000000000000"}]}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}}
+        ]
+      },
+      "expected_plan_hash": "81c8b98d48b8c14ad43153bc52960e088c05a23fff3a6f60d01e3898650f2009",
+      "expected_source_hash": "365b8cadd07b148d7bbee906ce66ae608d3d3fd69ec82f6549623f724893b4f9",
+      "expected_error": null
+    },
+    {
+      "id": "value-labels-to-expands-dictionary-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "VALUE LABELS a TO c 0 'No' 1 'Yes'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {"op": "replace_value_labels", "variable": "a", "labels": [{"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"}, {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}]},
+          {"op": "replace_value_labels", "variable": "middle", "labels": [{"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"}, {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}]},
+          {"op": "replace_value_labels", "variable": "c", "labels": [{"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"}, {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}]}
+        ]
+      },
+      "expected_plan_hash": "d3edd16ab980d21b1af06812fabf7f3e71d85972de9cb7f1717afac992450de1",
+      "expected_source_hash": "aa8a8028ac720e82794523bff70335c64e971cd8df7385ea2f6c9f60205bdbc0",
+      "expected_error": null
+    },
+    {
+      "id": "formats-grouped-to-expands-source-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "FORMATS a TO c (F8.2)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {"op": "set_format", "variable": "a", "family": "F", "width": 8, "decimals": 2},
+          {"op": "set_format", "variable": "middle", "family": "F", "width": 8, "decimals": 2},
+          {"op": "set_format", "variable": "c", "family": "F", "width": 8, "decimals": 2}
+        ]
+      },
+      "expected_plan_hash": "c148754d88165fe10c5a1cd4c050a41b4e4a2839c8dad89531e972b69989aa7e",
+      "expected_source_hash": "9884908d306d12b46a02dd19001dba2ba3fc45b54a8ef40659cb586d0271d0d0",
+      "expected_error": null
+    },
+    {
+      "id": "variable-level-to-expands-source-order",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "VARIABLE LEVEL a TO c (NOMINAL)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {"op": "set_measurement_level", "variable": "a", "level": "nominal"},
+          {"op": "set_measurement_level", "variable": "middle", "level": "nominal"},
+          {"op": "set_measurement_level", "variable": "c", "level": "nominal"}
+        ]
+      },
+      "expected_plan_hash": "d3232768fb06358ae4f9e71da635908a133e19391fdaea125126e7d686ac1084",
+      "expected_source_hash": "1b1c7a9373fac15b8466e18a9f04c500e19747eb5e82a2ac3dc7b9301b450d09",
+      "expected_error": null
+    },
+    {
+      "id": "to-sees-variable-created-by-preceding-command",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "COMPUTE appended = a.\nFORMATS c TO appended (F8.2)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [
+          {"op": "assign", "target": "appended", "target_mode": "create", "value": {"kind": "variable", "variable": "a"}},
+          {"op": "set_format", "variable": "c", "family": "F", "width": 8, "decimals": 2},
+          {"op": "set_format", "variable": "outside", "family": "F", "width": 8, "decimals": 2},
+          {"op": "set_format", "variable": "appended", "family": "F", "width": 8, "decimals": 2}
+        ]
+      },
+      "expected_plan_hash": "97e447dee8786ba50661b8348ccfc2ec03d7d0f8d9f694daca0f3962dda6dd78",
+      "expected_source_hash": "819cd323cd9382e4340e4d4dcbbb47a5a155ccac674f2bfc616c7ca78e3c8cd5",
+      "expected_error": null
+    },
+    {
+      "id": "reject-reversed-to-range",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "FORMATS c TO a (F8.2)."
+      },
+      "expected_source_hash": "b4a66bad42565222b32b559724ebefb029d427dfa49845d7e5ea1de05aad42f1",
+      "expected_error": "invalid_variable_range"
+    },
+    {
+      "id": "reject-unknown-to-endpoint",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "FORMATS a TO absent (F8.2)."
+      },
+      "expected_source_hash": "6153086c283f905e177f45c9208e73e118315a6f8b496cfced05058da28009dd",
+      "expected_error": "unknown_variable"
+    },
+    {
+      "id": "reject-to-generated-into-targets",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric"},
+          {"name": "middle", "storage_kind": "numeric"},
+          {"name": "c", "storage_kind": "numeric"},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "RECODE a (1 = 0) INTO target TO target2."
+      },
+      "expected_source_hash": "c9b4ae4e9bfb7e25c8720f278d50669250fde123dffd4d743adaf18c91f83bd1",
+      "expected_error": "spss_syntax_error"
     }
   ]
 }
