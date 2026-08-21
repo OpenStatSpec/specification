@@ -30,7 +30,7 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
   and fixtures.
 - [x] Define adapter conformance guidance; each adapter repository owns its runtime CI and evidence.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [x] Publish release notes and tagged specification releases; `v0.3.0` is the
+- [x] Publish release notes and tagged specification releases; `v0.4.0` is the
   current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
@@ -122,8 +122,14 @@ follows and does not block specification publication.
 5. [ ] Have PHP pin the exact specification commit and pass applicable
    conformance evidence before changing adapter or package-release claims.
 
+6. [x] Merged and reviewed SPSS Syntax Frontend profile 0.3 as a
+   backward-compatible optional profile over immutable Plan 0.1/0.2 contracts.
+7. [x] Prepared specification `v0.4.0` release notes, stable profile status,
+   exact artifact validation, and tag-context CI requirements; adapter claims
+   remain downstream and are not implied by this release.
+
 The pending in-place service matrix and adapter conformance work in sections 6
-and 7 are downstream implementation gates. They do not block the `v0.3.0`
+and 7 are downstream implementation gates. They do not block the `v0.4.0`
 specification release, and publishing the specification does not complete those
 implementation evidence gates.
 

@@ -129,7 +129,7 @@ def test_existing_frontend_03_manifest_artifact_type_fails_closed(
         validate_contract_artifacts(root)
 
 
-def test_v030_profile_status_is_consistently_released() -> None:
+def test_v040_profile_status_is_consistently_released() -> None:
     validate_release_metadata(ROOT)
 
 
@@ -159,6 +159,7 @@ def copied_artifacts(tmp_path: Path) -> Path:
         shutil.copytree(ROOT / directory, tmp_path / directory)
     shutil.copy2(ROOT / "CHANGELOG.md", tmp_path / "CHANGELOG.md")
     shutil.copy2(ROOT / "ROADMAP.md", tmp_path / "ROADMAP.md")
+    shutil.copy2(ROOT / "README.md", tmp_path / "README.md")
     return tmp_path
 
 
