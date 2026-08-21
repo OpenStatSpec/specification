@@ -549,6 +549,160 @@
       },
       "expected_source_hash": "e9e9468f64c03bfd2822a365913399b3d5391f02f600e12606720b744a1d1e19",
       "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "add-value-labels-preserves-existing-and-appends",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric", "value_labels": [
+          {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"},
+          {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}
+        ]}]},
+        "source_text": "ADD VALUE LABELS q1 2 'Maybe'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "replace_value_labels", "variable": "q1", "labels": [
+          {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"},
+          {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"},
+          {"value": {"type": "binary64", "bits": "4000000000000000"}, "label": "Maybe"}
+        ]}]
+      },
+      "expected_plan_hash": "520ec60bb84b6ec93eb4d2df1b7c0ba8a02efdcc9527284fabcd9b3ec26e931b",
+      "expected_source_hash": "c386c3ba15782601cf86459ec089d724ae7de449ee168b0d1acd06e489604b66",
+      "expected_error": null
+    },
+    {
+      "id": "add-value-labels-replaces-existing-label-in-place",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric", "value_labels": [
+          {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"},
+          {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}
+        ]}]},
+        "source_text": "ADD VALUE LABELS q1 0 'Zero'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "replace_value_labels", "variable": "q1", "labels": [
+          {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "Zero"},
+          {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}
+        ]}]
+      },
+      "expected_plan_hash": "0877ee65052235c31a57f76bafc4c647cee49bc75a43c89565a459ac86e33f7a",
+      "expected_source_hash": "b3899248d84f5229bb7ad410a748c209a5de6cce65dbc8c9c163e6cfc9d5a537",
+      "expected_error": null
+    },
+    {
+      "id": "value-labels-then-add-value-labels-uses-ordered-state",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric", "value_labels": [
+          {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "Original"}
+        ]}]},
+        "source_text": "VALUE LABELS q1 5 'Five' 1 'One'.\nADD VALUE LABELS q1 2 'Two' 5 'Cinq'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "replace_value_labels", "variable": "q1", "labels": [
+          {"value": {"type": "binary64", "bits": "4014000000000000"}, "label": "Cinq"},
+          {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "One"},
+          {"value": {"type": "binary64", "bits": "4000000000000000"}, "label": "Two"}
+        ]}]
+      },
+      "expected_plan_hash": "d28ccba13408620463b8770857acfa8de5ffa0ba59f9212214f8bbfbdd0fa088",
+      "expected_source_hash": "fafcf4a687aa9241bf70b6152d6d10e083e357f322c7008c5aea8c72c5ccfd12",
+      "expected_error": null
+    },
+    {
+      "id": "add-value-labels-multiple-variable-group",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "a", "storage_kind": "numeric", "value_labels": [{"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"}]},
+          {"name": "middle", "storage_kind": "numeric", "value_labels": [{"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"}]},
+          {"name": "c", "storage_kind": "numeric", "value_labels": [{"value": {"type": "binary64", "bits": "4000000000000000"}, "label": "Maybe"}]},
+          {"name": "outside", "storage_kind": "numeric"}
+        ]},
+        "source_text": "ADD VALUE LABELS a TO c 3 'Other'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [
+          {"op": "replace_value_labels", "variable": "a", "labels": [
+            {"value": {"type": "binary64", "bits": "0000000000000000"}, "label": "No"},
+            {"value": {"type": "binary64", "bits": "4008000000000000"}, "label": "Other"}
+          ]},
+          {"op": "replace_value_labels", "variable": "middle", "labels": [
+            {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "Yes"},
+            {"value": {"type": "binary64", "bits": "4008000000000000"}, "label": "Other"}
+          ]},
+          {"op": "replace_value_labels", "variable": "c", "labels": [
+            {"value": {"type": "binary64", "bits": "4000000000000000"}, "label": "Maybe"},
+            {"value": {"type": "binary64", "bits": "4008000000000000"}, "label": "Other"}
+          ]}
+        ]
+      },
+      "expected_plan_hash": "7cc86bf992d568cde74802df7e6e68bc18f79210e084659e81b01d63f36ab2f5",
+      "expected_source_hash": "3353a38e495a448cdaad8bbb0981e4883bd21c9698148e0f87ad7158d13ca629",
+      "expected_error": null
+    },
+    {
+      "id": "add-string-value-labels",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "status", "storage_kind": "string", "value_labels": [
+          {"value": {"type": "string", "value": "N"}, "label": "No"}
+        ]}]},
+        "source_text": "ADD VALUE LABELS status 'Y' 'Yes'."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "replace_value_labels", "variable": "status", "labels": [
+          {"value": {"type": "string", "value": "N"}, "label": "No"},
+          {"value": {"type": "string", "value": "Y"}, "label": "Yes"}
+        ]}]
+      },
+      "expected_plan_hash": "e53af9b03c09640d0b451879451eac5e25ccc7e8bf22836b8451650f6b790648",
+      "expected_source_hash": "a5cc8c9431e28c028f73874d985c7796733443baf1ac1832f533e39c81197b9e",
+      "expected_error": null
+    },
+    {
+      "id": "reject-add-value-labels-duplicate-source-value",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "ADD VALUE LABELS q1 1 'One' 1 'Duplicate'."
+      },
+      "expected_source_hash": "1b26095f77569a6d5e0ed785c777cd943850066e2075df642a24c834c9f49068",
+      "expected_error": "duplicate_value_label"
+    },
+    {
+      "id": "reject-add-value-labels-type-mismatch",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "ADD VALUE LABELS q1 '1' 'One'."
+      },
+      "expected_source_hash": "a0048e248ab54129fab1b6e3b528cf1ac220d1ab59a48a5547ae22b3eae45721",
+      "expected_error": "type_mismatch"
     }
   ]
 }

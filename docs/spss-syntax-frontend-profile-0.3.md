@@ -115,14 +115,15 @@ ties-to-even binary64 conversion.
 [/ variable... value 'label' ...].` resolves each existing variable against
 the current typed schema. An existing typed value is updated at its current
 ordinal. A new typed value is appended in source order. Duplicate values in a
-single source group are invalid unless the operation is the update of that
-same existing typed value according to this rule.
+single source group are invalid. Typed values use exact canonical identity,
+including positive-zero numeric canonicalization and exact string contents.
 
 The frontend emits one complete `replace_value_labels` operation per variable,
 in source variable order, preserving all existing labels and applying the
 updates and appended values. Variable and value types MUST agree; no implicit
-numeric/string coercion is performed. The command remains in the Plan 0.1
-output subset.
+numeric/string coercion is performed. If a preceding `VALUE LABELS` command
+replaced the label state, a following `ADD VALUE LABELS` command merges against
+that replacement state. The command remains in the Plan 0.1 output subset.
 
 ## Failure contract
 
@@ -137,5 +138,5 @@ identify source spans but MUST NOT include credentials or unrelated row values.
 
 Conformance cases for this profile are published in
 [`../conformance/spss-syntax-frontend-0.3.json`](../conformance/spss-syntax-frontend-0.3.json).
-The manifest declares 28 Frontend 0.3 cases and expands to 83 effective cases
+The manifest declares 35 Frontend 0.3 cases and expands to 90 effective cases
 after inherited cases and the two published comment supersessions are applied.
