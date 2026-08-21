@@ -117,10 +117,10 @@ follows and does not block specification publication.
    record its `v0.3.0` release identifier; rebase conditional transformations
    on the lifecycle implementation and pass the combined service and
    conformance gates before making an adapter claim or package release.
-5. [ ] Have PHP pin the exact specification commit and, once published, record
-   its `v0.3.0` release identifier; migrate to the canonical transformation plan
-   and pass the relevant conformance cases before making an adapter claim or
-   package release.
+5. [x] PHP pinned specification `v0.3.0` commit
+   `cd8f198c68b849eb8ed018a894670a0904c2181d`, passed its complete PHP
+   8.4/8.5 and PostgreSQL/MySQL/MariaDB/Dolt matrix, and published adapter
+   [v0.6.0](https://github.com/OpenStatSpec/php/releases/tag/v0.6.0).
 
 The pending in-place service matrix and adapter conformance work in sections 6
 and 7 are downstream implementation gates. They do not block the `v0.3.0`

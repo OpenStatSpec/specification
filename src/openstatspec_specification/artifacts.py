@@ -22,6 +22,12 @@ BINDING_MANIFESTS = {
     "0.1": "conformance/in-place-transformation-0.1.json",
     "0.2": "conformance/in-place-transformation-0.2.json",
 }
+V030_COMMIT = "cd8f198c68b849eb8ed018a894670a0904c2181d"
+V030_PROFILE_DOCUMENTS = (
+    "docs/transformation-plan-profile-0.2.md",
+    "docs/spss-syntax-frontend-profile-0.2.md",
+    "docs/transformation-plan-sql-binding-0.2.md",
+)
 
 
 class ArtifactValidationError(ValueError):
@@ -570,6 +576,35 @@ def _validate_binding_manifests(
 
 def _require_exact_field(value: object, expected: object, context: str) -> None:
     _require(value == expected, f"{context}: has an unexpected value")
+
+
+def validate_release_metadata(root: Path) -> None:
+    for relative in V030_PROFILE_DOCUMENTS:
+        text = (root / relative).read_text(encoding="utf-8")
+        _require(
+            "Status: released in OpenStatSpec `v0.3.0`" in text,
+            f"{relative}: release status is inconsistent with v0.3.0",
+        )
+        _require(
+            "release candidate for the planned OpenStatSpec `v0.3.0`" not in text,
+            f"{relative}: stale release status remains",
+        )
+    roadmap = (root / "ROADMAP.md").read_text(encoding="utf-8")
+    _require("`v0.3.0` is the" in roadmap, "ROADMAP release tag mismatch")
+    _require(
+        "current public specification release and is immutable" in roadmap,
+        "ROADMAP release status mismatch",
+    )
+    _require(V030_COMMIT in roadmap, "ROADMAP v0.3.0 commit mismatch")
+
+    classification = (root / "docs/spss-frontend-roadmap.md").read_text(encoding="utf-8")
+    for phrase in (
+        "Frontend 0.3, Plan 0.1/0.2",
+        "New Plan/Frontend/Binding generation",
+        "Separate case-transformation profile",
+        "Explicit non-goal",
+    ):
+        _require(phrase in classification, f"SPSS classification is missing {phrase}")
 
 
 def validate_contract_artifacts(root: Path) -> ArtifactInventory:

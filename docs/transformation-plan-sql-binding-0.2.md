@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: release candidate for the planned OpenStatSpec `v0.3.0` release. This profile is not a published stable specification until a `v0.3.0` tag targets its exact commit.
+Status: released in OpenStatSpec `v0.3.0` at immutable specification commit
+`cd8f198c68b849eb8ed018a894670a0904c2181d`.
 
 ## Normative decision
 

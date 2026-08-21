@@ -6,11 +6,8 @@ Future changes will be listed here.
 
 ## v0.3.0 - 2026-08-12
 
-Release preparation for the planned stable `v0.3.0` tag. Until a protected or
-signed `v0.3.0` tag targets this exact release commit, implementations MUST
-identify it with `specification_status: release_candidate`,
-`specification_release: null`, and the exact immutable specification commit.
-The entries below become the stable release only when that tag exists.
+OpenStatSpec `v0.3.0` is the stable public specification release at immutable
+specification commit `cd8f198c68b849eb8ed018a894670a0904c2181d`.
 
 - Added backward-compatible Transformation Plan and SPSS Syntax Frontend 0.2
   contracts for sequential numeric `COMPUTE` and conditional `IF`, bounded

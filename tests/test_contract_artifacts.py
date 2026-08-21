@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from openstatspec_specification.artifacts import ArtifactValidationError
+from openstatspec_specification.artifacts import validate_release_metadata
 from openstatspec_specification.artifacts import validate_contract_artifacts
 
 
@@ -19,6 +20,22 @@ def test_released_contract_artifact_inventory_is_valid() -> None:
     assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44}
     assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44}
     assert inventory.binding_cases == {"0.1": 6, "0.2": 11}
+
+
+def test_v030_profile_status_is_consistently_released() -> None:
+    validate_release_metadata(ROOT)
+
+
+def test_release_candidate_wording_fails_for_published_profile(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "docs/spss-syntax-frontend-profile-0.2.md"
+    text = path.read_text(encoding="utf-8").replace(
+        "Status: released in OpenStatSpec `v0.3.0`",
+        "Status: release candidate for OpenStatSpec `v0.3.0`",
+    )
+    path.write_text(text, encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="release status"):
+        validate_release_metadata(root)
 
 
 def copied_artifacts(tmp_path: Path) -> Path:
