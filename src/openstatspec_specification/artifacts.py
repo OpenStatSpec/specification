@@ -17,6 +17,7 @@ PLAN_MANIFESTS = {
 FRONTEND_MANIFESTS = {
     "0.1": "conformance/spss-syntax-frontend-0.1.json",
     "0.2": "conformance/spss-syntax-frontend-0.2.json",
+    "0.3": "conformance/spss-syntax-frontend-0.3.json",
 }
 BINDING_MANIFESTS = {
     "0.1": "conformance/in-place-transformation-0.1.json",
@@ -633,13 +634,20 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
     frontend_contracts = {
         "0.1": "openstatspec-spss-syntax-frontend-v0.1",
         "0.2": "openstatspec-spss-syntax-frontend-v0.2",
+        "0.3": "openstatspec-spss-syntax-frontend-v0.3",
     }
     for version, manifest_relative in FRONTEND_MANIFESTS.items():
-        manifest = _load_manifest(root, manifest_relative, version, frontend_contracts[version])
         request_reference = {
             "0.1": "../transformation/spss-syntax-frontend-0.1.schema.json",
             "0.2": "../transformation/spss-syntax-frontend-0.2.schema.json",
+            "0.3": "../transformation/spss-syntax-frontend-0.3.schema.json",
         }[version]
+        request_relative = _resolve_manifest_reference(manifest_relative, request_reference)
+        if version == "0.3" and not _safe_candidate(root, manifest_relative).is_file():
+            _schema(root, request_relative)
+            frontend_manifests[version] = {"cases": []}
+            continue
+        manifest = _load_manifest(root, manifest_relative, version, frontend_contracts[version])
         _require_exact_field(
             manifest.get("request_schema"),
             request_reference,

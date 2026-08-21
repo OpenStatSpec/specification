@@ -17,9 +17,27 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_released_contract_artifact_inventory_is_valid() -> None:
     inventory = validate_contract_artifacts(ROOT)
     assert inventory.plan_cases == {"0.1": 4, "0.2": 26}
-    assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44}
-    assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44}
+    assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44, "0.3": 0}
+    assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44, "0.3": 0}
     assert inventory.binding_cases == {"0.1": 6, "0.2": 11}
+
+
+def test_frontend_03_request_schema_is_registered() -> None:
+    inventory = validate_contract_artifacts(ROOT)
+    assert "0.3" in inventory.frontend_declared_cases
+
+
+def test_frontend_03_schema_changes_only_contract_identity() -> None:
+    old = json.loads((ROOT / "transformation/spss-syntax-frontend-0.2.schema.json").read_text())
+    new = json.loads((ROOT / "transformation/spss-syntax-frontend-0.3.schema.json").read_text())
+    assert new["$id"].endswith("spss-syntax-frontend-0.3.schema.json")
+    assert new["title"] == "OpenStatSpec SPSS-like Syntax Frontend Request 0.3"
+    assert new["properties"]["contract"]["const"] == "openstatspec-spss-syntax-frontend-v0.3"
+    for document in (old, new):
+        document.pop("$id")
+        document.pop("title")
+        document["properties"]["contract"].pop("const")
+    assert new == old
 
 
 def test_v030_profile_status_is_consistently_released() -> None:
