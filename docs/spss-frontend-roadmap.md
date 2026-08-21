@@ -20,7 +20,8 @@ specification publication.
 
 | Capability | Intended boundary | Reason |
 | --- | --- | --- |
-| Comments, existing-variable `TO`, grouped supported forms | Frontend 0.3, Plan 0.1/0.2 | Compile-time syntax expansion only |
+| Comments, existing-variable `TO`, grouped labels and recodes | Frontend 0.3, Plan 0.1 | Compile-time syntax expansion only |
+| Grouped `FORMATS` and `VARIABLE LEVEL` | Frontend 0.3, Plan 0.2 | Expands to existing Plan 0.2 metadata operations |
 | `NOT`, `NE`, `<>`, `~=` over the existing predicate grammar | Frontend 0.3, Plan 0.2 | Canonically lowers to existing comparisons and booleans |
 | `LOWEST`/`HIGHEST` recode ranges | Frontend 0.3, Plan 0.1/0.2 | Lowers to finite binary64 endpoints; system missing remains distinct |
 | `ADD VALUE LABELS` | Frontend 0.3, Plan 0.1/0.2 | Lowers ordered metadata state to complete label replacement |
@@ -36,7 +37,7 @@ specification publication.
 
 - [x] Specification-complete: Plan, Frontend, and In-Place schemas, manifests,
   references, canonical bytes, and source/plan hashes are validated.
-- Add specification-owned validation for Plan, Frontend, and In-Place schemas,
+- [x] Add specification-owned validation for Plan, Frontend, and In-Place schemas,
   manifests, references, canonical bytes, and source/plan hashes.
 - Keep release status consistent across profile documents, roadmap, changelog,
   tags, and releases.
@@ -50,11 +51,11 @@ block specification publication.
 
 - [x] Specification-complete: the schema, profile, 35 declared cases,
   inherited compatibility, and repository validation are present.
-Frontend 0.3 should add syntax depth without adding plan operations:
+Frontend 0.3 adds syntax depth without adding plan operations:
 
 - `COMMENT`, leading-star comments, and inline block comments;
 - existing-variable lists with dictionary-order `TO` expansion;
-- grouped forms of supported labels, formats, levels, and recodes;
+- grouped forms of supported labels and recodes (Plan 0.1), plus grouped `FORMATS` and `VARIABLE LEVEL` (Plan 0.2);
 - `NOT`, `NE`, `<>`, and `~=` over the existing predicate grammar with
   three-valued truth semantics;
 - `LOWEST` and `HIGHEST` recode ranges; and

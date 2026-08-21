@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -8,8 +9,10 @@ from pathlib import Path
 import pytest
 
 from openstatspec_specification.artifacts import ArtifactValidationError
+from openstatspec_specification.artifacts import canonical_json_bytes
 from openstatspec_specification.artifacts import validate_release_metadata
 from openstatspec_specification.artifacts import validate_contract_artifacts
+from openstatspec_specification.artifacts import source_hash
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +68,28 @@ def test_frontend_03_comment_and_varlist_case_inventory() -> None:
     assert inventory.frontend_effective_cases["0.3"] == 90
 
 
+def test_value_labels_then_add_value_labels_keeps_both_ordered_replacements() -> None:
+    manifest = json.loads(
+        (ROOT / "conformance/spss-syntax-frontend-0.3.json").read_text(encoding="utf-8")
+    )
+    case = next(
+        case
+        for case in manifest["cases"]
+        if case["id"] == "value-labels-then-add-value-labels-uses-ordered-state"
+    )
+    plan = case["expected_plan_0_1"]
+    assert [operation["op"] for operation in plan["operations"]] == [
+        "replace_value_labels",
+        "replace_value_labels",
+    ]
+    assert plan["operations"][0]["labels"][0]["label"] == "Five"
+    assert plan["operations"][1]["labels"][-1]["label"] == "Two"
+    assert case["expected_source_hash"] == source_hash(case["request"]["source_text"])
+    assert case["expected_plan_hash"] == hashlib.sha256(
+        canonical_json_bytes(plan)
+    ).hexdigest()
+
+
 def test_frontend_03_release_candidate_documentation_is_complete() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
@@ -117,6 +142,15 @@ def test_release_candidate_wording_fails_for_published_profile(tmp_path: Path) -
     )
     path.write_text(text, encoding="utf-8")
     with pytest.raises(ArtifactValidationError, match="release status"):
+        validate_release_metadata(root)
+
+
+def test_release_document_symlink_fails_closed(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "docs/spss-syntax-frontend-profile-0.2.md"
+    path.unlink()
+    path.symlink_to(root / "docs/transformation-plan-profile-0.2.md")
+    with pytest.raises(ArtifactValidationError, match="artifact path traverses symlink"):
         validate_release_metadata(root)
 
 
@@ -184,4 +218,54 @@ def test_binding_plan_and_frontend_references_must_agree(tmp_path: Path) -> None
     manifest["cases"][0]["applied_plan_case"] = "strict-greater-than"
     path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ArtifactValidationError, match="binding reference mismatch"):
+        validate_contract_artifacts(root)
+
+
+def test_semantic_plan_failure_must_remain_schema_valid(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/transformation-plan-0.1.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    case = next(case for case in manifest["cases"] if case["id"] == "reject-descending-range")
+    case["plan"]["operations"][0]["unexpected"] = True
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="semantic failure must have a schema-valid plan"):
+        validate_contract_artifacts(root)
+
+
+def test_plan_schema_invalid_failure_requires_invalid_plan(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/transformation-plan-0.1.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    case = next(case for case in manifest["cases"] if case["id"] == "reject-descending-range")
+    case["expected_error"] = "plan_schema_invalid"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="plan_schema_invalid requires a schema-invalid plan"):
+        validate_contract_artifacts(root)
+
+
+def test_frontend_plan_schema_invalid_case_requires_valid_request_and_invalid_plan(
+    tmp_path: Path,
+) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/spss-syntax-frontend-0.3.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    case = next(case for case in manifest["cases"] if case["id"] == "formats-grouped-to-expands-source-order")
+    case["expected_error"] = "plan_schema_invalid"
+    case["expected_plan"]["operations"][0]["unexpected"] = True
+    case.pop("expected_plan_contract")
+    case.pop("expected_plan_hash")
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    validate_contract_artifacts(root)
+
+
+def test_superseded_replacement_must_keep_request_identity(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/spss-syntax-frontend-0.3.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    replacement = next(
+        case for case in manifest["cases"] if case["id"] == "inline-block-comment-is-ignored"
+    )
+    replacement["request"]["input_alias"] = "other"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="superseded case request mismatch"):
         validate_contract_artifacts(root)

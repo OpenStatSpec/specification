@@ -22,14 +22,16 @@ level. It does not declare physical identifiers.
 ## Compatibility and output-plan selection
 
 Frontend 0.3 consumes unchanged Frontend 0.2 input-schema fields and unchanged
-Plan 0.1 and Plan 0.2 contracts. Comments, `TO`, grouped syntax, open-ended
-RECODE ranges, and additive value labels remain in the Plan 0.1 output subset.
-Predicate aliases and `NOT` require the existing Plan 0.2 `conditional_assign`
-syntax. A program containing only commands and productions in the Plan 0.1
-subset MUST emit an exact Plan 0.1 object. A program containing a 0.2-only
-predicate production MUST emit Plan 0.2. No command is dropped, and the
-frontend performs no data mutation, SQL execution, branch operation, or Dolt
-commit.
+Plan 0.1 and Plan 0.2 contracts. Comments, `TO`, grouped recodes and labels,
+open-ended RECODE ranges, and additive value labels remain in the Plan 0.1
+output subset. Grouped `FORMATS` and `VARIABLE LEVEL` emit Plan 0.2
+`set_format` and `set_measurement_level` operations, respectively. Predicate
+aliases and `NOT` require the existing Plan 0.2 `conditional_assign` syntax.
+A program containing only commands and productions whose underlying operations
+are in the Plan 0.1 subset MUST emit an exact Plan 0.1 object. A program
+containing any Plan 0.2-only operation MUST emit Plan 0.2. No command is
+dropped, and the frontend performs no data mutation, SQL execution, branch
+operation, or Dolt commit.
 
 ## Comments and source identity
 

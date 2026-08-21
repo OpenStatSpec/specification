@@ -613,13 +613,19 @@
       "expected_plan_0_1": {
         "contract": "openstatspec-transformation-plan-v0.1",
         "input_alias": "parent",
-        "operations": [{"op": "replace_value_labels", "variable": "q1", "labels": [
-          {"value": {"type": "binary64", "bits": "4014000000000000"}, "label": "Cinq"},
-          {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "One"},
-          {"value": {"type": "binary64", "bits": "4000000000000000"}, "label": "Two"}
-        ]}]
+        "operations": [
+          {"op": "replace_value_labels", "variable": "q1", "labels": [
+            {"value": {"type": "binary64", "bits": "4014000000000000"}, "label": "Five"},
+            {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "One"}
+          ]},
+          {"op": "replace_value_labels", "variable": "q1", "labels": [
+            {"value": {"type": "binary64", "bits": "4014000000000000"}, "label": "Cinq"},
+            {"value": {"type": "binary64", "bits": "3ff0000000000000"}, "label": "One"},
+            {"value": {"type": "binary64", "bits": "4000000000000000"}, "label": "Two"}
+          ]}
+        ]
       },
-      "expected_plan_hash": "d28ccba13408620463b8770857acfa8de5ffa0ba59f9212214f8bbfbdd0fa088",
+      "expected_plan_hash": "ed2c5ebaab637b6156f04f012bd99837e7377ac93e2919ec46e58fdc81cacd89",
       "expected_source_hash": "fafcf4a687aa9241bf70b6152d6d10e083e357f322c7008c5aea8c72c5ccfd12",
       "expected_error": null
     },

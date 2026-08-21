@@ -65,7 +65,12 @@ catalog mutation, audit behavior, rollback, or profile capability rules change.
 
 Older schemas, fixtures, canonical JSON, hashes, and diagnostics remain
 immutable. New manifests inherit successful and failing older cases and prove
-that old source continues to emit the same old plans.
+that old source continues to emit the same old plans. An inherited case is
+identical in the effective set, apart from its namespaced ID and request
+contract override, unless its ID appears in `superseded_cases`. A superseding
+replacement must use the same request input alias, input schema, and source
+text; it may change only the expected diagnostic and expected plan fields that
+describe the revised frontend behavior.
 
 ## Milestones
 

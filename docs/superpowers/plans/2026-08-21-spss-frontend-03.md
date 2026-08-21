@@ -363,8 +363,9 @@ For every Plan manifest:
 1. Index cases by ID.
 2. Require `expected_error` to be either `null` or a non-empty string.
 3. For successful cases, require a `plan` object, validate it against the manifest's schema, calculate `sha256(canonical_json_bytes(plan))`, and require exact lowercase `expected_plan_hash` equality.
-4. For failing cases, require `expected_plan_hash` to be absent or `null`; retain the invalid plan as declarative negative input and do not require it to satisfy the plan schema.
-5. Require the plan's `contract` to match the manifest contract for successful cases.
+4. For `plan_schema_invalid` cases, require a plan object that fails the selected Plan schema, with `expected_plan_hash` absent or `null`.
+5. For semantic failures, require a plan object that passes the selected Plan schema, retain its non-empty `expected_error`, and omit only the success hash.
+6. Require the plan's `contract` to match the manifest contract for successful plan objects; a schema-invalid negative may fail this contract constraint as part of its selected-schema failure.
 
 Add private helpers with these signatures:
 
@@ -385,11 +386,11 @@ For each Frontend case:
 
 1. Compute `source_hash(request["source_text"])` for every structurally readable request and require exact `expected_source_hash`.
 2. Validate successful requests against `request_schema`.
-3. For `plan_schema_invalid` failures, require request schema validation to fail; for other failures, require the request schema to pass.
-4. Resolve successful expected plans from exactly one of `expected_plan`, `expected_plan_0_1`, `expected_plan_case`, or `expected_plan_case_0_1`.
+3. Require every readable request to pass its request schema, including `plan_schema_invalid` cases; malformed request cases remain invalid requests and do not become plan-schema cases.
+4. Resolve a successful or `plan_schema_invalid` expected plan from exactly one of `expected_plan`, `expected_plan_0_1`, `expected_plan_case`, or `expected_plan_case_0_1`.
 5. Resolve `expected_plan_case` against the declared Plan manifest and `expected_plan_case_0_1` against Frontend 0.1's resolved expected plans.
 6. Validate the resolved plan against the schema selected by its exact `contract`, recompute its canonical hash, and require equality with `expected_plan_hash`.
-7. Require failing cases to omit expected plan objects, references, and hashes.
+7. Require semantic frontend failures to omit expected plan objects, references, and hashes. A Frontend `plan_schema_invalid` case instead includes the invalid expected plan, selects a recognized Plan contract, validates the request structurally, and omits or nulls `expected_plan_hash`.
 
 Use this exact resolver signature:
 
@@ -398,9 +399,18 @@ def _resolve_frontend_plans(
     root: Path,
     manifests: Mapping[str, Mapping[str, object]],
     plan_cases: Mapping[str, Mapping[str, object]],
+    effective_cases: Mapping[str, tuple[Mapping[str, object], ...]],
 ) -> Mapping[str, Mapping[str, Mapping[str, object]]]:
     """Return version -> case-id -> resolved canonical plan for successes."""
 ```
+
+The fourth argument is the version-to-effective-case mapping produced by
+`_expand_frontend_cases`; it includes inherited cases with namespaced IDs and
+declared replacements, after superseded cases are removed. The resolver returns
+only structurally valid successful plans. Semantic negative frontend cases keep
+their `expected_error` and no plan fields. A `plan_schema_invalid` case has a
+schema-valid request and one inline invalid plan field, with a recognized plan
+contract and no expected plan hash.
 
 - [ ] **Step 5: Implement In-Place reference and audit identity validation.**
 
@@ -704,7 +714,7 @@ Normatively require:
 - `NOT` is accepted only over the existing comparison/boolean grammar and lowers recursively with comparison complements and De Morgan's laws, preserving SQL three-valued truth and canonical same-operator flattening;
 - open ranges use `ffefffffffffffff` for negative maximum finite binary64 and `7fefffffffffffff` for positive maximum finite binary64; SQL NULL/system missing is not included;
 - `ADD VALUE LABELS` updates an existing typed value at its current ordinal and appends new values in source order, then emits one complete `replace_value_labels` operation per variable;
-- comments, `TO`, grouped syntax, open ranges, and additive labels remain in the Plan 0.1 output subset; predicate aliases/`NOT` require existing Plan 0.2 `conditional_assign` syntax.
+- comments, `TO`, grouped recodes and labels, open ranges, and additive labels remain in the Plan 0.1 output subset; grouped `FORMATS`/`VARIABLE LEVEL` and predicate aliases/`NOT` use existing Plan 0.2 operations.
 
 - [ ] **Step 5: Register Frontend 0.3 in the validator with an empty draft manifest.**
 
@@ -819,7 +829,6 @@ Add:
 
 ```python
 def _expand_frontend_cases(
-    root: Path,
     version: str,
     manifest: Mapping[str, object],
     manifests: Mapping[str, Mapping[str, object]],
@@ -835,9 +844,12 @@ expected plan hash, and expected diagnostic remain unchanged.
 
 `superseded_cases` maps an inherited case ID to a declared 0.3 replacement case
 ID. Require every old ID to exist, every replacement ID to exist in declared
-cases, and every replacement to use the same `source_text`. Exclude superseded
-old cases from the effective set. Reject inheritance cycles and duplicate
-expanded IDs.
+cases, and the replacement request to be identical to the inherited request
+except for the current request contract. This preserves `input_alias`,
+`input_schema`, and `source_text`; the replacement may change the expected
+diagnostic and expected plan fields to document the new behavior. Exclude
+superseded old cases from the effective set. Reject inheritance cycles and
+duplicate expanded IDs.
 
 - [ ] **Step 4: Run the focused tests and complete Task 4/5 commit.**
 

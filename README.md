@@ -37,10 +37,11 @@ permits a transformation to mutate a core import.
 That separate derived-data profile is not used by the SPSS-like in-place
 frontend below.
 
-The release-candidate [Transformation Plan Profile 0.2](docs/transformation-plan-profile-0.2.md)
-adds sequential bounded numeric assignment and conditional assignment to the
+The released [Transformation Plan Profile 0.2](docs/transformation-plan-profile-0.2.md)
+was released in OpenStatSpec `v0.3.0` and adds sequential bounded numeric assignment and conditional assignment to the
 unchanged 0.1 operations. The
-[SPSS Syntax Frontend Profile 0.2](docs/spss-syntax-frontend-profile-0.2.md)
+[released SPSS Syntax Frontend Profile 0.2](docs/spss-syntax-frontend-profile-0.2.md)
+was released in OpenStatSpec `v0.3.0` and
 lowers `COMPUTE`, `IF`, `FORMATS`, `VARIABLE LEVEL`, and `EXECUTE`
 alongside the 0.1 `RECODE`, `VARIABLE LABELS`, and `VALUE LABELS` subset.
 Programs using only the 0.1 subset retain exact 0.1 plan identity and hash. The
@@ -49,6 +50,10 @@ to the same dataset and same physical wide table on supported SQL profiles. It
 creates no derived dataset, data copy, or OpenStatSpec undo layer; Dolt-specific
 history and commits remain Dolt's. MySQL, MariaDB, and Dolt require a new target
 to be provisioned separately before an in-place transformation apply.
+
+The release-candidate [SPSS Syntax Frontend Profile 0.3](docs/spss-syntax-frontend-profile-0.3.md)
+adds syntax-only expansion over the released Plan 0.1/0.2 contracts and is not
+published stable yet.
 
 ## Repository layout
 

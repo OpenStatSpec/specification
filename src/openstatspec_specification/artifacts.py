@@ -115,6 +115,19 @@ def _load_json(root: Path, relative: str) -> object:
         ) from None
 
 
+def _load_text(root: Path, relative: str) -> str:
+    candidate = _safe_candidate(root, relative)
+    try:
+        _require(candidate.is_file(), f"artifact is missing: {relative}")
+        return candidate.read_text(encoding="utf-8")
+    except ArtifactValidationError:
+        raise
+    except (OSError, UnicodeError) as error:
+        raise ArtifactValidationError(
+            f"artifact cannot be decoded: {relative} ({type(error).__name__})"
+        ) from None
+
+
 def _require_file(root: Path, relative: str) -> None:
     candidate = _safe_candidate(root, relative)
     try:
@@ -189,51 +202,6 @@ def _load_manifest(root: Path, relative: str, version: str, contract: str) -> di
     return value
 
 
-def _validate_cases(
-    cases: object,
-    schema: Mapping[str, object],
-    field: str,
-    context: str,
-) -> None:
-    _require(isinstance(cases, list), f"{context}: cases must be a list")
-    validator = Draft202012Validator(schema)
-    for index, case in enumerate(cases):
-        _require(isinstance(case, dict), f"{context}: each case must be an object")
-        value = case.get(field)
-        try:
-            validator.validate(value)
-        except ValidationError as error:
-            raise ArtifactValidationError(
-                f"{context}.cases[{index}].{field}: schema validation failed: {error.message}"
-            ) from None
-
-
-def _validate_expected_plans(
-    cases: object,
-    schemas: Mapping[str, Mapping[str, object]],
-    context: str,
-) -> None:
-    _require(isinstance(cases, list), f"{context}: cases must be a list")
-    for index, case in enumerate(cases):
-        _require(isinstance(case, dict), f"{context}: each case must be an object")
-        for field in ("expected_plan", "expected_plan_0_1"):
-            if field not in case:
-                continue
-            plan = case[field]
-            _require(isinstance(plan, dict), f"{context}.cases[{index}].{field}: must be an object")
-            contract = plan.get("contract")
-            _require(
-                isinstance(contract, str) and contract in schemas,
-                f"{context}.cases[{index}].{field}: unsupported plan contract",
-            )
-            try:
-                Draft202012Validator(schemas[contract]).validate(plan)
-            except ValidationError as error:
-                raise ArtifactValidationError(
-                    f"{context}.cases[{index}].{field}: schema validation failed: {error.message}"
-                ) from None
-
-
 def _expected_error(case: Mapping[str, object], context: str) -> str | None:
     value = case.get("expected_error")
     _require(
@@ -281,6 +249,18 @@ def _validate_plan_manifests(
                     "expected_plan_hash" not in case or expected_hash is None,
                     f"{context}: failing case must omit expected_plan_hash or set it to null",
                 )
+                try:
+                    validator.validate(plan)
+                except ValidationError:
+                    _require(
+                        expected_error == "plan_schema_invalid",
+                        f"{context}: semantic failure must have a schema-valid plan",
+                    )
+                else:
+                    _require(
+                        expected_error != "plan_schema_invalid",
+                        f"{context}: plan_schema_invalid requires a schema-invalid plan",
+                    )
                 continue
 
             try:
@@ -343,7 +323,6 @@ def _version_key(version: str) -> tuple[int, ...]:
 
 
 def _expand_frontend_cases(
-    root: Path,
     version: str,
     manifest: Mapping[str, object],
     manifests: Mapping[str, Mapping[str, object]],
@@ -433,10 +412,14 @@ def _expand_frontend_cases(
                 old_request = target_by_id[old_id].get("request")
                 replacement_request = declared_by_id[replacement_id].get("request")
                 _require(
-                    isinstance(old_request, dict)
-                    and isinstance(replacement_request, dict)
-                    and old_request.get("source_text") == replacement_request.get("source_text"),
-                    f"{context}: superseded case source text mismatch: {old_id}",
+                    isinstance(old_request, dict) and isinstance(replacement_request, dict),
+                    f"{context}: superseded case request mismatch: {old_id}",
+                )
+                expected_replacement_request = deepcopy(old_request)
+                expected_replacement_request["contract"] = entry["request_contract_override"]
+                _require(
+                    replacement_request == expected_replacement_request,
+                    f"{context}: superseded case request mismatch: {old_id}",
                 )
 
             for inherited_case in expand(target_version, target_manifest, current_stack):
@@ -468,9 +451,9 @@ def _expand_frontend_cases(
 
 
 def _case_source_version(case_id: str, version: str) -> str:
-    if version == "0.3" and "/" in case_id:
+    if "/" in case_id:
         source_version, _, _ = case_id.partition("/")
-        if source_version in {"0.1", "0.2"}:
+        if source_version in FRONTEND_MANIFESTS:
             return source_version
     return version
 
@@ -514,16 +497,10 @@ def _resolve_frontend_plans(
                     f"{context}: source hash mismatch",
                 )
             request_valid = _schema_is_valid(request, request_schema)
-            if expected_error == "plan_schema_invalid":
-                _require(
-                    not request_valid,
-                    f"{context}: plan_schema_invalid requires an invalid request",
-                )
-            else:
-                _require(
-                    request_valid,
-                    f"{context}.request: schema validation failed",
-                )
+            _require(
+                request_valid,
+                f"{context}.request: schema validation failed",
+            )
 
             plan_fields = (
                 "expected_plan",
@@ -532,7 +509,7 @@ def _resolve_frontend_plans(
                 "expected_plan_case_0_1",
             )
             present_plan_fields = [field for field in plan_fields if field in case]
-            if expected_error is not None:
+            if expected_error is not None and expected_error != "plan_schema_invalid":
                 for field in (*plan_fields, "expected_plan_contract", "expected_plan_hash"):
                     _require(
                         field not in case,
@@ -601,9 +578,19 @@ def _resolve_frontend_plans(
             try:
                 Draft202012Validator(plan_schemas[contract]).validate(plan)
             except ValidationError as error:
+                if expected_error == "plan_schema_invalid":
+                    _require(
+                        case.get("expected_plan_hash") is None,
+                        f"{context}: plan_schema_invalid must omit expected_plan_hash or set it to null",
+                    )
+                    continue
                 raise ArtifactValidationError(
                     f"{context}: expected plan schema validation failed: {error.message}"
                 ) from None
+            _require(
+                expected_error != "plan_schema_invalid",
+                f"{context}: plan_schema_invalid requires a schema-invalid plan",
+            )
             declared_contract = case.get("expected_plan_contract")
             _require(
                 declared_contract is None or declared_contract == contract,
@@ -641,7 +628,7 @@ def _validate_binding_manifests(
                         case.get("mutation_started") is True
                         and case.get("failure_point") == "after_data_and_metadata_before_audit"
                     ),
-                    f"{context}: failing binding case must set mutation_started to false",
+                    f"{context}: failing binding case must set mutation_started to false or declare failure_point=after_data_and_metadata_before_audit",
                 )
             if version != "0.2":
                 continue
@@ -721,7 +708,7 @@ def _require_exact_field(value: object, expected: object, context: str) -> None:
 
 def validate_release_metadata(root: Path) -> None:
     for relative in V030_PROFILE_DOCUMENTS:
-        text = (root / relative).read_text(encoding="utf-8")
+        text = " ".join(_load_text(root, relative).split())
         _require(
             "Status: released in OpenStatSpec `v0.3.0`" in text,
             f"{relative}: release status is inconsistent with v0.3.0",
@@ -730,7 +717,7 @@ def validate_release_metadata(root: Path) -> None:
             "release candidate for the planned OpenStatSpec `v0.3.0`" not in text,
             f"{relative}: stale release status remains",
         )
-    roadmap = (root / "ROADMAP.md").read_text(encoding="utf-8")
+    roadmap = " ".join(_load_text(root, "ROADMAP.md").split())
     _require("`v0.3.0` is the" in roadmap, "ROADMAP release tag mismatch")
     _require(
         "current public specification release and is immutable" in roadmap,
@@ -738,7 +725,7 @@ def validate_release_metadata(root: Path) -> None:
     )
     _require(V030_COMMIT in roadmap, "ROADMAP v0.3.0 commit mismatch")
 
-    frontend_03 = (root / FRONTEND_03_PROFILE_DOCUMENT).read_text(encoding="utf-8")
+    frontend_03 = " ".join(_load_text(root, FRONTEND_03_PROFILE_DOCUMENT).split())
     _require(
         "Status: release candidate for the next OpenStatSpec minor release." in frontend_03
         and "is not published stable until a protected or signed specification tag targets" in frontend_03
@@ -760,7 +747,9 @@ def validate_release_metadata(root: Path) -> None:
             f"{FRONTEND_03_PROFILE_DOCUMENT}: adapter claim gate is missing {phrase}",
         )
 
-    classification = (root / "docs/spss-frontend-roadmap.md").read_text(encoding="utf-8")
+    classification = " ".join(
+        _load_text(root, "docs/spss-frontend-roadmap.md").split()
+    )
     for phrase in (
         "Frontend 0.3, Plan 0.1/0.2",
         "New Plan/Frontend/Binding generation",
@@ -770,7 +759,10 @@ def validate_release_metadata(root: Path) -> None:
         "Milestone 1: Frontend 0.3 over Plan 0.1/0.2\n\n- [x] Specification-complete",
         "Adapter claims remain pending and separately gated",
     ):
-        _require(phrase in classification, f"SPSS classification is missing {phrase}")
+        _require(
+            " ".join(phrase.split()) in classification,
+            f"SPSS classification is missing {phrase}",
+        )
 
 
 def validate_contract_artifacts(root: Path) -> ArtifactInventory:
@@ -858,7 +850,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
                 )
         frontend_manifests[version] = manifest
     frontend_effective_cases = {
-        version: _expand_frontend_cases(root, version, manifest, frontend_manifests)
+        version: _expand_frontend_cases(version, manifest, frontend_manifests)
         for version, manifest in frontend_manifests.items()
     }
     frontend_plans = _resolve_frontend_plans(

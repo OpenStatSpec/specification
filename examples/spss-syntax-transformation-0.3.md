@@ -25,11 +25,11 @@ form, with SQL three-valued truth preserved.
 
 The leading comment is retained in the LF-normalized source used for the
 source SHA-256 hash, while comments emit no operation. The full emitted plan
-has its own canonical plan hash. This program uses the Plan 0.1 subset for the
-recode, labels, and formats, but the conditional assignment and lowered
-predicate selects between the immutable Plan 0.1/0.2 outputs. A program without a Plan 0.2-only
-predicate production selects Plan 0.1 instead. The corresponding manifest
-cases prove each production independently, including
+has its own canonical plan hash over the immutable Plan 0.1/0.2 outputs. The recode and labels use the Plan 0.1
+operation subset, while grouped `FORMATS`, the conditional assignment, and its
+lowered predicate use Plan 0.2 operations. A program without any Plan 0.2-only
+operation selects Plan 0.1 instead. The corresponding manifest cases prove
+each production independently, including
 `recode-lowest-thru-upper`, `recode-lower-thru-highest`,
 `add-value-labels-multiple-variable-group`, `formats-grouped-to-expands-source-order`,
 and `not-equality-lowers-to-less-or-greater`.
