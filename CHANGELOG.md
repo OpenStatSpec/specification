@@ -4,6 +4,16 @@
 
 Future changes will be listed here.
 
+## v0.4.1 - 2026-08-21
+
+OpenStatSpec `v0.4.1` is a documentation and release-bookkeeping patch for
+the stable `v0.4.0` specification. It changes no normative contract or
+conformance artifact.
+
+- Aligned the SPSS frontend roadmap with the published Frontend 0.3 profile.
+- Corrected release metadata fixtures and validation coverage for the public
+  README and current release status.
+
 ## v0.4.0 - 2026-08-21
 
 OpenStatSpec `v0.4.0` publishes SPSS Syntax Frontend 0.3 as a stable optional
