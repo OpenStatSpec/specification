@@ -16,6 +16,7 @@ from openstatspec_specification.dolt import (  # noqa: E402
 from openstatspec_specification.artifacts import (  # noqa: E402
     ArtifactValidationError,
     validate_contract_artifacts,
+    validate_release_metadata,
 )
 
 
@@ -139,6 +140,8 @@ def validate_repository_controls() -> None:
         "fidelity_event",
     ):
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
+
+    validate_release_metadata(ROOT)
 
 
 if __name__ == "__main__":
