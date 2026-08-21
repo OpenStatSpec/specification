@@ -288,6 +288,267 @@
       },
       "expected_source_hash": "c9b4ae4e9bfb7e25c8720f278d50669250fde123dffd4d743adaf18c91f83bd1",
       "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "ne-keyword-lowers-to-less-or-greater",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (source_a NE 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [{"op": "conditional_assign", "condition": {"expression": "boolean", "operator": "or", "operands": [
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}
+        ]}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "execute"}]
+      },
+      "expected_plan_hash": "93069b5cccb751d8e21d90ac02947a333b86c632149aebbdbe145b0588b41cf1",
+      "expected_source_hash": "e0292c5367e5b401224d4efd2a5acddaa05dbddb104cd37af5f0eb187f19c0aa",
+      "expected_error": null
+    },
+    {
+      "id": "angle-not-equal-lowers-to-less-or-greater",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (source_a <> 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [{"op": "conditional_assign", "condition": {"expression": "boolean", "operator": "or", "operands": [
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}
+        ]}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "execute"}]
+      },
+      "expected_plan_hash": "93069b5cccb751d8e21d90ac02947a333b86c632149aebbdbe145b0588b41cf1",
+      "expected_source_hash": "343d43d13ed8b58623da9231054cf92005ea0048f1701bbd0dd2bf5822afc4c5",
+      "expected_error": null
+    },
+    {
+      "id": "tilde-not-equal-lowers-to-less-or-greater",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (source_a ~= 1) target = 1.\nEXECUTE."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [{"op": "conditional_assign", "condition": {"expression": "boolean", "operator": "or", "operands": [
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}
+        ]}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "execute"}]
+      },
+      "expected_plan_hash": "93069b5cccb751d8e21d90ac02947a333b86c632149aebbdbe145b0588b41cf1",
+      "expected_source_hash": "9ba239c1692adb87db79b742e1f2aca74b002b1ed32466eb1366422c844d382b",
+      "expected_error": null
+    },
+    {
+      "id": "not-equality-lowers-to-less-or-greater",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (NOT (source_a = 1)) target = 1.\nEXECUTE."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [{"op": "conditional_assign", "condition": {"expression": "boolean", "operator": "or", "operands": [
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}
+        ]}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "execute"}]
+      },
+      "expected_plan_hash": "93069b5cccb751d8e21d90ac02947a333b86c632149aebbdbe145b0588b41cf1",
+      "expected_source_hash": "e309a67df9b587b81766ed35afa770e99a0debc9918352e39f5d7cdb9058ba3e",
+      "expected_error": null
+    },
+    {
+      "id": "not-nested-and-lowers-by-de-morgan",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "source_b", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (NOT (source_a = 1 AND source_b = 1)) target = 1.\nEXECUTE."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [{"op": "conditional_assign", "condition": {"expression": "boolean", "operator": "or", "operands": [
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_b"}, "operator": "<", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}},
+          {"expression": "comparison", "left": {"kind": "variable", "variable": "source_b"}, "operator": ">", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}
+        ]}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "execute"}]
+      },
+      "expected_plan_hash": "318eec6c5949cb7eb3b700727f00c0baee4cd521735b97443a207e42201082d6",
+      "expected_source_hash": "d6d61d8e9a27df8a0a48b8e88b8f7622cdb150a02f041449892d0a0b0c5311a4",
+      "expected_error": null
+    },
+    {
+      "id": "double-not-retains-canonical-comparison",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (NOT (NOT (source_a = 1))) target = 1.\nEXECUTE."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.2",
+      "expected_plan": {
+        "contract": "openstatspec-transformation-plan-v0.2",
+        "input_alias": "parent",
+        "operations": [{"op": "conditional_assign", "condition": {"expression": "comparison", "left": {"kind": "variable", "variable": "source_a"}, "operator": "=", "right": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, "target": "target", "value": {"kind": "literal", "value": {"type": "binary64", "bits": "3ff0000000000000"}}}, {"op": "execute"}]
+      },
+      "expected_plan_hash": "fc0fc2836fcdec4852c869986182051c6ec39d44ca78621e3471b4c85330e122",
+      "expected_source_hash": "de80a1e13be7c1193afe63f88269a70ca50af471a5943b9126582053bb1a02a4",
+      "expected_error": null
+    },
+    {
+      "id": "reject-not-numeric-truthiness",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (NOT source_a) target = 1."
+      },
+      "expected_source_hash": "bf41ec574a901bc28462fc237edcdcb6bc1b88cc51af184d273c523951ca9518",
+      "expected_error": "expression_type_unsupported"
+    },
+    {
+      "id": "reject-chained-comparison",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [
+          {"name": "source_a", "storage_kind": "numeric"},
+          {"name": "source_b", "storage_kind": "numeric"},
+          {"name": "source_c", "storage_kind": "numeric"},
+          {"name": "target", "storage_kind": "numeric"}
+        ]},
+        "source_text": "IF (source_a < source_b < source_c) target = 1."
+      },
+      "expected_source_hash": "d5c8cab87b293826f708757132fcb629954ffdac6037cdd1f75f85b1400dab62",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "recode-lowest-thru-upper",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "source_a", "storage_kind": "numeric"}]},
+        "source_text": "RECODE source_a (LOWEST THRU 1 = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "recode", "source": "source_a", "target": "source_a", "target_mode": "replace", "rules": [{"match": {"kind": "range", "lower": {"type": "binary64", "bits": "ffefffffffffffff"}, "upper": {"type": "binary64", "bits": "3ff0000000000000"}}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}}]
+      },
+      "expected_plan_hash": "e6b7fc9887b90f153067856771eaa3f8164a8e0212025f4c81923e70be6cec42",
+      "expected_source_hash": "7c9e0b869927dcda8a06e2b92f3c738902fabb93a126d2159583eeace55b3e3d",
+      "expected_error": null
+    },
+    {
+      "id": "recode-lower-thru-highest",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "source_a", "storage_kind": "numeric"}]},
+        "source_text": "RECODE source_a (1 THRU HIGHEST = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "recode", "source": "source_a", "target": "source_a", "target_mode": "replace", "rules": [{"match": {"kind": "range", "lower": {"type": "binary64", "bits": "3ff0000000000000"}, "upper": {"type": "binary64", "bits": "7fefffffffffffff"}}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}}]
+      },
+      "expected_plan_hash": "ccfeaf45c8663888d2fd85a5c4808bbd8a314d1a2418554916a1f2746c0f2bea",
+      "expected_source_hash": "93b2464fb376be1c79ef49069b20252e40ec0d134b7b078148ee651da359acf1",
+      "expected_error": null
+    },
+    {
+      "id": "recode-lowest-thru-highest",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "source_a", "storage_kind": "numeric"}]},
+        "source_text": "RECODE source_a (LOWEST THRU HIGHEST = 0)."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_0_1": {
+        "contract": "openstatspec-transformation-plan-v0.1",
+        "input_alias": "parent",
+        "operations": [{"op": "recode", "source": "source_a", "target": "source_a", "target_mode": "replace", "rules": [{"match": {"kind": "range", "lower": {"type": "binary64", "bits": "ffefffffffffffff"}, "upper": {"type": "binary64", "bits": "7fefffffffffffff"}}, "result": {"kind": "literal", "value": {"type": "binary64", "bits": "0000000000000000"}}}], "unmatched": {"kind": "copy"}}]
+      },
+      "expected_plan_hash": "6316b3fe33d13c034202c1472f1473d0658fb14538a1f5def8f83c9142c2adeb",
+      "expected_source_hash": "ac84fad5b5d0e29caef5e7e80ae83f5ee00404eca619a643840111d8571829a5",
+      "expected_error": null
+    },
+    {
+      "id": "reject-string-open-range",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "source_a", "storage_kind": "string"}]},
+        "source_text": "RECODE source_a (LOWEST THRU 1 = 'x')."
+      },
+      "expected_source_hash": "cfd96fba97131220e5fef64551c8f4f746ff0019dd8e46174f3cfc301a4689ed",
+      "expected_error": "type_mismatch"
+    },
+    {
+      "id": "reject-highest-as-lower-endpoint",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "source_a", "storage_kind": "numeric"}]},
+        "source_text": "RECODE source_a (HIGHEST THRU 1 = 0)."
+      },
+      "expected_source_hash": "44481c08e11c8ce299c3e1673e43047a438201cf7bcb2b0c9e3f38d99a00fbac",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "reject-lowest-as-upper-endpoint",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "source_a", "storage_kind": "numeric"}]},
+        "source_text": "RECODE source_a (1 THRU LOWEST = 0)."
+      },
+      "expected_source_hash": "e9e9468f64c03bfd2822a365913399b3d5391f02f600e12606720b744a1d1e19",
+      "expected_error": "spss_syntax_error"
     }
   ]
 }

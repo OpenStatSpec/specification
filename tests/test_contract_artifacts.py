@@ -18,14 +18,20 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_released_contract_artifact_inventory_is_valid() -> None:
     inventory = validate_contract_artifacts(ROOT)
     assert inventory.plan_cases == {"0.1": 4, "0.2": 26}
-    assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44, "0.3": 14}
-    assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44, "0.3": 69}
+    assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44, "0.3": 28}
+    assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44, "0.3": 83}
     assert inventory.binding_cases == {"0.1": 6, "0.2": 11}
 
 
 def test_frontend_03_request_schema_is_registered() -> None:
     inventory = validate_contract_artifacts(ROOT)
     assert "0.3" in inventory.frontend_declared_cases
+
+
+def test_frontend_03_predicate_and_open_range_inventory() -> None:
+    inventory = validate_contract_artifacts(ROOT)
+    assert inventory.frontend_declared_cases["0.3"] == 28
+    assert inventory.frontend_effective_cases["0.3"] == 83
 
 
 def test_frontend_03_schema_changes_only_contract_identity() -> None:
@@ -43,14 +49,14 @@ def test_frontend_03_schema_changes_only_contract_identity() -> None:
 
 def test_frontend_03_inherits_released_cases_under_new_request_contract() -> None:
     inventory = validate_contract_artifacts(ROOT)
-    assert inventory.frontend_declared_cases["0.3"] == 14
-    assert inventory.frontend_effective_cases["0.3"] == 69
+    assert inventory.frontend_declared_cases["0.3"] == 28
+    assert inventory.frontend_effective_cases["0.3"] == 83
 
 
 def test_frontend_03_comment_and_varlist_case_inventory() -> None:
     inventory = validate_contract_artifacts(ROOT)
-    assert inventory.frontend_declared_cases["0.3"] == 14
-    assert inventory.frontend_effective_cases["0.3"] == 69
+    assert inventory.frontend_declared_cases["0.3"] == 28
+    assert inventory.frontend_effective_cases["0.3"] == 83
 
 
 def test_inherited_manifest_path_escape_fails_closed(tmp_path: Path) -> None:

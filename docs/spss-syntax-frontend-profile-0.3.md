@@ -75,6 +75,18 @@ preserving SQL three-valued truth. The complements are `=` to `< OR >`, `<` to
 `>=`, `<=` to `>`, `>` to `<=`, and `>=` to `<`; `NE`, `<>`, and `~=` first
 lower to `< OR >`. Boolean negation swaps `AND` and `OR` recursively.
 
+The canonical lowering table is:
+
+```text
+NOT (left = right)  -> (left < right OR left > right)
+NOT (left < right)  -> left >= right
+NOT (left <= right) -> left > right
+NOT (left > right)  -> left <= right
+NOT (left >= right) -> left < right
+NOT (a AND b)       -> NOT a OR NOT b
+NOT (a OR b)        -> NOT a AND NOT b
+```
+
 Canonical lowering flattens maximal same-operator boolean expressions while
 preserving operand order. Parentheses override precedence across different
 operators, but parentheses around a same-operator expression do not prevent
@@ -124,7 +136,6 @@ identify source spans but MUST NOT include credentials or unrelated row values.
 ## Conformance
 
 Conformance cases for this profile are published in
-[`../conformance/spss-syntax-frontend-0.3.json`](../conformance/spss-syntax-frontend-0.3.json)
-when the Frontend 0.3 manifest is released. Until that manifest exists, the
-schema and this profile are staged artifacts and no conformance case is
-declared.
+[`../conformance/spss-syntax-frontend-0.3.json`](../conformance/spss-syntax-frontend-0.3.json).
+The manifest declares 28 Frontend 0.3 cases and expands to 83 effective cases
+after inherited cases and the two published comment supersessions are applied.
