@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Mapping
@@ -336,14 +337,152 @@ def _frontend_plan_schemas(
     return schemas
 
 
+def _version_key(version: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in version.split("."))
+
+
+def _expand_frontend_cases(
+    root: Path,
+    version: str,
+    manifest: Mapping[str, object],
+    manifests: Mapping[str, Mapping[str, object]],
+) -> tuple[Mapping[str, object], ...]:
+    """Return inherited cases with contract override followed by declared cases."""
+
+    def expand(
+        current_version: str,
+        current_manifest: Mapping[str, object],
+        stack: tuple[str, ...],
+    ) -> tuple[Mapping[str, object], ...]:
+        _require(
+            current_version not in stack,
+            f"{FRONTEND_MANIFESTS[current_version]}: inherited manifest cycle",
+        )
+        current_stack = (*stack, current_version)
+        current_relative = FRONTEND_MANIFESTS[current_version]
+        declared_cases = current_manifest.get("cases")
+        _require(isinstance(declared_cases, list), f"{current_relative}: cases must be a list")
+        declared_by_id = {
+            case["id"]: case
+            for case in declared_cases
+            if isinstance(case, dict) and isinstance(case.get("id"), str)
+        }
+
+        entries = current_manifest.get("inherited_manifests", [])
+        _require(
+            isinstance(entries, list),
+            f"{current_relative}: inherited_manifests must be a list",
+        )
+        expanded: list[Mapping[str, object]] = []
+        for index, entry in enumerate(entries):
+            context = f"{current_relative}.inherited_manifests[{index}]"
+            _require(isinstance(entry, dict), f"{context}: must be an object")
+            reference = entry.get("manifest")
+            try:
+                parts = _canonical_parts(reference)
+            except ArtifactValidationError:
+                raise ArtifactValidationError(
+                    f"{context}: invalid inherited manifest: {reference!r}"
+                ) from None
+            _require(
+                len(parts) == 1 and parts[0] == reference,
+                f"{context}: invalid inherited manifest: {reference!r}",
+            )
+            target_versions = [
+                target_version
+                for target_version, target_relative in FRONTEND_MANIFESTS.items()
+                if target_relative == f"conformance/{reference}"
+                and _version_key(target_version) < _version_key(current_version)
+            ]
+            _require(
+                len(target_versions) == 1 and target_versions[0] in manifests,
+                f"{context}: inherited manifest must target an older registered Frontend manifest",
+            )
+            target_version = target_versions[0]
+            target_manifest = manifests[target_version]
+            _require(
+                entry.get("request_contract_override") == current_manifest.get("contract"),
+                f"{context}: request_contract_override must match current manifest contract",
+            )
+            superseded = entry.get("superseded_cases")
+            _require(isinstance(superseded, dict), f"{context}: superseded_cases must be an object")
+            target_declared = target_manifest.get("cases")
+            _require(
+                isinstance(target_declared, list),
+                f"{FRONTEND_MANIFESTS[target_version]}: cases must be a list",
+            )
+            target_by_id = {
+                case["id"]: case
+                for case in target_declared
+                if isinstance(case, dict) and isinstance(case.get("id"), str)
+            }
+            for old_id, replacement_id in superseded.items():
+                _require(
+                    isinstance(old_id, str) and isinstance(replacement_id, str),
+                    f"{context}: superseded case IDs must be strings",
+                )
+                _require(
+                    old_id in target_by_id,
+                    f"{context}: unknown inherited case: {old_id}",
+                )
+                _require(
+                    replacement_id in declared_by_id,
+                    f"{context}: unknown replacement case: {replacement_id}",
+                )
+                old_request = target_by_id[old_id].get("request")
+                replacement_request = declared_by_id[replacement_id].get("request")
+                _require(
+                    isinstance(old_request, dict)
+                    and isinstance(replacement_request, dict)
+                    and old_request.get("source_text") == replacement_request.get("source_text"),
+                    f"{context}: superseded case source text mismatch: {old_id}",
+                )
+
+            for inherited_case in expand(target_version, target_manifest, current_stack):
+                old_id = inherited_case["id"]
+                if old_id in superseded:
+                    continue
+                case = deepcopy(inherited_case)
+                case["id"] = f"{target_version}/{old_id}"
+                request = case.get("request")
+                _require(
+                    isinstance(request, dict),
+                    f"{context}: inherited case request must be an object",
+                )
+                request["contract"] = entry["request_contract_override"]
+                expanded.append(case)
+
+        expanded.extend(deepcopy(case) for case in declared_cases)
+        seen: set[str] = set()
+        for case in expanded:
+            case_id = case.get("id")
+            _require(
+                isinstance(case_id, str) and case_id not in seen,
+                f"{current_relative}: duplicate expanded case id: {case_id}",
+            )
+            seen.add(case_id)
+        return tuple(expanded)
+
+    return expand(version, manifest, ())
+
+
+def _case_source_version(case_id: str, version: str) -> str:
+    if version == "0.3" and "/" in case_id:
+        source_version, _, _ = case_id.partition("/")
+        if source_version in {"0.1", "0.2"}:
+            return source_version
+    return version
+
+
 def _resolve_frontend_plans(
     root: Path,
     manifests: Mapping[str, Mapping[str, object]],
     plan_cases: Mapping[str, Mapping[str, object]],
+    effective_cases: Mapping[str, tuple[Mapping[str, object], ...]],
 ) -> Mapping[str, Mapping[str, Mapping[str, object]]]:
     """Return version -> case-id -> resolved canonical plan for successes."""
     resolved: dict[str, dict[str, Mapping[str, object]]] = {}
-    for version in ("0.1", "0.2"):
+    for version in ("0.1", "0.2", "0.3"):
         manifest = manifests[version]
         manifest_relative = FRONTEND_MANIFESTS[version]
         request_reference = manifest.get("request_schema")
@@ -356,12 +495,12 @@ def _resolve_frontend_plans(
             _resolve_manifest_reference(manifest_relative, request_reference),
         )
         plan_schemas = _frontend_plan_schemas(root, version, manifest)
-        cases = manifest.get("cases")
-        _require(isinstance(cases, list), f"{manifest_relative}: cases must be a list")
+        cases = effective_cases[version]
         successful: dict[str, Mapping[str, object]] = {}
         for index, case in enumerate(cases):
             context = f"{manifest_relative}.cases[{index}]"
             _require(isinstance(case, dict), f"{context}: each case must be an object")
+            source_version = _case_source_version(case["id"], version)
             expected_error = _expected_error(case, context)
             request = case.get("request")
             _require(isinstance(request, dict), f"{context}.request: must be an object")
@@ -415,11 +554,11 @@ def _resolve_frontend_plans(
                 )
                 plan = inline_plan
             elif expected_field == "expected_plan_case":
-                plan_version = "0.1" if version == "0.1" else "0.2"
+                plan_version = "0.1" if source_version == "0.1" else "0.2"
                 expected_contract = case.get("expected_plan_contract")
                 _require(
                     expected_contract is None
-                    or expected_contract == manifests[version].get(
+                    or expected_contract == manifests[source_version].get(
                         "plan_contract", "openstatspec-transformation-plan-v0.2"
                     ),
                     f"{context}: expected_plan_contract does not match expected_plan_case",
@@ -438,8 +577,8 @@ def _resolve_frontend_plans(
                 referenced_plan_hash = referenced_case.get("expected_plan_hash")
             else:
                 _require(
-                    version == "0.2",
-                    f"{context}.{expected_field}: only Frontend 0.2 may use this reference",
+                    source_version in {"0.2", "0.3"},
+                    f"{context}.{expected_field}: only Frontend 0.2 and 0.3 may use this reference",
                 )
                 reference = case.get(expected_field)
                 _require(
@@ -642,19 +781,6 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             "0.2": "../transformation/spss-syntax-frontend-0.2.schema.json",
             "0.3": "../transformation/spss-syntax-frontend-0.3.schema.json",
         }[version]
-        request_relative = _resolve_manifest_reference(manifest_relative, request_reference)
-        if version == "0.3":
-            manifest_path = _safe_candidate(root, manifest_relative)
-            try:
-                manifest_path.stat()
-            except FileNotFoundError:
-                _schema(root, request_relative)
-                frontend_manifests[version] = {"cases": []}
-                continue
-            except OSError as error:
-                raise ArtifactValidationError(
-                    f"artifact cannot be inspected: {manifest_relative} ({type(error).__name__})"
-                ) from None
         manifest = _load_manifest(root, manifest_relative, version, frontend_contracts[version])
         _require_exact_field(
             manifest.get("request_schema"),
@@ -705,7 +831,16 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
                     _resolve_manifest_reference(manifest_relative, reference),
                 )
         frontend_manifests[version] = manifest
-    frontend_plans = _resolve_frontend_plans(root, frontend_manifests, plan_cases)
+    frontend_effective_cases = {
+        version: _expand_frontend_cases(root, version, manifest, frontend_manifests)
+        for version, manifest in frontend_manifests.items()
+    }
+    frontend_plans = _resolve_frontend_plans(
+        root,
+        frontend_manifests,
+        plan_cases,
+        frontend_effective_cases,
+    )
 
     binding_contracts = {
         "0.1": "openstatspec-in-place-transformation-v0.1",
@@ -741,8 +876,8 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             for version, manifest in frontend_manifests.items()
         },
         frontend_effective_cases={
-            version: len(manifest["cases"])
-            for version, manifest in frontend_manifests.items()
+            version: len(cases)
+            for version, cases in frontend_effective_cases.items()
         },
         binding_cases={
             version: len(manifest["cases"])

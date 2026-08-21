@@ -1,0 +1,56 @@
+{
+  "manifest_version": "0.3",
+  "profile": "OpenStatSpec SPSS-like Syntax Frontend 0.3",
+  "contract": "openstatspec-spss-syntax-frontend-v0.3",
+  "plan_contracts": [
+    "openstatspec-transformation-plan-v0.1",
+    "openstatspec-transformation-plan-v0.2"
+  ],
+  "request_schema": "../transformation/spss-syntax-frontend-0.3.schema.json",
+  "plan_schemas": {
+    "openstatspec-transformation-plan-v0.1": "../transformation/plan-0.1.schema.json",
+    "openstatspec-transformation-plan-v0.2": "../transformation/plan-0.2.schema.json"
+  },
+  "inherited_manifests": [
+    {
+      "manifest": "spss-syntax-frontend-0.1.json",
+      "request_contract_override": "openstatspec-spss-syntax-frontend-v0.3",
+      "superseded_cases": {
+        "reject-comment-command": "reject-comment-only-program",
+        "reject-inline-comment": "inline-block-comment-is-ignored"
+      }
+    },
+    {
+      "manifest": "spss-syntax-frontend-0.2.json",
+      "request_contract_override": "openstatspec-spss-syntax-frontend-v0.3",
+      "superseded_cases": {}
+    }
+  ],
+  "cases": [
+    {
+      "id": "reject-comment-only-program",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "* comment."
+      },
+      "expected_source_hash": "8bfac9af8d0884b68cebc65a42360871592dd6e4e9cbead0bdf7029b6b64f4fc",
+      "expected_error": "spss_syntax_error"
+    },
+    {
+      "id": "inline-block-comment-is-ignored",
+      "request": {
+        "contract": "openstatspec-spss-syntax-frontend-v0.3",
+        "input_alias": "parent",
+        "input_schema": {"variables": [{"name": "q1", "storage_kind": "numeric"}]},
+        "source_text": "RECODE q1 (1 = 0) /* comment */."
+      },
+      "expected_plan_contract": "openstatspec-transformation-plan-v0.1",
+      "expected_plan_case_0_1": "in-place-recode-default-copy",
+      "expected_plan_hash": "091a2daeb490deb3369cba83b5197d1c43767432c9a04cbf3e55bd69296b67a8",
+      "expected_source_hash": "3c4ef459e9a2021100ef166ef0038c5f920b126d916db4c7273537d21b256f65",
+      "expected_error": null
+    }
+  ]
+}

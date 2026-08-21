@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_released_contract_artifact_inventory_is_valid() -> None:
     inventory = validate_contract_artifacts(ROOT)
     assert inventory.plan_cases == {"0.1": 4, "0.2": 26}
-    assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44, "0.3": 0}
-    assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44, "0.3": 0}
+    assert inventory.frontend_declared_cases == {"0.1": 13, "0.2": 44, "0.3": 2}
+    assert inventory.frontend_effective_cases == {"0.1": 13, "0.2": 44, "0.3": 57}
     assert inventory.binding_cases == {"0.1": 6, "0.2": 11}
 
 
@@ -41,12 +41,29 @@ def test_frontend_03_schema_changes_only_contract_identity() -> None:
     assert new == old
 
 
+def test_frontend_03_inherits_released_cases_under_new_request_contract() -> None:
+    inventory = validate_contract_artifacts(ROOT)
+    assert inventory.frontend_declared_cases["0.3"] == 2
+    assert inventory.frontend_effective_cases["0.3"] == 57
+
+
+def test_inherited_manifest_path_escape_fails_closed(tmp_path: Path) -> None:
+    root = copied_artifacts(tmp_path)
+    path = root / "conformance/spss-syntax-frontend-0.3.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["inherited_manifests"][0]["manifest"] = "../outside.json"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ArtifactValidationError, match="inherited manifest"):
+        validate_contract_artifacts(root)
+
+
 @pytest.mark.parametrize("artifact_type", ["directory", "fifo", "symlink"])
 def test_existing_frontend_03_manifest_artifact_type_fails_closed(
     tmp_path: Path, artifact_type: str,
 ) -> None:
     root = copied_artifacts(tmp_path)
     path = root / "conformance/spss-syntax-frontend-0.3.json"
+    path.unlink()
     if artifact_type == "directory":
         path.mkdir()
     elif artifact_type == "fifo":
