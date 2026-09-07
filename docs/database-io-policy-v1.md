@@ -65,22 +65,23 @@ drivers still fail closed.
 Exports MUST read the normative catalog and preserve all declared SAV/ZSAV
 writer capability and fidelity checks. Known unsupported semantics MUST fail
 before creating an output artifact unless the caller explicitly supplies
-operation-scoped `allow_loss` for each identified loss. Rejected and accepted
-losses MUST be returned as machine-readable diagnostics with direction,
-severity, stable event code, affected source item where applicable, explanatory
-details and relevant engine identity. Accepted diagnostics MUST identify the
-explicit opt-in. Success and failure diagnostics travel in the operation result
-or error, not database persistence; existing database audit rows MUST NOT be
-altered. `allow_loss` never grants future consent or full fidelity for a lost
+operation-scoped `allow_loss` for each identified loss. Identified losses MUST
+be reported to the caller using the adapter's documented diagnostic format and
+stable loss codes. Success and failure diagnostics travel in the operation
+result or error, not database persistence; existing database audit rows MUST
+NOT be altered. This policy does not introduce a new diagnostic schema. `allow_loss` never grants future consent or full fidelity for a lost
 semantic.
 
 Database-read-only does not mean filesystem-read-only. Export MUST preserve
 safe file publication: validate before output creation, write only to an
 operation-owned temporary file, and publish the completed file atomically
-only after successful writing and required checks. Failure MUST leave any
-pre-existing destination unchanged and remove operation-owned partial output.
-Destination authorization, overwrite rules, path safety and writer errors
-MUST NOT be bypassed.
+only after successful writing and required checks. Normal failure MUST leave
+any pre-existing destination unchanged and remove operation-owned partial output.
+If filesystem restoration or cleanup itself fails, the adapter MUST report that
+failure without claiming clean completion and preserve any recoverable prior
+file content; it MUST NOT delete a surviving backup just to hide the failure.
+Such failures still MUST NOT produce database writes. Destination authorization,
+overwrite rules, path safety and writer errors MUST NOT be bypassed.
 
 ## Packaged Dolt write policy
 
