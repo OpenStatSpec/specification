@@ -2,7 +2,23 @@
 
 ## Unreleased
 
-Future changes will be listed here.
+### v0.5.0 (prepared; not yet published)
+
+- Add normative optional `openstatspec-database-io-v1`, explicitly selected by
+  capability field `database_io_policy`. Reads, validation and export perform
+  no database writes, including audit, temporary DDL and failure paths; export
+  loss diagnostics are returned while safe file publication remains required.
+- Permit default Dolt writes through packaged exact tested 2.2.2/2.2.3 policy
+  backed by adapter release CI, with no runtime user declaration/evidence files.
+  External declarations and their unchanged validator remain an optional
+  advanced override. Identity, limits, atomicity, security and branch/HEAD
+  checks remain mandatory; unknown or untested versions fail closed.
+- Preserve unselected adapters' old requirements, SAV 1.0 source semantics,
+  catalog/data/metadata schema and fixtures, and all canonical plan, frontend
+  and SQL binding contracts. This pre-1.0 minor release adds an independently
+  selected policy; it does not silently revise an existing profile.
+- Keep the separately released `openstatspec-specification` companion package
+  at `0.1.0`. No adapter conformance or package release is asserted here.
 
 ## v0.4.1 - 2026-08-21
 

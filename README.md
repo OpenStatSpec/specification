@@ -13,6 +13,19 @@ MySQL 8.4.x/9.7.x, MariaDB 11.4.x/11.8.x/12.3.x and PostgreSQL 17.x/18.x
 series while requiring exact patch-version CI evidence. Microsoft SQL Server
 remains an explicitly unsupported [future dialect](docs/mssql-dialect-roadmap.md).
 
+## Optional database I/O execution policy
+
+Prepared for specification `v0.5.0`, the normative optional
+[Database I/O Execution Policy v1](docs/database-io-policy-v1.md) is explicitly
+selected with `database_io_policy: "openstatspec-database-io-v1"`.
+It requires database-read-only reads, validation and exports (including errors
+and loss diagnostics), and permits default Dolt writes on packaged exact tested
+2.2.2/2.2.3 policy backed by adapter release CI, without user evidence files.
+External declarations remain an optional advanced override. Unselected adapters
+retain existing requirements; SAV 1.0 semantics, schemas, fixtures and canonical
+Plan/Frontend/Binding contracts are unchanged. Publication and downstream
+adapter support remain separately gated.
+
 ## Core contract
 
 - One source dataset maps to exactly one dedicated SQL data table.
