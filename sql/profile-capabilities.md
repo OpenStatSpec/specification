@@ -44,6 +44,14 @@ In particular, a MySQL URL or driver does not authorize a
 identity requirements decide the product. Ambiguity fails closed before any
 catalog or dataset mutation and leaves zero database mutation.
 
+## Optional database I/O policy
+
+An adapter explicitly selects [Database I/O Execution Policy v1](../docs/database-io-policy-v1.md)
+with `database_io_policy: "openstatspec-database-io-v1"` in its capability
+declaration. Only that selection overrides export database persistence and
+mandatory external Dolt declarations; absence retains existing requirements.
+The policy preserves identity, driver, catalog, data and effective-limit checks.
+
 ## Dolt declaration package
 
 The checked-in Dolt baseline is a symbolic template and is not an

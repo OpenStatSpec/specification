@@ -141,6 +141,25 @@ def validate_repository_controls() -> None:
     ):
         require(f"CREATE TABLE {table} (" in schema, f"Schema table is missing: {table}")
 
+    io_policy = (ROOT / "docs/database-io-policy-v1.md").read_text(encoding="utf-8")
+    require_phrases(
+        io_policy,
+        (
+            '"database_io_policy": "openstatspec-database-io-v1"',
+            "Adapters not selecting this policy retain every existing requirement.",
+            "MUST NOT issue database writes",
+            "temporary tables",
+            "`allow_loss`",
+            "2.2.2 and 2.2.3",
+            "release CI",
+            "Unknown or untested versions MUST fail before mutation.",
+            "user-supplied declaration or evidence files",
+            "expected branch and HEAD",
+            "conformance/spss-sav-zsav-1.0.json",
+        ),
+        "Optional database I/O policy",
+    )
+
     validate_release_metadata(ROOT)
 
 

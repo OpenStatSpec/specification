@@ -48,6 +48,13 @@ and [PostgreSQL](https://github.com/docker-library/official-images/blob/master/l
 
 ## Dolt family policy and SQLite
 
+The explicitly selected [Database I/O Execution Policy v1](../docs/database-io-policy-v1.md)
+restricts default packaged Dolt writes to the adapter release's tested subset
+of exact 2.2.2/2.2.3, not the whole family range. It replaces mandatory runtime
+external declarations with package release CI evidence; all other identity,
+limit and safety gates remain. Without selection, the existing policy below
+is unchanged.
+
 Dolt remains an independent, essential profile. Its conservative 2.2.x claim
 starts at the previously validated 2.2.2 floor and ends before 2.3.0; runtime
 preflight MUST reject versions outside `>=2.2.2,<2.3.0` before mutation. Exact

@@ -18,6 +18,11 @@ At minimum, the declaration MUST expose:
 - an identifier limit with an explicit value, unit (bytes or characters), discovery source, and character repertoire or encoding policy; and
 - the active server version and configuration sources used to derive effective limits.
 
+The explicitly selected [Database I/O Execution Policy v1](database-io-policy-v1.md)
+overrides export operation/fidelity persistence with returned diagnostics and
+zero database writes. It does not change this profile's source semantics or
+fixtures; adapters not selecting it retain all 1.0 requirements below.
+
 ## Source-faithful relational contract
 
 For one imported SPSS dataset, an importer MUST create exactly one dedicated physical wide SQL data table. Every source case MUST map to one row, every source variable MUST map to one physical column, and no source variable may be transposed, split, stored in EAV/JSON, dropped, or coerced into a different logical shape.

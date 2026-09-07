@@ -109,6 +109,12 @@ or incompatible storage configuration rather than claiming atomic import.
 
 ## Dolt profile
 
+The explicitly selected [Database I/O Execution Policy v1](../docs/database-io-policy-v1.md)
+permits packaged exact-version tested Dolt write support instead of mandatory
+runtime external declarations, and prohibits database writes for reads,
+validation and export. Only its stated overrides take precedence; without
+selection, all requirements below remain unchanged.
+
 Dolt is an independent profile. Its MySQL wire compatibility is a transport and
 SQL-syntax property only; it MUST NOT cause an adapter to select the
 MySQL/MariaDB/InnoDB profile or inherit an InnoDB column, row, LOB, DDL, or

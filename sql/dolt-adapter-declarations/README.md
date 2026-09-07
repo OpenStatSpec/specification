@@ -1,5 +1,12 @@
 # Concrete Dolt adapter declarations
 
+With explicit [Database I/O Execution Policy v1](../../docs/database-io-policy-v1.md)
+selection, packaged tested policy is the default Dolt write gate and this
+external format is an optional advanced override. Its schema, validator and
+real-evidence requirements remain unchanged; the runtime declaration gate
+below still applies to adapters not selecting that policy and to external
+overrides selected under it.
+
 This directory is the only repository path for concrete, import-capable Dolt
 adapter declarations. Each `*.json` file MUST be a full Dolt profile object
 conforming to `../dolt-adapter-declaration-schema.json`; it is not a partial

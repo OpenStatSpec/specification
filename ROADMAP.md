@@ -129,6 +129,11 @@ follows and does not block specification publication.
    remain downstream and are not implied by this release.
 8. [x] Published documentation patch release `v0.4.1` to align the frontend
    roadmap with the stable Frontend 0.3 profile; no normative contract changed.
+9. [x] Prepare the optional [Database I/O Execution Policy v1](docs/database-io-policy-v1.md)
+   and `v0.5.0` release notes without changing existing source or plan contracts.
+10. [ ] Publish `v0.5.0` after exact-commit and tag-context CI and the release
+    checklist; downstream Python `v0.8.0` and PHP `v0.7.0` pins, policy evidence
+    and package releases remain separately managed.
 
 The pending in-place service matrix and adapter conformance work in sections 6
 and 7 are downstream implementation gates. They do not block the `v0.4.0`

@@ -12,6 +12,27 @@ Package tags use the `package-vX.Y.Z` convention; specification tags use
 `vX.Y.Z`. A specification tag MUST NOT publish the package, and a package tag
 MUST match the version declared in `pyproject.toml`.
 
+## Prepared v0.5.0 scope
+
+This release prepares the normative optional
+[Database I/O Execution Policy v1](docs/database-io-policy-v1.md). It is not
+published until the gates below complete. Release notes MUST identify explicit
+`database_io_policy` selection, database-read-only export with returned loss
+diagnostics, and packaged exact tested Dolt 2.2.2/2.2.3 write policy with optional
+external evidence. Existing unselected-profile requirements, SAV 1.0 semantics
+and fixtures, schemas, and canonical Plan/Frontend/Binding artifacts are unchanged.
+This is a pre-1.0 minor optional addition under [VERSIONING](VERSIONING.md).
+
+Run `python -m pytest` and `python tools/validate_repository.py` at the selected
+commit. Adapter package release CI supplies real exact-version write and
+read-only/failure-path evidence under the new policy; neither fabricated
+repository declarations nor user-supplied evidence files are release substitutes.
+Python `v0.8.0` and PHP `v0.7.0` are downstream adapter release targets, not
+conformance claims made by this specification. Their pins and publication are
+managed separately. The companion `openstatspec-specification` distribution
+remains `0.1.0`: no package API, schema or validator contract change requires a
+package release for this documentation policy addition.
+
 ## Before preparing a release
 
 - Choose an exact reviewed commit on the appropriate branch and record its

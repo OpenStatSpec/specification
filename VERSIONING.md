@@ -6,6 +6,15 @@ OpenStatSpec uses semantic versioning for tagged specification releases.
 - A minor release may add backward-compatible optional metadata, a new independent source or SQL profile, or new fixtures that do not invalidate an implementation's existing declared conformance scope.
 - A patch release may clarify wording, correct examples, or fix fixture and schema defects without changing normative meaning. A schema-defect correction may be backported to a published release series only when it restores the already-stated normative contract; it must not introduce new required behavior, broaden the accepted contract, or silently revise canonical artifacts.
 
+The optional [Database I/O Execution Policy v1](docs/database-io-policy-v1.md)
+is an independent execution contract selected by `database_io_policy`, not a
+revision of SAV 1.0 or any canonical plan, frontend, binding or catalog schema.
+Its explicitly scoped overrides apply only when selected; otherwise existing
+requirements remain unchanged. Adding it in pre-1.0 `v0.5.0` is a minor optional
+addition, not a patch clarification. No blanket profile freeze or version bump
+is required. Future incompatible changes to this policy require a new policy
+identifier; they MUST NOT silently change v1 selection.
+
 Optional workflow profiles are versioned and claimed independently from the
 core source profile. Adding or revising an optional profile does not authorize
 changes to core datasets. A breaking workflow-profile change increments that

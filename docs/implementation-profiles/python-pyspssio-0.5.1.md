@@ -13,6 +13,11 @@ profiles. Its capability boundary is engine-specific: a caller must use this
 declaration, not a generic claim of “SPSS support”, to determine whether an
 operation can produce a full semantic round trip.
 
+If the adapter explicitly selects [Database I/O Execution Policy v1](../database-io-policy-v1.md),
+export records and loss diagnostics required below are returned, not persisted
+in the database. That execution override does not relax the writer's fidelity
+boundary; without selection, the existing requirements remain unchanged.
+
 ## Declared directions and preserved semantics
 
 The pinned pyspssio fork is the required, sole engine for unencrypted SAV and ZSAV.
