@@ -177,7 +177,11 @@ def _require_unique_case_ids(manifest: Mapping[str, object], context: str) -> No
         seen.add(case_id)
 
 
-def _schema(root: Path, relative: str) -> Mapping[str, object]:
+def _schema(
+    root: Path, relative: str, schema_map: dict[str, Mapping[str, object]]
+) -> Mapping[str, object]:
+    if relative in schema_map:
+        return schema_map[relative]
     value = _load_json(root, relative)
     _require(isinstance(value, dict), f"{relative}: schema must be an object")
     try:
@@ -186,6 +190,7 @@ def _schema(root: Path, relative: str) -> Mapping[str, object]:
         raise ArtifactValidationError(
             f"{relative}: invalid JSON Schema: {error.message}"
         ) from None
+    schema_map[relative] = value
     return value
 
 
@@ -224,6 +229,7 @@ def _schema_is_valid(value: object, schema: Mapping[str, object]) -> bool:
 def _validate_plan_manifests(
     root: Path,
     manifests: Mapping[str, Mapping[str, object]],
+    schema_map: dict[str, Mapping[str, object]],
 ) -> Mapping[str, Mapping[str, object]]:
     """Return version -> case-id -> successful canonical plan case."""
     successful: dict[str, Mapping[str, object]] = {}
@@ -234,7 +240,9 @@ def _validate_plan_manifests(
             isinstance(schema_reference, str),
             f"{manifest_relative}: schema must be a string",
         )
-        schema = _schema(root, _resolve_manifest_reference(manifest_relative, schema_reference))
+        schema = _schema(
+            root, _resolve_manifest_reference(manifest_relative, schema_reference), schema_map
+        )
         cases = manifest.get("cases")
         _require(isinstance(cases, list), f"{manifest_relative}: cases must be a list")
         successful_cases: dict[str, Mapping[str, object]] = {}
@@ -289,6 +297,7 @@ def _frontend_plan_schemas(
     root: Path,
     version: str,
     manifest: Mapping[str, object],
+    schema_map: dict[str, Mapping[str, object]],
 ) -> Mapping[str, Mapping[str, object]]:
     manifest_relative = FRONTEND_MANIFESTS[version]
     if version == "0.1":
@@ -302,6 +311,7 @@ def _frontend_plan_schemas(
             contract: _schema(
                 root,
                 _resolve_manifest_reference(manifest_relative, reference),
+                schema_map,
             )
         }
 
@@ -316,6 +326,7 @@ def _frontend_plan_schemas(
         schemas[contract] = _schema(
             root,
             _resolve_manifest_reference(manifest_relative, reference),
+            schema_map,
         )
     return schemas
 
@@ -465,6 +476,7 @@ def _resolve_frontend_plans(
     manifests: Mapping[str, Mapping[str, object]],
     plan_cases: Mapping[str, Mapping[str, object]],
     effective_cases: Mapping[str, tuple[Mapping[str, object], ...]],
+    schema_map: dict[str, Mapping[str, object]],
 ) -> Mapping[str, Mapping[str, Mapping[str, object]]]:
     """Return version -> case-id -> resolved canonical plan for successes."""
     resolved: dict[str, dict[str, Mapping[str, object]]] = {}
@@ -479,8 +491,9 @@ def _resolve_frontend_plans(
         request_schema = _schema(
             root,
             _resolve_manifest_reference(manifest_relative, request_reference),
+            schema_map,
         )
-        plan_schemas = _frontend_plan_schemas(root, version, manifest)
+        plan_schemas = _frontend_plan_schemas(root, version, manifest, schema_map)
         cases = effective_cases[version]
         successful: dict[str, Mapping[str, object]] = {}
         for index, case in enumerate(cases):
@@ -785,6 +798,7 @@ def validate_release_metadata(root: Path) -> None:
 
 
 def validate_contract_artifacts(root: Path) -> ArtifactInventory:
+    schema_map: dict[str, Mapping[str, object]] = {}
     plan_manifests: dict[str, dict[str, object]] = {}
     plan_contracts = {
         "0.1": "openstatspec-transformation-plan-v0.1",
@@ -802,9 +816,9 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             f"{manifest_relative}: schema",
         )
         schema_relative = _resolve_manifest_reference(manifest_relative, schema_reference)
-        _schema(root, schema_relative)
+        _schema(root, schema_relative, schema_map)
         plan_manifests[version] = manifest
-    plan_cases = _validate_plan_manifests(root, plan_manifests)
+    plan_cases = _validate_plan_manifests(root, plan_manifests, schema_map)
 
     frontend_manifests: dict[str, dict[str, object]] = {}
     frontend_contracts = {
@@ -825,7 +839,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
             f"{manifest_relative}: request_schema",
         )
         request_relative = _resolve_manifest_reference(manifest_relative, request_reference)
-        _schema(root, request_relative)
+        _schema(root, request_relative, schema_map)
 
         if version == "0.1":
             _require_exact_field(
@@ -843,7 +857,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
                 manifest_relative,
                 plan_reference,
             )
-            _schema(root, resolved_plan_reference)
+            _schema(root, resolved_plan_reference, schema_map)
         else:
             _require_exact_field(
                 manifest.get("plan_contracts"),
@@ -866,6 +880,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
                 _schema(
                     root,
                     _resolve_manifest_reference(manifest_relative, reference),
+                    schema_map,
                 )
         frontend_manifests[version] = manifest
     frontend_effective_cases = {
@@ -877,6 +892,7 @@ def validate_contract_artifacts(root: Path) -> ArtifactInventory:
         frontend_manifests,
         plan_cases,
         frontend_effective_cases,
+        schema_map,
     )
 
     binding_contracts = {
