@@ -19,6 +19,14 @@ This is a working to-do list for OpenStatSpec. Items below describe intended wor
 
 ### Immediate next work
 
+The [adapter alignment plan](docs/adapter-alignment-plan.md) defines three
+reviewed implementation blocks and their separate merge/release gates:
+Python extension identities, official Python Frontend 0.3, then PHP parity.
+Implementations are in Python PRs [#31](https://github.com/OpenStatSpec/python/pull/31)
+and [#32](https://github.com/OpenStatSpec/python/pull/32), and PHP
+[#16](https://github.com/OpenStatSpec/php/pull/16); pending checkboxes below
+remain open until the relevant merge and evidence gates are complete.
+
 - [ ] Finish the PHP `0.7.2` release: finalize release metadata, verify the
   exact release commit's CI, tag, and verify a clean Packagist install.
 - [ ] Reconcile Python's schema-change contract identifiers with the published
