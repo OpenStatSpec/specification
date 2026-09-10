@@ -790,7 +790,7 @@ def validate_release_metadata(root: Path) -> None:
         "Explicit non-goal",
         "Milestone 0: integrity and classification\n\n- [x] Specification-complete",
         "Milestone 1: Frontend 0.3 over Plan 0.1/0.2\n\n- [x] Specification-complete",
-        "Adapter claims remain pending and separately gated",
+        "Adapter claims remain separately gated",
     ):
         _require(
             " ".join(phrase.split()) in classification,
