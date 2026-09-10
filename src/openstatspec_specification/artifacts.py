@@ -26,7 +26,8 @@ BINDING_MANIFESTS = {
 }
 V030_COMMIT = "cd8f198c68b849eb8ed018a894670a0904c2181d"
 V040_RELEASE = "v0.4.0"
-CURRENT_RELEASE = "v0.4.1"
+V041_RELEASE = "v0.4.1"
+CURRENT_RELEASE = "v0.5.0"
 V030_PROFILE_DOCUMENTS = (
     "docs/transformation-plan-profile-0.2.md",
     "docs/spss-syntax-frontend-profile-0.2.md",
@@ -769,8 +770,8 @@ def validate_release_metadata(root: Path) -> None:
         "CHANGELOG v0.4.0 release entry is missing",
     )
     _require(
-        f"## {CURRENT_RELEASE} - 2026-08-21" in changelog
-        and f"OpenStatSpec `{CURRENT_RELEASE}` is a documentation and release-bookkeeping patch" in changelog,
+        f"## {V041_RELEASE} - 2026-08-21" in changelog
+        and f"OpenStatSpec `{V041_RELEASE}` is a documentation and release-bookkeeping patch" in changelog,
         "CHANGELOG v0.4.1 release entry is missing",
     )
     readme = " ".join(_load_text(root, "README.md").split())
