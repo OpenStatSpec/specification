@@ -2,6 +2,32 @@
 
 This is a working to-do list for OpenStatSpec. Items below describe intended work, not promises of a release date or expanded scope.
 
+## Current status (2026-09-10)
+
+- Specification `v0.5.0` is published at immutable commit
+  `864e84479f554b8ee250ffed44c4dfb963750d4a`; both reference adapters pin it.
+- Python `0.8.1` is published on PyPI. PHP `0.7.2` preparation is merged
+  ([PR #15](https://github.com/OpenStatSpec/php/pull/15)); tagging and Packagist
+  publication remain separate. The last verified Packagist version is `0.7.1`.
+- Both adapters select SPSS SAV/ZSAV 1.0 and Database I/O Execution Policy v1,
+  with official Plan 0.1/0.2 and In-Place Binding 0.1/0.2 service evidence.
+  This is not a claim to implement every optional profile in this release.
+- Official SPSS Frontend 0.3 adapter conformance remains pending. Python's
+  schema-change extension uses Plan/Frontend `0.3` identifiers, but those
+  names alone do not establish conformance to the published syntax-only
+  Frontend 0.3 contract over Plan 0.1/0.2.
+
+### Immediate next work
+
+- [ ] Finish the PHP `0.7.2` release: finalize release metadata, verify the
+  exact release commit's CI, tag, and verify a clean Packagist install.
+- [ ] Reconcile Python's schema-change contract identifiers with the published
+  specification before expanding or claiming official Frontend 0.3 support.
+- [ ] Implement and verify official Frontend 0.3 separately in each adapter,
+  including its 35 declared cases and inherited compatibility cases.
+- Further PHP catalog refactoring and optimization are not release gates;
+  schedule them only against a concrete correctness or measured performance need.
+
 ## 1. Core SPSS relational specification
 
 - [x] Complete the SPSS `.sav` and `.zsav` mapping rules for values, dictionary metadata, ordering, missing values, formats, attributes, documents, variable sets, and multiple-response sets.
@@ -30,7 +56,7 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
   and fixtures.
 - [x] Define adapter conformance guidance; each adapter repository owns its runtime CI and evidence.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [x] Publish release notes and tagged specification releases; `v0.4.1` is the
+- [x] Publish release notes and tagged specification releases; `v0.5.0` is the
   current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
@@ -60,9 +86,9 @@ Prerequisite: the SPSS profile, fixtures, and reference-adapter lessons are matu
   machine-readable conformance cases.
 - [x] Define the in-place binding that preserves dataset/table identity on
   supported SQL profiles and never creates an OpenStatSpec undo/copy layer.
-- [ ] Require each implementation to run the in-place apply service matrix
-  against every claimed SQL profile before publishing its execution claims;
-  this does not block specification publication.
+- [x] Verify the Python 0.8.1 and PHP 0.7.2 preparation in-place apply service
+  matrices for the claimed Plan/Binding 0.1/0.2 SQL profiles. Repeat this gate
+  for each release or expanded claim; it does not block specification publication.
 - [ ] Evaluate additional language frontends as separate adapters that lower to
   the same canonical plan.
 - [ ] Expand the bounded SPSS frontend through the independently versioned
@@ -115,12 +141,10 @@ follows and does not block specification publication.
    [CI run](https://github.com/OpenStatSpec/specification/actions/runs/31588389841)
    passed, and the immutable [GitHub release](https://github.com/OpenStatSpec/specification/releases/tag/v0.3.0)
    was published using the [release checklist](RELEASING.md).
-4. [ ] Have Python pin the exact specification commit and, once published,
-   record its `v0.3.0` release identifier; rebase conditional transformations
-   on the lifecycle implementation and pass the combined service and
-   conformance gates before making an adapter claim or package release.
-5. [ ] Have PHP pin the exact specification commit and pass applicable
-   conformance evidence before changing adapter or package-release claims.
+4. [x] Python adopted the released Plan/Binding 0.1/0.2 contracts and passed
+   the combined service and conformance gates; its current pin is `v0.5.0`.
+5. [x] PHP adopted the released Plan/Binding 0.1/0.2 contracts and passed
+   applicable service and conformance gates; its current pin is `v0.5.0`.
 
 6. [x] Merged and reviewed SPSS Syntax Frontend profile 0.3 as a
    backward-compatible optional profile over immutable Plan 0.1/0.2 contracts.
@@ -131,14 +155,15 @@ follows and does not block specification publication.
    roadmap with the stable Frontend 0.3 profile; no normative contract changed.
 9. [x] Prepare the optional [Database I/O Execution Policy v1](docs/database-io-policy-v1.md)
    and `v0.5.0` release notes without changing existing source or plan contracts.
-10. [ ] Publish `v0.5.0` after exact-commit and tag-context CI and the release
-    checklist; downstream Python `v0.8.0` and PHP `v0.7.0` pins, policy evidence
-    and package releases remain separately managed.
+10. [x] Published `v0.5.0` at commit
+    `864e84479f554b8ee250ffed44c4dfb963750d4a`. Both adapters adopted that
+    exact pin and the Database I/O Execution Policy v1. Python `0.8.1` and
+    PHP `0.7.1` are published; PHP `0.7.2` publication remains separate.
 
-The pending in-place service matrix and adapter conformance work in sections 6
-and 7 are downstream implementation gates. They do not block the `v0.4.0`
-specification release, and publishing the specification does not complete those
-implementation evidence gates.
+Optional workflow and Frontend 0.3 conformance remain downstream implementation
+work. Existing Plan/Binding 0.1/0.2 service evidence does not establish those
+additional claims. Specification publication and adapter publication retain
+separate evidence gates.
 
 ## Maintainer setup
 
@@ -147,8 +172,11 @@ These are maintainer actions, not implementation tasks for the specification rep
 - [x] Publish the OpenStatSpec Python distribution and establish its public PyPI
   project. Published package releases establish the public project; they do not
   by themselves re-verify owner security or the Trusted Publishing workflow.
-- [ ] Re-verify secure PyPI/TestPyPI ownership and Trusted Publishing before the
-  next Python release workflow is relied on.
+- [x] Verified production PyPI Trusted Publishing through Python `0.8.1`
+  publication after correcting the workflow name to `release.yml`; the
+  configured GitHub environment is `pypi`.
+- [ ] Re-verify PyPI/TestPyPI ownership and applicable publishing controls before
+  future releases; production publication is not evidence of TestPyPI setup.
 - [x] Register and publish the OpenStatSpec PHP package through Packagist. The
   public package establishes the registry setup; repository update ownership
   still needs release-process verification.
