@@ -10,8 +10,24 @@ new normative profile or a claim of full SPSS compatibility.
 Deliver the three blocks below in dependency order. Each has its own reviewed
 pull request and local/CI evidence. Merge and package publication are separate
 steps: Python `0.8.1` and PHP `0.7.1` do not gain these changes retroactively.
-The merged PHP `0.7.2` preparation is not proof of registry publication.
+The unpublished PHP `0.7.2` preparation was consolidated into `0.8.0`.
 Do not move published tags or silently rewrite saved plans and audit history.
+
+## Release completion (2026-09-10)
+
+All implementation and release PRs are merged. Both registry installs were
+verified from clean consumer environments outside the repositories, including
+an explicit official Frontend 0.3 compilation.
+
+| Adapter | Published release | Exact release commit | Release evidence |
+| --- | --- | --- | --- |
+| Python | [0.9.0](https://pypi.org/project/openstatspec/0.9.0/) | `a41849a78086fc5a17262691ac1d4394a5071344` | [14-job main CI](https://github.com/OpenStatSpec/python/actions/runs/34488799665), [tag build and PyPI publication](https://github.com/OpenStatSpec/python/actions/runs/34489266688) |
+| PHP | [0.8.0](https://github.com/OpenStatSpec/php/releases/tag/v0.8.0) | `6b8edb8cf5f532a1a66cd7b7ea1e680039b68971` | [20-job main CI](https://github.com/OpenStatSpec/php/actions/runs/34488808611), [tag CI](https://github.com/OpenStatSpec/php/actions/runs/34489275697), [Packagist](https://packagist.org/packages/openstatspec/php) |
+
+Each adapter passed all 90 effective official cases. An additional 37-program
+cross-adapter comparison found no canonical-plan or diagnostic differences.
+Python's release includes the MySQL/MariaDB interleaved additive-label update
+regression. No normative specification release or pin change was required.
 
 ## Block 1 — Separate Python extension identities
 
@@ -30,8 +46,8 @@ Do not move published tags or silently rewrite saved plans and audit history.
   Python-owned identifiers. No automatic stored-plan or catalog migration.
 
 Gate: compatibility/hash and in-place tests, full Python service matrix,
-read-only review, and merge before block 2. Implementation is in PR #31;
-publication remains pending.
+read-only review, and merge before block 2. Completed in PR #31 and published
+in Python 0.9.0.
 
 ## Block 2 — Official Frontend 0.3 in Python
 
@@ -87,14 +103,14 @@ remains the only persistent dataset history/versioning layer.
 
 ## Completion checklist
 
-- [ ] Merge Python #31, then #32; retain final-commit CI evidence after any merge
-  or follow-up edits rather than relying only on earlier branch runs.
-- [ ] Merge PHP #16 after its final-commit CI and review gates.
-- [ ] Update the roadmap's pending adapter claims with merged evidence. PR
-  implementation is not a published-package support claim.
-- [ ] Select package versions and perform each adapter's release checklist,
-  including clean registry installation. Keep prepared PHP 0.7.2 release notes
-  distinct from these new Unreleased features until release scope is selected.
+- [x] Merge Python #31, then #32; repeat complete CI on the final release commit
+  after [release PR #33](https://github.com/OpenStatSpec/python/pull/33).
+- [x] Merge PHP #16 and [release PR #17](https://github.com/OpenStatSpec/php/pull/17)
+  after their review/CI gates; repeat complete CI on main and the release tag.
+- [x] Update the roadmap's adapter claims with merged and published evidence.
+- [x] Publish Python 0.9.0 and PHP 0.8.0 and verify clean registry installations.
+  Consolidate PHP's unpublished 0.7.2 changes into 0.8.0 rather than inventing an
+  intermediate release.
 
 Out of scope: new arithmetic/date/string profiles, case/group/cross-dataset
 operations, MSSQL, SAS/Stata, unrelated optimization, and automatic publication.

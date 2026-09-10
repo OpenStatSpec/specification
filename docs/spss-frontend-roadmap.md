@@ -13,9 +13,10 @@ not advertise general IBM SPSS Statistics compatibility, forward source
 expressions into SQL, or weaken the same-dataset/same-table and caller-owned
 Dolt history rules.
 
-Frontend 0.3 is released in OpenStatSpec `v0.4.0`. Adapter claims remain
-pending and separately gated; adapter evidence does not block specification
-publication.
+Frontend 0.3 is released in OpenStatSpec `v0.4.0` and retained unchanged in
+`v0.5.0`. Python `0.9.0` and PHP `0.8.0` now publish explicitly selected
+Frontend 0.3 support after all 90 effective cases and their service matrices
+passed; see the [alignment release evidence](adapter-alignment-plan.md#release-completion-2026-09-10).
 
 ## Command classification
 
@@ -45,8 +46,8 @@ publication.
 - Classify every proposed command as frontend-only, new Plan/Binding work, a
   separate profile, or an explicit non-goal before accepting syntax.
 
-Adapter claims remain pending and separately gated; adapter evidence does not
-block specification publication.
+Adapter claims remain separately gated; adapter evidence does not block
+specification publication.
 
 ## Milestone 1: Frontend 0.3 over Plan 0.1/0.2
 
@@ -68,8 +69,9 @@ The manifest must list only Plan 0.1 and Plan 0.2 outputs and prove that all
 inherited programs retain their exact prior plans and hashes. No SQL binding or
 executor change belongs in this milestone.
 
-Adapter claims remain pending and separately gated; adapter evidence does not
-block specification publication.
+- [x] Python 0.9.0 and PHP 0.8.0 passed this milestone's 90 effective cases,
+  preserved inherited Plan 0.1/0.2 objects/hashes, and completed release CI and
+  clean registry-install checks. Existing defaults remain unchanged.
 
 ## Milestone 2: typed numeric expressions and metadata
 

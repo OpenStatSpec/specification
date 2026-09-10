@@ -6,33 +6,33 @@ This is a working to-do list for OpenStatSpec. Items below describe intended wor
 
 - Specification `v0.5.0` is published at immutable commit
   `864e84479f554b8ee250ffed44c4dfb963750d4a`; both reference adapters pin it.
-- Python `0.8.1` is published on PyPI. PHP `0.7.2` preparation is merged
-  ([PR #15](https://github.com/OpenStatSpec/php/pull/15)); tagging and Packagist
-  publication remain separate. The last verified Packagist version is `0.7.1`.
+- Python `0.9.0` is published on PyPI and PHP `0.8.0` on Packagist; clean
+  registry installs and explicit Frontend 0.3 compilation were verified.
+  PHP's unpublished `0.7.2` preparation was consolidated into `0.8.0`.
 - Both adapters select SPSS SAV/ZSAV 1.0 and Database I/O Execution Policy v1,
   with official Plan 0.1/0.2 and In-Place Binding 0.1/0.2 service evidence.
   This is not a claim to implement every optional profile in this release.
-- Official SPSS Frontend 0.3 adapter conformance remains pending. Python's
-  schema-change extension uses Plan/Frontend `0.3` identifiers, but those
-  names alone do not establish conformance to the published syntax-only
-  Frontend 0.3 contract over Plan 0.1/0.2.
+- Both adapters implement explicitly selected official SPSS Frontend 0.3:
+  all 90 effective cases and the complete release service matrices passed.
+  Defaults remain unchanged. Python schema changes now emit Python-owned
+  extension identifiers; legacy plan bytes and hashes remain readable.
 
-### Immediate next work
+### Alignment completed; next-work boundary
 
 The [adapter alignment plan](docs/adapter-alignment-plan.md) defines three
 reviewed implementation blocks and their separate merge/release gates:
 Python extension identities, official Python Frontend 0.3, then PHP parity.
 Implementations are in Python PRs [#31](https://github.com/OpenStatSpec/python/pull/31)
 and [#32](https://github.com/OpenStatSpec/python/pull/32), and PHP
-[#16](https://github.com/OpenStatSpec/php/pull/16); pending checkboxes below
-remain open until the relevant merge and evidence gates are complete.
+[#16](https://github.com/OpenStatSpec/php/pull/16); all are merged and released.
+Exact release evidence is recorded in the alignment plan.
 
-- [ ] Finish the PHP `0.7.2` release: finalize release metadata, verify the
-  exact release commit's CI, tag, and verify a clean Packagist install.
-- [ ] Reconcile Python's schema-change contract identifiers with the published
-  specification before expanding or claiming official Frontend 0.3 support.
-- [ ] Implement and verify official Frontend 0.3 separately in each adapter,
-  including its 35 declared cases and inherited compatibility cases.
+- [x] Release the PHP fixes together with Frontend 0.3 as `0.8.0`, including
+  exact-commit/tag CI and a clean Packagist install; no `0.7.2` tag was created.
+- [x] Reconcile Python's schema-change contract identifiers while preserving
+  legacy serialized plan and audit identities.
+- [x] Implement and verify official Frontend 0.3 separately in each adapter,
+  including its 35 declared and 90 effective cases, and publish both adapters.
 - Further PHP catalog refactoring and optimization are not release gates;
   schedule them only against a concrete correctness or measured performance need.
 
@@ -165,12 +165,12 @@ follows and does not block specification publication.
    and `v0.5.0` release notes without changing existing source or plan contracts.
 10. [x] Published `v0.5.0` at commit
     `864e84479f554b8ee250ffed44c4dfb963750d4a`. Both adapters adopted that
-    exact pin and the Database I/O Execution Policy v1. Python `0.8.1` and
-    PHP `0.7.1` are published; PHP `0.7.2` publication remains separate.
+    exact pin and the Database I/O Execution Policy v1. Python `0.9.0` and
+    PHP `0.8.0` are now published with optional official Frontend 0.3 support.
 
-Optional workflow and Frontend 0.3 conformance remain downstream implementation
-work. Existing Plan/Binding 0.1/0.2 service evidence does not establish those
-additional claims. Specification publication and adapter publication retain
+Optional workflow conformance and future frontend generations remain downstream
+implementation work. Frontend 0.3 has its own completed adapter evidence in the
+alignment plan. Specification publication and adapter publication retain
 separate evidence gates.
 
 ## Maintainer setup
