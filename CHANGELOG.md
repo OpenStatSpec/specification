@@ -24,8 +24,9 @@ implementation (Statscraft).
   mixes a value list with a range or `SYSMIS`, or joins two ranges, returns
   `spss_syntax_error`.
 - SAV/ZSAV 1.0 (informative): a `LOWEST` or `HIGHEST` missing-range endpoint leaves the
-  matching `numeric_lower` or `numeric_upper` NULL. Quoting every identifier
-  satisfies the reserved-word preflight requirement.
+  matching `numeric_lower` or `numeric_upper` NULL.
+- SPSS profile (informative): quoting every identifier is one way to meet the
+  reserved-word preflight requirement.
 - In-place binding (informative): a Plan 0.1 create carries no string width;
   the published bindings refuse a string create target before mutation, and
   one that creates it should document its width rule. Added a runner note on
