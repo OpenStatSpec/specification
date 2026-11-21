@@ -76,8 +76,9 @@ They test a check made before mutation. A runner may run such a case with any
 valid plan of the stated `target_mode` against a synthetic dataset; the
 expected diagnostic and `mutation_started` do not depend on that choice. When a
 case states no `target_mode`, as `dolt-empty-actor-fails-before-mutation`
-does, a runner uses a `replace` plan, so that no create-target refusal (such as
-`schema_change_not_atomic` on Dolt) can come before the check the case names. For the completion check in
+does, a runner can use a `replace` plan, so that no create-target refusal
+(such as `schema_change_not_atomic` on Dolt) comes before the check the case
+names. For the completion check in
 `dolt-context-changed-after-mutation-rolls-back`, see the runner note in
 [In-Place Transformation Binding 0.2](../docs/transformation-plan-sql-binding-0.2.md).
 
