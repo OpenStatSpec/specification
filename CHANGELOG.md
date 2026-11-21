@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-### v0.5.1
+Future changes will be listed here.
+
+## v0.5.1 - 2026-11-21
 
 OpenStatSpec `v0.5.1` is a documentation patch. It clarifies wording and
 records, as informative notes, behavior on which the published implementations
