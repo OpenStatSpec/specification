@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## v0.5.0 - 2026-09-07
 
-### v0.5.0 (prepared; not yet published)
+OpenStatSpec `v0.5.0` publishes the optional Database I/O Execution Policy v1
+at immutable specification commit `864e84479f554b8ee250ffed44c4dfb963750d4a`.
+The release tag is the immutable specification identity for this release.
 
 - Add normative optional `openstatspec-database-io-v1`, explicitly selected by
   capability field `database_io_policy`. Reads, validation and export perform
