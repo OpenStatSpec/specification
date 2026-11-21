@@ -110,7 +110,7 @@ or incompatible storage configuration rather than claiming atomic import.
 Informative note: the types in [`schema-outline.sql`](schema-outline.sql) are
 logical. On MySQL, MariaDB, and Dolt the physical catalog column types are
 implementation-declared; on MySQL and MariaDB, for example, a `TEXT` column
-cannot be a primary or unique key without a prefix length. An adapter may use
+cannot be a primary or unique key without a prefix length. For example, an adapter can use
 `VARCHAR(255)` for keyed text, `CHAR(36)` for UUID identifiers, and
 `DATETIME(6)` for timestamps. This note adds no requirement.
 

@@ -23,7 +23,7 @@ This profile defines a source-faithful mapping for unencrypted SPSS `.sav` and `
 
 An implementation must retain an exact source variable name in `variable.source_name`. A dialect profile may use that name as the physical column identifier only when it is safe. Otherwise it generates a deterministic unique identifier and records it in `variable.physical_name`.
 
-This is not a loss of fidelity: source identity is represented by the recorded total mapping, not by coincidental identifier equality. Profiles must detect SQL reserved words, case-folding, collisions, identifier-length limits, and the reserved __ technical prefix during preflight. Quoting every physical identifier with the profile's quoting rule satisfies the reserved-word requirement.
+This is not a loss of fidelity: source identity is represented by the recorded total mapping, not by coincidental identifier equality. Profiles must detect SQL reserved words, case-folding, collisions, identifier-length limits, and the reserved __ technical prefix during preflight. Informative note: quoting every physical identifier with the profile's quoting rule is one way to meet the reserved-word requirement.
 
 ## Required preflight
 

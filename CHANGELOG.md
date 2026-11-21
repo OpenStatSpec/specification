@@ -11,6 +11,9 @@ artifact, schema, manifest, case count or hash; a later minor release may make
 the noted diagnostics normative. The questions were found while building an independent Rust
 implementation (Statscraft).
 
+- Recorded `v0.5.0` as published in the README, the Database I/O policy
+  status and the changelog, and removed its preparation notes from
+  `RELEASING.md`.
 - Documented the conformance manifest keys in `conformance/README.md`,
   including `expected_plan_case_0_1` (a Frontend 0.1 case id), binding cases
   that give no plan or data, and the generated preflight fixture width.
