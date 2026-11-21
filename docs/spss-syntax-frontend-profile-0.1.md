@@ -26,20 +26,22 @@ numbers, and dynamic command generation are outside v0.1.
 ordered source variable list. When `INTO` is present it MUST contain the same
 number of targets as sources. Targets MUST be fresh, case-insensitively unique,
 must not collide with any pre-command variable, and are paired positionally
-with sources. A target that already exists case-insensitively, including the
-command's own source, a variable created by an earlier command, or a target
-repeated in the same `INTO` list, MUST return `target_already_exists`. The
-command lowers to one ordered `recode` operation per pair.
+with sources. The command lowers to one ordered `recode` operation per pair.
 Every pair reads the pre-command state: no pair can observe a target created by
 another pair in the same command.
 
 A selector is a comma-separated typed literal list, an inclusive numeric
-`lower THRU upper` range, or `SYSMIS`. Each clause uses exactly one of these
-forms: a comma that joins a literal list with a range or `SYSMIS`, or joins two
-ranges, MUST return `spss_syntax_error`. A range whose `lower` is greater than
-its `upper` MUST return `invalid_numeric_range`; equal bounds are valid. A
-result is a typed literal, `SYSMIS`, or `COPY`. `ELSE = result` is permitted
-once and must be the final clause.
+`lower THRU upper` range, or `SYSMIS`. A result is a typed literal, `SYSMIS`,
+or `COPY`. `ELSE = result` is permitted once and must be the final clause.
+
+Informative note: the published implementations agree on these `RECODE`
+diagnostics, which a later profile revision may make normative. An `INTO`
+target that already exists case-insensitively (the command's own source, a
+variable created by an earlier command, or a target repeated in the same
+`INTO` list) returns `target_already_exists`. A comma that joins a literal list
+with a range or `SYSMIS`, or joins two ranges, returns `spss_syntax_error`. A
+range whose `lower` is greater than its `upper` returns `invalid_numeric_range`;
+equal bounds are valid. The same diagnostics apply under Frontend 0.2.
 
 With `INTO`, each plan operation uses `target_mode=create`; without it each
 source is also its target and the mode is `replace`. An omitted `ELSE` lowers
@@ -72,10 +74,8 @@ are `spss_syntax_error`, `unsupported_spss_command`, `unknown_variable`,
 `duplicate_else`, `else_not_last`, `mixed_result_types`, `type_mismatch`,
 `system_missing_for_string`, `string_target_requires_declaration`,
 `reserved_target_name`, and
-`duplicate_value_label`, plus the Plan 0.1 diagnostics `target_already_exists`
-and `invalid_numeric_range` for the `RECODE` rules above. Diagnostics
-identify a source span but MUST NOT include credentials or unrelated data
-values.
+`duplicate_value_label`. Diagnostics identify a source span but MUST NOT include
+credentials or unrelated data values.
 
 The exact source hash is SHA-256 of UTF-8 source after CRLF and CR are converted
 to LF. Formatting, keyword case, or quoting differences therefore change the

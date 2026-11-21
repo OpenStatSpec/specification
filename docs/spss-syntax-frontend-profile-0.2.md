@@ -16,10 +16,8 @@ in force. The input request conforms to
 [`../transformation/spss-syntax-frontend-0.2.schema.json`](../transformation/spss-syntax-frontend-0.2.schema.json).
 
 The 0.1 commands `RECODE`, `VARIABLE LABELS`, and `VALUE LABELS` are
-unchanged, including their diagnostics: a reversed numeric `RECODE` range
-returns `invalid_numeric_range` and an existing `INTO` target returns
-`target_already_exists`. A program containing only that subset MUST emit an
-exact Plan 0.1 object. A program containing any command introduced below emits Plan 0.2.
+unchanged. A program containing only that subset MUST emit an exact Plan 0.1
+object. A program containing any command introduced below emits Plan 0.2.
 
 ## Numeric expression grammar
 

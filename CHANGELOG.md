@@ -4,26 +4,28 @@
 
 ### v0.5.1
 
-OpenStatSpec `v0.5.1` is a documentation patch that clarifies existing
-contracts where the published implementations already agree. It changes no
-normative meaning and no conformance artifact, schema, manifest, case count or
-hash. The questions were found while building an independent Rust
+OpenStatSpec `v0.5.1` is a documentation patch. It clarifies wording and
+records, as informative notes, behavior on which the published implementations
+already agree. It adds no normative requirement and changes no conformance
+artifact, schema, manifest, case count or hash; a later minor release may make
+the noted diagnostics normative. The questions were found while building an independent Rust
 implementation (Statscraft).
 
 - Documented the conformance manifest keys in `conformance/README.md`,
   including `expected_plan_case_0_1` (a Frontend 0.1 case id), binding cases
   that give no plan or data, and the generated preflight fixture width.
-- Frontend `RECODE`: a reversed numeric range returns `invalid_numeric_range`
+- Frontend `RECODE` (informative): a reversed numeric range returns `invalid_numeric_range`
   under Frontend 0.1 and 0.2 and `invalid_variable_range` under 0.3;
   `HIGHEST THRU number` and `number THRU LOWEST` return `spss_syntax_error`;
   an existing `INTO` target returns `target_already_exists`; a clause that
-  mixes a value list with a range or `SYSMIS` returns `spss_syntax_error`.
-- SAV/ZSAV 1.0: a `LOWEST` or `HIGHEST` missing-range endpoint leaves the
+  mixes a value list with a range or `SYSMIS`, or joins two ranges, returns
+  `spss_syntax_error`.
+- SAV/ZSAV 1.0 (informative): a `LOWEST` or `HIGHEST` missing-range endpoint leaves the
   matching `numeric_lower` or `numeric_upper` NULL. Quoting every identifier
   satisfies the reserved-word preflight requirement.
-- In-place binding: a Plan 0.1 create carries no string width, a binding may
-  refuse a string create target with `string_target_requires_declaration`, and
-  one that creates it documents its width rule. Added a runner note on
+- In-place binding (informative): a Plan 0.1 create carries no string width;
+  the published bindings refuse a string create target before mutation, and
+  one that creates it should document its width rule. Added a runner note on
   evidencing the Dolt completion check from a second session.
 - Added an informative note that MySQL, MariaDB and Dolt catalog column types
   are implementation-declared.

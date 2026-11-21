@@ -70,7 +70,7 @@ For every supported SAV/ZSAV import/export, the following dictionary semantics M
 - multiple-response sets, including name, label, MD/MC kind, ordered members, numeric or string MD counted value, category-label behavior, and label source; and
 - long UTF-8 string values, their declared widths, labels, and supported missing metadata without truncation.
 
-In a `missing_rule` range, an endpoint given as `LOWEST` is recorded in `lower_special` with `numeric_lower` NULL, and an endpoint given as `HIGHEST` is recorded in `upper_special` with `numeric_upper` NULL; the other endpoint holds its finite value.
+Informative note: in a `missing_rule` range, the published implementations record a `LOWEST` endpoint in `lower_special` with `numeric_lower` NULL, and a `HIGHEST` endpoint in `upper_special` with `numeric_upper` NULL; the other endpoint holds its finite value.
 
 A reader or writer that cannot preserve one of these items MUST declare the capability absent. An importer MAY retain unknown source extensions in a namespaced extension payload, but it MUST report a fidelity event rather than claim full profile fidelity.
 
