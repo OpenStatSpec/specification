@@ -2,7 +2,43 @@
 
 ## Unreleased
 
-### v0.5.0 (prepared; not yet published)
+### v0.5.1
+
+OpenStatSpec `v0.5.1` is a documentation patch. It clarifies wording and
+records, as informative notes, behavior on which the published implementations
+already agree. It adds no normative requirement and changes no conformance
+artifact, schema, manifest, case count or hash; a later minor release may make
+the noted diagnostics normative. The questions were found while building an independent Rust
+implementation (Statscraft).
+
+- Recorded `v0.5.0` as published in the README, the Database I/O policy
+  status and the changelog, and removed its preparation notes from
+  `RELEASING.md`.
+- Documented the conformance manifest keys in `conformance/README.md`,
+  including `expected_plan_case_0_1` (a Frontend 0.1 case id), binding cases
+  that give no plan or data, and the generated preflight fixture width.
+- Frontend `RECODE` (informative): a reversed numeric range returns `invalid_numeric_range`
+  under Frontend 0.1 and 0.2 and `invalid_variable_range` under 0.3;
+  `HIGHEST THRU number` and `number THRU LOWEST` return `spss_syntax_error`;
+  an existing `INTO` target returns `target_already_exists`; a clause that
+  mixes a value list with a range or `SYSMIS`, or joins two ranges, returns
+  `spss_syntax_error`.
+- SAV/ZSAV 1.0 (informative): a `LOWEST` or `HIGHEST` missing-range endpoint leaves the
+  matching `numeric_lower` or `numeric_upper` NULL.
+- SPSS profile (informative): quoting every identifier is one way to meet the
+  reserved-word preflight requirement.
+- In-place binding (informative): a Plan 0.1 create carries no string width;
+  the published bindings refuse a string create target before mutation, and
+  one that creates it should document its width rule. Added a runner note on
+  evidencing the Dolt completion check from a second session.
+- Added an informative note that MySQL, MariaDB and Dolt catalog column types
+  are implementation-declared.
+
+## v0.5.0 - 2026-09-07
+
+OpenStatSpec `v0.5.0` publishes the optional Database I/O Execution Policy v1
+at immutable specification commit `864e84479f554b8ee250ffed44c4dfb963750d4a`.
+The release tag is the immutable specification identity for this release.
 
 - Add normative optional `openstatspec-database-io-v1`, explicitly selected by
   capability field `database_io_policy`. Reads, validation and export perform

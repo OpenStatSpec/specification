@@ -58,6 +58,18 @@ before successful completion. Stable diagnostics are
 `dolt_context_required`, `dolt_branch_mismatch`, `dolt_head_mismatch`,
 `dolt_working_set_dirty`, and `dolt_context_changed`.
 
+Conformance runner note (informative): inside an open Dolt transaction,
+`HASHOF('HEAD')` and `dolt_branches` read from the applying session show that
+transaction's snapshot, so a same-session read does not see a commit made
+concurrently. A runner therefore evidences the completion check in
+`dolt-context-changed-after-mutation-rolls-back` by fault injection: it makes
+the concurrent commit from a second session at the case's `failure_point` and
+supplies the resulting branch and HEAD to the adapter's completion check. The
+case therefore checks the comparison, not how the adapter reads its completion
+values: the existing completion check is only meaningful when that read
+observes commits made after the apply transaction began, and this case does
+not verify that read. This note adds no requirement.
+
 The apply remains on the same branch and MUST NOT commit, switch, merge, reset,
 tag, or create a persistent recovery object. A successful apply leaves one
 inspectable Dolt working-set diff. The audit's before and after HEAD identities

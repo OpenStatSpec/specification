@@ -111,8 +111,12 @@ is not included in an open range.
 Open ranges are inclusive and lower to the existing ordered `recode` range
 representation. Non-finite values, malformed finite numbers, and reverse
 ranges are rejected with `spss_syntax_error` or `invalid_variable_range` as
-applicable. The finite-number token remains the exact ASCII grammar inherited
-from Frontend 0.2 and is interpreted as an exact base-ten value before
+applicable. Informative note: under this profile the published
+implementations return `invalid_variable_range` for a reversed numeric range
+such as `5 THRU 3` (Frontend 0.1 and 0.2 return `invalid_numeric_range` for the
+same input), and `spss_syntax_error` for `HIGHEST THRU number` and
+`number THRU LOWEST`, which are outside the open-range grammar. The finite-number token remains the exact ASCII grammar
+inherited from Frontend 0.2 and is interpreted as an exact base-ten value before
 ties-to-even binary64 conversion.
 
 ## ADD VALUE LABELS

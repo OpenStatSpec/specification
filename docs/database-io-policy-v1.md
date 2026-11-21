@@ -1,7 +1,7 @@
 # Optional Database I/O Execution Policy v1
 
-Status: normative optional addition prepared for OpenStatSpec `v0.5.0`;
-publication remains subject to [RELEASING](../RELEASING.md).
+Status: normative optional addition released in OpenStatSpec `v0.5.0` at
+immutable specification commit `864e84479f554b8ee250ffed44c4dfb963750d4a`.
 Terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are normative.
 
 ## Explicit selection and precedence

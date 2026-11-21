@@ -34,6 +34,15 @@ A selector is a comma-separated typed literal list, an inclusive numeric
 `lower THRU upper` range, or `SYSMIS`. A result is a typed literal, `SYSMIS`,
 or `COPY`. `ELSE = result` is permitted once and must be the final clause.
 
+Informative note: the published implementations agree on these `RECODE`
+diagnostics, which a later profile revision may make normative. An `INTO`
+target that already exists case-insensitively (the command's own source, a
+variable created by an earlier command, or a target repeated in the same
+`INTO` list) returns `target_already_exists`. A comma that joins a literal list
+with a range or `SYSMIS`, or joins two ranges, returns `spss_syntax_error`. A
+range whose `lower` is greater than its `upper` returns `invalid_numeric_range`;
+equal bounds are valid. The same diagnostics apply under Frontend 0.2.
+
 With `INTO`, each plan operation uses `target_mode=create`; without it each
 source is also its target and the mode is `replace`. An omitted `ELSE` lowers
 to explicit `system_missing` for create and explicit `copy` for replace. An
