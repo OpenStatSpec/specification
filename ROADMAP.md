@@ -74,6 +74,8 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
 - [x] Publish release notes and tagged specification releases; `v0.5.1` is the
   current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
+  The [Statscraft record](docs/implementation-profiles/statscraft.md) documents
+  an independent implementation's evidence at a development commit.
 
 ## 5. Future adapters
 

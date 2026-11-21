@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-Future changes will be listed here.
+- Added an informative [Statscraft independent implementation record](docs/implementation-profiles/statscraft.md)
+  with its declared profiles, refusals and CI evidence at an exact development
+  commit and the `v0.5.1` pin. It changes no normative profile or conformance
+  artifact.
 
 ## v0.5.1 - 2026-11-21
 

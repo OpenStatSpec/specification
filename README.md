@@ -76,6 +76,7 @@ released Plan 0.1/0.2 contracts and does not change SQL binding behavior.
 - `docs/architecture.md` — model boundary and catalog outline.
 - `docs/spss-profile.md` — SPSS source-faithful mapping rules.
 - [Python / pinned pyspssio implementation profile](docs/implementation-profiles/python-pyspssio-0.5.1.md) — Python adapter pyspssio capability boundary; it does not relax the normative SAV/ZSAV profile.
+- [Statscraft independent implementation record](docs/implementation-profiles/statscraft.md): informative evidence for an independent Rust implementation at an exact commit and pin; it is not a reference adapter.
 - `sql/dialect-profiles.md` — initial SQLite, PostgreSQL, MySQL/MariaDB and Dolt physical profiles.
 - `sql/dolt-adapter-declaration-schema.json` — machine-readable contract for
   concrete Dolt adapter declarations.
