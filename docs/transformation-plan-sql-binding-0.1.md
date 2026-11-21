@@ -23,6 +23,11 @@ For every successful apply:
   created; and
 - normal completion leaves no temporary physical object.
 
+A Plan 0.1 create operation carries no string width. A binding MAY refuse a
+create operation whose determined storage kind is string before mutation with
+`string_target_requires_declaration`. A binding that creates a string target
+MUST document the rule that sets its declared width.
+
 OpenStatSpec does not version successful data states and does not implement
 rollback on any engine. A deployment uses its database's own transaction,
 backup, or version-control facilities. On Dolt, history, branching, diff, merge,
