@@ -64,8 +64,11 @@ transaction's snapshot, so a same-session read does not see a commit made
 concurrently. A runner therefore evidences the completion check in
 `dolt-context-changed-after-mutation-rolls-back` by fault injection: it makes
 the concurrent commit from a second session at the case's `failure_point` and
-supplies the resulting branch and HEAD to the adapter's completion check. This
-note adds no requirement.
+supplies the resulting branch and HEAD to the adapter's completion check. The
+case therefore checks the comparison, not how the adapter reads its completion
+values: the existing completion check is only meaningful when that read
+observes commits made after the apply transaction began, and this case does
+not verify that read. This note adds no requirement.
 
 The apply remains on the same branch and MUST NOT commit, switch, merge, reset,
 tag, or create a persistent recovery object. A successful apply leaves one

@@ -73,9 +73,11 @@ for example `mysql-create-target-fails-before-mutation`,
 `dolt-create-target-fails-before-mutation`,
 `dolt-empty-actor-fails-before-mutation` and the 0.1 `reject-dolt-*` cases.
 They test a check made before mutation. A runner may run such a case with any
-valid plan of the stated `target_mode` (any valid plan when no mode is stated)
-against a synthetic dataset; the expected diagnostic and `mutation_started` do
-not depend on that choice. For the completion check in
+valid plan of the stated `target_mode` against a synthetic dataset; the
+expected diagnostic and `mutation_started` do not depend on that choice. When a
+case states no `target_mode`, as `dolt-empty-actor-fails-before-mutation`
+does, a runner uses a `replace` plan, so that no create-target refusal (such as
+`schema_change_not_atomic` on Dolt) can come before the check the case names. For the completion check in
 `dolt-context-changed-after-mutation-rolls-back`, see the runner note in
 [In-Place Transformation Binding 0.2](../docs/transformation-plan-sql-binding-0.2.md).
 
