@@ -2,8 +2,15 @@
 
 This is a working to-do list for OpenStatSpec. Items below describe intended work, not promises of a release date or expanded scope.
 
-## Current status (2026-09-10)
+## Current status (2026-11-21)
 
+- Specification `v0.5.1` is a documentation patch over `v0.5.0`: informative
+  notes where the published implementations agree, and release bookkeeping.
+  No contract or artifact changed, so `v0.5.0` pins remain valid. Open
+  implementation differences are collected for `v0.6.0`.
+- Statscraft, an independent Rust implementation, runs the published
+  conformance manifests in its CI against the `v0.5.0` commit, including the
+  PostgreSQL, MySQL, MariaDB and Dolt service matrix.
 - Specification `v0.5.0` is published at immutable commit
   `864e84479f554b8ee250ffed44c4dfb963750d4a`; both reference adapters pin it.
 - Python `0.9.0` is published on PyPI and PHP `0.8.0` on Packagist; clean
@@ -64,7 +71,7 @@ Prerequisite: the core mapping and canonical fixtures are stable enough to test 
   and fixtures.
 - [x] Define adapter conformance guidance; each adapter repository owns its runtime CI and evidence.
 - [x] Define versioning and compatibility guidance for the specification and profiles.
-- [x] Publish release notes and tagged specification releases; `v0.5.0` is the
+- [x] Publish release notes and tagged specification releases; `v0.5.1` is the
   current public specification release and is immutable.
 - [ ] Expand implementation, dialect-profile, and adoption documentation from real adapter experience.
 
@@ -167,6 +174,9 @@ follows and does not block specification publication.
     `864e84479f554b8ee250ffed44c4dfb963750d4a`. Both adapters adopted that
     exact pin and the Database I/O Execution Policy v1. Python `0.9.0` and
     PHP `0.8.0` are now published with optional official Frontend 0.3 support.
+11. [x] Published documentation patch release `v0.5.1` with informative
+    clarifications found by an independent implementation; no normative
+    contract or conformance artifact changed.
 
 Optional workflow conformance and future frontend generations remain downstream
 implementation work. Frontend 0.3 has its own completed adapter evidence in the
