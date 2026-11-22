@@ -126,12 +126,14 @@ also succeeded.
   the `v0.4.0` commit. Statscraft pins `v0.5.1` instead; between the two, the
   only change under `conformance/` is `conformance/README.md`, so every
   manifest and fixture it runs is identical to `v0.4.0`.
-- Not yet aligned: at this commit the capability declaration printed by
-  `statscraft db capabilities` still names specification commit
-  `8594ee12ccf57526cf1142df4b216432c366da84` with status `release_candidate`,
-  and lists fewer tested server versions than the matrix above. The
-  conformance evidence uses the `spec-commit` pin. The declaration has to name
-  the pinned commit and its release before a release claim.
+- Capability declaration: at the commit above, `statscraft db capabilities`
+  still named specification commit `8594ee12ccf57526cf1142df4b216432c366da84`
+  with status `release_candidate`. Statscraft commit
+  `d2af264a995f444355b6dded81d4045916e33a5e` aligned it: the declared commit
+  is read from the `spec-commit` pin at build time, the status is `released`
+  with release `v0.5.1`, the tested versions are the exact patches CI runs
+  (PostgreSQL 17.12 and 18.7, MySQL 8.4.13 and 9.7.4, MariaDB 11.4.13, 11.8.9
+  and 12.3.3), and the server workflow pins those exact image tags.
 
 ## Differences from the reference adapters
 
